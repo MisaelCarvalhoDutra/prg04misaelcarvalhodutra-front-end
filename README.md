@@ -93,7 +93,7 @@ O projeto simula uma plataforma de pedidos online, contendo autenticação, pain
 
 Projeto publicado na Vercel:
 
-🔗 https://prg04misaelcarvalhodutra-pizzly.vercel.app/
+https://prg04misaelcarvalhodutra-front-end.vercel.app/
 
 
 
