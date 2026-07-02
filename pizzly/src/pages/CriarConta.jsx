@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 
 import "../assets/css/CriarConta.css";
 
-import logo from "../assets/images/logoPizza.png";
+import logo from "../assets/images/logopizza.png";
 
 export default function CriarConta() {
   const navigate = useNavigate();

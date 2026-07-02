@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "../assets/css/RecuperarSenha.css";
 
-import logo from "../assets/images/logoPizza.png";
+import logo from "../assets/images/logopizza.png";
 
 export default function RecuperarSenha() {
   const navigate = useNavigate();

@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import "../assets/css/Login.css";
 
 
-import logo from "../assets/images/logoPizza.png";
+import logo from "../assets/images/logopizza.png";
 import googleLogo from "../assets/images/googleLogo.svg";
 
 
