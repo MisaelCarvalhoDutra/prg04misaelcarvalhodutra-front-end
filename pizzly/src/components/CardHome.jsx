@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom"
 
-function CardHome(props) {
+// componente reutilizável responsável por exibir um card na página inicial
+//representa os cards exibidos na página inicial
+function CardHome({ titulo, texto, rota, botao }) {
   return (
     <div className="col-12 col-md-6 col-lg-4">
 
@@ -9,18 +11,19 @@ function CardHome(props) {
         <div className="card-body">
 
           <h5 className="card-title">
-            {props.titulo}
+            {titulo}
           </h5>
 
           <p className="card-text">
-            {props.texto}
+            {texto}
           </p>
 
+          // botão que direciona para a funcionalidade correspondente
           <Link
-            to={props.rota}
+            to={rota}
             className="btn btn-danger rounded-pill px-4"
           >
-            {props.botao}
+            {botao}
           </Link>
 
         </div>

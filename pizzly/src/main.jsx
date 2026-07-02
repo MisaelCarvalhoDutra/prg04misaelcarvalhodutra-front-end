@@ -5,9 +5,7 @@ import App from './App'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 
-// Teste temporário para verificar se o .env foi carregado
-console.log(import.meta.env.VITE_GOOGLE_CLIENT_ID);
-
+// ponto de entrada da aplicação React
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <App />

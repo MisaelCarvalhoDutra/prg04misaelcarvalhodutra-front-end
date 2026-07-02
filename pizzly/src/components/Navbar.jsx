@@ -2,42 +2,45 @@ import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import "../assets/css/NavBar.css";
 
+// componente responsável pela barra de navegação da aplicação,
+// incluindo menu, carrinho, notificações e acesso ao perfil
 export default function Navbar() {
   const navigate = useNavigate();
+  
+  // controle visual dos painéis
   const [menuOpen, setMenuOpen] = useState(false);
-
   const [cartOpen, setCartOpen] = useState(false);
-
-  const [carrinho, setCarrinho] = useState([]);
-
-  const [usuario, setUsuario] = useState(null);
-
-  // controla a abertura do painel de notificações
   const [notificacoesOpen, setNotificacoesOpen] = useState(false);
 
-  // armazena as notificações não lidas do cliente
+  // dados do sistema
+  const [usuario, setUsuario] = useState(null);
+  const [carrinho, setCarrinho] = useState([]);
   const [notificacoes, setNotificacoes] = useState([]);
 
-  //para verificação de perfil incompleto
+  // aviso de perfil incompleto
   const [perfilIncompleto, setPerfilIncompleto] = useState(false);
   const [pendenciasPerfil, setPendenciasPerfil] = useState([]);
 
   // verifica se o usuário logado é funcionário
   const isFuncionario = usuario?.tipo === "FUNCIONARIO";
 
+  // calcula a quantidade total de itens do carrinho
   const quantidadeCarrinho = carrinho.reduce(
     (total, item) => total + item.quantidade,
     0
   );
 
+  // calcula o valor total do carrinho
   const totalCarrinho = carrinho.reduce(
     (total, item) => total + item.preco * item.quantidade,
     0
   );
 
-const fmt = (valor) =>
-  `R$ ${valor.toFixed(2).replace(".", ",")}`;
+  // formata valores monetários no padrão brasileiro
+  const fmt = (valor) =>
+    `R$ ${valor.toFixed(2).replace(".", ",")}`;
 
+  // recupera os itens salvos no localStorage
   function carregarCarrinho() {
     const carrinhoSalvo =
       JSON.parse(localStorage.getItem("pizzly_carrinho")) || [];
@@ -45,29 +48,33 @@ const fmt = (valor) =>
     setCarrinho(carrinhoSalvo);
   }
 
-useEffect(() => {
-  carregarCarrinho();
-  carregarUsuario();
-
-  window.addEventListener("pizzlyCarrinhoAtualizado", carregarCarrinho);
-  window.addEventListener("pizzlyUsuarioAtualizado", carregarUsuario);
-  window.addEventListener("storage", () => {
+  // sincroniza Navbar com alterações no carrinho e no usuário logado
+  //para atualizar automaticamente quando outro componente alterar o carrinho.
+  useEffect(() => {
     carregarCarrinho();
     carregarUsuario();
-  });
 
-  return () => {
-    window.removeEventListener("pizzlyCarrinhoAtualizado", carregarCarrinho);
-    window.removeEventListener("pizzlyUsuarioAtualizado", carregarUsuario);
-  };
-}, []);
+      window.addEventListener("pizzlyCarrinhoAtualizado", carregarCarrinho);
+      window.addEventListener("pizzlyUsuarioAtualizado", carregarUsuario);
+      window.addEventListener("storage", () => {
+        carregarCarrinho();
+        carregarUsuario();
+      });
 
+    return () => {
+      window.removeEventListener("pizzlyCarrinhoAtualizado", carregarCarrinho);
+      window.removeEventListener("pizzlyUsuarioAtualizado", carregarUsuario);
+    };
+  }, []);
+
+  // fecha todos os painéis laterais da Navbar: menu, carrinho e notificações
   function fecharMenu() {
     setMenuOpen(false);
     setCartOpen(false);
     setNotificacoesOpen(false);
   }
 
+  // recupera o usuário autenticado e atualiza as informações relacionadas
   function carregarUsuario() {
     const usuarioSalvo = JSON.parse(localStorage.getItem("pizzly_usuario"));
 
@@ -76,15 +83,15 @@ useEffect(() => {
     verificarPerfilCliente(usuarioSalvo);
   }
 
-    /**
-   * Busca as notificações não lidas do cliente logado.
-   */
+  // consulta o backend para buscar as notificações não lidas do cliente logado
+  // endpoint consumido: GET /notificacoes/cliente/{id}/nao-lidas
   async function carregarNotificacoes(usuarioAtual = usuario) {
     if (!usuarioAtual || usuarioAtual.tipo !== "CLIENTE") {
       setNotificacoes([]);
       return;
     }
 
+    // requisição para a API retornar apenas as notificações ainda não lidas
     try {
       const response = await fetch(
         `http://localhost:8080/notificacoes/cliente/${usuarioAtual.id}/nao-lidas`
@@ -99,96 +106,104 @@ useEffect(() => {
     }
   }
 
-  /**
- * Marca uma notificação como lida e atualiza a lista.
- */
-async function marcarNotificacaoComoLida(id) {
-  try {
-    const response = await fetch(
-      `http://localhost:8080/notificacoes/${id}/lida`,
-      {
-        method: "PATCH",
-      }
-    );
+  // envia uma requisição ao backend para marcar uma notificação como lida
+  // endpoint consumido: PATCH /notificacoes/{id}/lida
+  async function marcarNotificacaoComoLida(id) {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/notificacoes/${id}/lida`,
+        {
+          method: "PATCH", //pra atualizar, ou seja, mudar para "lida"
+        }
+      );
 
-    if (!response.ok) return;
+      if (!response.ok) return;
 
-    await carregarNotificacoes();
-  } catch (error) {
-    console.error(
-      "Erro ao marcar notificação como lida:",
-      error
-    );
-  }
-}
-
-/**
- * Marca todas as notificações como lidas.
- */
-async function marcarTodasComoLidas() {
-  try {
-    const response = await fetch(
-      `http://localhost:8080/notificacoes/cliente/${usuario.id}/lidas`,
-      {
-        method: "PATCH",
-      }
-    );
-
-    if (!response.ok) return;
-
-    setNotificacoes([]);
-
-    // fecha o painel após concluir a ação
-    setNotificacoesOpen(false);
-
-  } catch (error) {
-    console.error(
-      "Erro ao marcar notificações:",
-      error
-    );
-  }
-}
-
-async function verificarPerfilCliente(usuarioAtual) {
-  if (!usuarioAtual || usuarioAtual.tipo !== "CLIENTE") {
-    setPerfilIncompleto(false);
-    return;
-  }
-
-  const telefoneVazio =
-    !usuarioAtual.telefone || usuarioAtual.telefone.trim() === "";
-
-  try {
-    const response = await fetch(
-      `http://localhost:8080/enderecos/cliente/${usuarioAtual.id}`
-    );
-
-    const enderecos = response.ok ? await response.json() : [];
-    const semEndereco = enderecos.length === 0;
-
-    const pendencias = [];
-
-    if (telefoneVazio) {
-      pendencias.push("telefone");
-    }
-
-    if (semEndereco) {
-      pendencias.push("endereço");
-    }
-
-    setPendenciasPerfil(pendencias);
-
-    setPerfilIncompleto(pendencias.length > 0);
+      // recarrega a lista para remover da tela a notificação marcada como lida
+      await carregarNotificacoes();
     } catch (error) {
-      console.error("Erro ao verificar perfil:", error);
+      console.error(
+        "Erro ao marcar notificação como lida:",
+        error
+      );
     }
-}
+  }
+
+  // envia uma requisição ao backend para marcar todas as notificações do cliente como lidas
+  // endpoint consumido: PATCH /notificacoes/cliente/{id}/lidas
+  async function marcarTodasComoLidas() {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/notificacoes/cliente/${usuario.id}/lidas`,
+        {
+          method: "PATCH", //pra atualizar e mudar todas para lidas
+        }
+      );
+
+      if (!response.ok) return;
+
+      // limpa a lista local porque todas foram marcadas como lidas no backend
+      setNotificacoes([]);
+
+      // fecha o painel após concluir a ação
+      setNotificacoesOpen(false);
+
+    } catch (error) {
+      console.error(
+        "Erro ao marcar notificações:",
+        error
+      );
+    }
+  }
+
+
+  // verifica se o cliente possui telefone e endereço cadastrados.
+  // O telefone vem do usuário salvo no localStorage e os endereços vêm do backend
+  // endpoint consumido: GET /enderecos/cliente/{id}
+  async function verificarPerfilCliente(usuarioAtual) {
+    if (!usuarioAtual || usuarioAtual.tipo !== "CLIENTE") {
+      setPerfilIncompleto(false);
+      return;
+    }
+
+    const telefoneVazio =
+      !usuarioAtual.telefone || usuarioAtual.telefone.trim() === "";
+
+    try {
+      // consulta o backend para saber se o cliente possui endereço cadastrado
+      const response = await fetch(
+        `http://localhost:8080/enderecos/cliente/${usuarioAtual.id}`
+      );
+
+      const enderecos = response.ok ? await response.json() : [];
+      const semEndereco = enderecos.length === 0;
+
+      const pendencias = [];
+
+      if (telefoneVazio) {
+        pendencias.push("telefone");
+      }
+
+      if (semEndereco) {
+        pendencias.push("endereço");
+      }
+
+      // salva as pendências encontradas para exibir o alerta "Complete seu perfil"
+      setPendenciasPerfil(pendencias);
+
+      setPerfilIncompleto(pendencias.length > 0);
+      } catch (error) {
+        console.error("Erro ao verificar perfil:", error);
+      }
+  }
 
   return (
     <>
+    {/* barra principal de navegação do sistema */}
       <nav className="ho-nav">
         <div className="ho-nav-inner">
 
+          {/* logo que redireciona para a página inicial */}
           <Link to="/" className="ho-logo" onClick={fecharMenu}>
             <svg width="34" height="34" viewBox="0 0 44 44" fill="none">
               <path d="M22 4 L40 38 H4 Z" fill="#FDD835" />
@@ -200,6 +215,7 @@ async function verificarPerfilCliente(usuarioAtual) {
             <span className="ho-logo-text">Pizzly</span>
           </Link>
 
+          {/* links exibidos conforme o tipo do usuário logado */}
           <ul className="ho-nav-links">
             {isFuncionario ? (
               <li>
@@ -242,8 +258,10 @@ async function verificarPerfilCliente(usuarioAtual) {
             )}
           </ul>
 
+          {/* ações da navbar: carrinho, alerta de perfil, notificações, perfil/login e menu mobile */}
           <div className="ho-nav-actions">
 
+            {/* carrinho disponível apenas para clientes e visitantes */}
             {!isFuncionario && (
               <button
                 type="button"
@@ -275,6 +293,7 @@ async function verificarPerfilCliente(usuarioAtual) {
               </button>
             )}
 
+            {/* alerta exibido quando o cliente está sem telefone ou endereço cadastrado */}
             {!isFuncionario && usuario?.tipo === "CLIENTE" && perfilIncompleto && (
               <button
                 type="button"
@@ -293,6 +312,7 @@ async function verificarPerfilCliente(usuarioAtual) {
               </button>
             )}
 
+            {/* botão de notificações exibido apenas para clientes logados */}
             {!isFuncionario && usuario?.tipo === "CLIENTE" && (
               <button
                 type="button"
@@ -337,6 +357,7 @@ async function verificarPerfilCliente(usuarioAtual) {
         </div>
       </nav>
 
+      {/* camada escura usada para fechar menus e painéis laterais ao clicar fora */}
       {menuOpen && (
         <div
           className="ho-overlay"
@@ -344,6 +365,7 @@ async function verificarPerfilCliente(usuarioAtual) {
         />
       )}
 
+      {/* painel lateral do carrinho com resumo dos itens adicionados */}
       {cartOpen && (
         <div
           className="ho-overlay"
@@ -422,6 +444,7 @@ async function verificarPerfilCliente(usuarioAtual) {
                 <p>Adicione itens no cardápio para começar seu pedido.</p>
               </div>
 
+              {/* leva o usuário para o cardápio caso o carrinho esteja vazio */}
               <button
                 type="button"
                 className="ho-cart-panel-btn"
@@ -438,6 +461,7 @@ async function verificarPerfilCliente(usuarioAtual) {
           ) : (
             <>
               <ul className="ho-cart-panel-list">
+                {/* lista os itens salvos no carrinho */}
                 {carrinho.map((item) => (
                   <li key={item.uid} className="ho-cart-panel-item">
                     <img src={item.img} alt={item.produto.nome} />
@@ -462,6 +486,7 @@ async function verificarPerfilCliente(usuarioAtual) {
                 <strong>{fmt(totalCarrinho)}</strong>
               </div>
 
+              {/* direciona o usuário para a etapa de revisão/finalização do pedido */}
               <button
                 type="button"
                 className="ho-cart-panel-btn"
@@ -480,7 +505,7 @@ async function verificarPerfilCliente(usuarioAtual) {
         </aside>
       )}
 
-      {/* painel lateral com as notificações do cliente */}
+      {/* painel lateral com as notificações não lidas do cliente */}
       {notificacoesOpen && (
         <aside className="ho-notification-panel">
 
@@ -498,6 +523,7 @@ async function verificarPerfilCliente(usuarioAtual) {
           </button>
         </div>
 
+        {/* marca todas as notificações como lidas no backend */}
         {notificacoes.length > 0 && (
           <button
             type="button"
@@ -519,6 +545,7 @@ async function verificarPerfilCliente(usuarioAtual) {
             </div>
           ) : (
             <ul className="ho-notification-list">
+              {/* lista as notificações retornadas pelo backend */}
               {notificacoes.map((notificacao) => (
                 <li
                   key={notificacao.id}
@@ -540,6 +567,7 @@ async function verificarPerfilCliente(usuarioAtual) {
                     </small>
                   </div>
 
+                  {/* marca individualmente a notificação como lida */}
                   <button
                     type="button"
                     onClick={() =>

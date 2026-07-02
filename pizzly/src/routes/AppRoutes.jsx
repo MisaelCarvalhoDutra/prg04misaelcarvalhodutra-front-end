@@ -15,10 +15,12 @@ import PedidoConfirmado from "../pages/PedidoConfirmado";
 import Perfil from "../pages/Perfil";
 import RecuperarSenha from "../pages/RecuperarSenha";
 
+// define todas as rotas da aplicação
 function AppRoutes() {
   return (
     <BrowserRouter>
 
+      {/* rotas principais do sistema */}
       <Routes>
 
         <Route path="/" element={<Home />} />
@@ -46,7 +48,8 @@ function AppRoutes() {
 
       </Routes>
 
-      {/*alertas (trocando alerts() por toast, mais bonito visualmente) */}
+      {/*trocando alerts() por toast, mais bonito visualmente */}
+      {/* componente global responsável por exibir mensagens de sucesso e erro */}
       <ToastContainer
         position="top-right"
         autoClose={3000}
