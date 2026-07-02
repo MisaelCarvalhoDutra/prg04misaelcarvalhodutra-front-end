@@ -1,0 +1,174 @@
+.pc-root {
+  min-height: 100vh;
+  background: #f4f5f7;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  color: #111;
+}
+
+.pc-main {
+  max-width: 850px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.pc-card {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 1.3rem;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+}
+
+.pc-icon {
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 1rem;
+  background: #f0fdf4;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+}
+
+.pc-tag {
+  display: inline-block;
+  background: #FDD835;
+  color: #7f0000;
+  font-weight: 900;
+  font-size: 0.75rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 2rem;
+  margin-bottom: 0.8rem;
+}
+
+.pc-card h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.pc-card > p {
+  color: #666;
+  font-size: 0.95rem;
+  max-width: 560px;
+  margin: 0 auto 1.5rem;
+  line-height: 1.5;
+}
+
+.pc-info-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.8rem;
+  margin: 1.5rem 0;
+}
+
+.pc-info-grid div {
+  background: #f8f9fb;
+  border: 1px solid #eee;
+  border-radius: 0.9rem;
+  padding: 1rem;
+}
+
+.pc-info-grid small {
+  display: block;
+  color: #888;
+  font-size: 0.72rem;
+  margin-bottom: 0.25rem;
+}
+
+.pc-info-grid strong {
+  font-size: 0.95rem;
+}
+
+.pc-total {
+  color: #c62828;
+}
+
+.pc-items {
+  background: #f8f9fb;
+  border-radius: 1rem;
+  padding: 1rem;
+  text-align: left;
+  margin-bottom: 1.5rem;
+}
+
+.pc-items h2 {
+  font-size: 1rem;
+  margin-bottom: 0.8rem;
+}
+
+.pc-items span {
+  display: block;
+  color: #444;
+  font-size: 0.9rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.pc-items span:last-child {
+  border-bottom: none;
+}
+
+.pc-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.8rem;
+}
+
+.pc-actions button {
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.9rem 1.2rem;
+  font-weight: 900;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.pc-primary {
+  background: #FDD835;
+  color: #111;
+}
+
+.pc-secondary {
+  background: #fff;
+  color: #c62828;
+  border: 1.5px solid #c62828 !important;
+}
+
+.pc-primary:hover,
+.pc-secondary:hover {
+  opacity: 0.9;
+}
+
+@media (max-width: 768px) {
+  .pc-main {
+    padding: 1rem;
+  }
+
+  .pc-card {
+    padding: 1.5rem;
+  }
+
+  .pc-card h1 {
+    font-size: 1.55rem;
+  }
+
+  .pc-info-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .pc-actions {
+    flex-direction: column;
+  }
+
+  .pc-actions button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .pc-info-grid {
+    grid-template-columns: 1fr;
+  }
+}

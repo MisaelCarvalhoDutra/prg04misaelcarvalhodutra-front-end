@@ -1,9 +1,19 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import Home from "../pages/Home"
 import Login from "../pages/Login"
 import Pedido from "../pages/Pedido"
 import Admin from "../pages/Admin"
+import CriarConta from "../pages/CriarConta";
+import MeusPedidos from "../pages/MeusPedidos";
+import AcompanharPedido from "../pages/AcompanharPedido";
+import Promocoes from "../pages/Promocoes";
+import PedidoConfirmado from "../pages/PedidoConfirmado";
+import Perfil from "../pages/Perfil";
+import RecuperarSenha from "../pages/RecuperarSenha";
 
 function AppRoutes() {
   return (
@@ -19,7 +29,34 @@ function AppRoutes() {
 
         <Route path="/admin" element={<Admin />} />
 
+        <Route path="/criar-conta" element={<CriarConta />} />
+
+        <Route path="/meus-pedidos" element={<MeusPedidos />} />
+
+        <Route path="/acompanhar-pedido" element={<AcompanharPedido />} />
+
+        <Route path="/promocoes" element={<Promocoes />} />
+
+        <Route path="/pedido-confirmado" element={<PedidoConfirmado />} />
+
+        <Route path="/perfil" element={<Perfil />} />
+
+        <Route path="/recuperar-senha" element={<RecuperarSenha />} />
+
+
       </Routes>
+
+      {/*alertas (trocando alerts() por toast, mais bonito visualmente) */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+        draggable
+        theme="colored"
+      />
 
     </BrowserRouter>
   )

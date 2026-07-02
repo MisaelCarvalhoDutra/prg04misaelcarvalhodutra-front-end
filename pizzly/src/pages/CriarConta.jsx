@@ -1,159 +1,213 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import "../assets/css/Login.css";
 
+import "../assets/css/CriarConta.css";
 
 import logo from "../assets/images/logoPizza.png";
-import googleLogo from "../assets/images/googleLogo.svg";
 
-
-
-export default function Login() {
+export default function CriarConta() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(true);
-
-  const [email, setEmail] = useState(() => {
-    return localStorage.getItem("pizzly_email_lembrado") || "";
-  });
-
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailTouched, setEmailTouched] = useState(false);
   const [passwordTouched, setPasswordTouched] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  // controla a abertura do modal de verificação
+const [modalCodigoAberto, setModalCodigoAberto] = useState(false);
+
+// código digitado pelo usuário
+const [codigo, setCodigo] = useState("");
+
+// contador para liberar o reenvio do código
+const [contador, setContador] = useState(60);
+
+// controla loading ao enviar ou reenviar o código
+const [enviandoCodigo, setEnviandoCodigo] = useState(false);
+
+// controla loading ao validar o código
+const [validandoCodigo, setValidandoCodigo] = useState(false);
+  
 
   const emailValid =
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const passwordValid = password.length >= 8;
-  const emailError = emailTouched && !emailValid;
-  const passwordError = passwordTouched && !passwordValid;
+  
+  let passwordStrength = 0;
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  if (password.length >= 8) passwordStrength++;
+  if (/[A-Z]/.test(password)) passwordStrength++;
+  if (/[0-9]/.test(password)) passwordStrength++;
+  if (/[^A-Za-z0-9]/.test(password)) passwordStrength++;
 
-    setEmailTouched(true);
-    setPasswordTouched(true);
+  const strengthLabel =
+  passwordStrength <= 1
+    ? "Fraca"
+    : passwordStrength <= 3
+    ? "Média"
+    : "Forte";
 
-    if (!emailValid || !passwordValid) {
-      return;
-    }
+  const strengthClass =
+    passwordStrength <= 1
+      ? "weak"
+      : passwordStrength <= 3
+      ? "medium"
+      : "strong";
 
-    try {
-      // envia email e senha para o backend autenticar o usuário
-      const response = await fetch("http://localhost:8080/auth/login", {
+  const passwordLength = password.length;
+
+  const nameValid = name.trim().length >= 3;
+  const nameTouched = name.length > 0;
+
+  const confirmTouched = confirmPassword.length > 0;
+  const passwordsMatch = password === confirmPassword;
+
+  // cronômetro do botão "Reenviar código"
+useEffect(() => {
+  if (!modalCodigoAberto || contador <= 0) return;
+
+  const timer = setTimeout(() => {
+    setContador((tempoAtual) => tempoAtual - 1);
+  }, 1000);
+
+  return () => clearTimeout(timer);
+}, [modalCodigoAberto, contador]);
+
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  setEmailTouched(true);
+  setPasswordTouched(true);
+
+  if (!nameValid || !emailValid || !passwordValid || !passwordsMatch) {
+    return;
+  }
+
+  try {
+    setEnviandoCodigo(true);
+
+    // primeiro envia o código para o e-mail informado
+    const response = await fetch(
+      "http://localhost:8080/verificacao-email/cadastro/enviar",
+      {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           email: email,
-          senha: password,
         }),
-      });
-
-      if (!response.ok) {
-        const erro = await response.text();
-        toast.error(erro || "E-mail ou senha inválidos.");
-        return;
       }
+    );
 
-      const usuarioLogado = await response.json();
-
-      toast.success(`Bem-vindo, ${usuarioLogado.nome}!`);
-
-      // salva os dados reais do usuário autenticado
-      localStorage.setItem(
-        "pizzly_usuario",
-        JSON.stringify(usuarioLogado)
-      );
-
-      // lembrar de mim 
-      if (rememberMe) {
-        localStorage.setItem("pizzly_email_lembrado", email);
-      } else {
-        localStorage.removeItem("pizzly_email_lembrado");
-      }
-
-      // avisa outros componentes, como Navbar, que o usuário mudou
-      window.dispatchEvent(new Event("pizzlyUsuarioAtualizado"));
-
-      
-      // cliente vai para a loja
-      if (usuarioLogado.tipo === "CLIENTE") {
-        navigate("/");
-      }
-
-      // funcionário vai direto para o painel administrativo
-      else if (usuarioLogado.tipo === "FUNCIONARIO") {
-        navigate("/admin");
-      }
-
-    } catch (error) {
-      console.error("Erro ao fazer login:", error);
-      toast.error("Não foi possível conectar ao servidor.");
+    if (!response.ok) {
+      const erro = await response.text();
+      toast.error(erro || "Não foi possível enviar o código de verificação.");
+      return;
     }
-  };
 
-  // envia o token do Google para o backend autenticar/criar o cliente
-  async function loginComGoogle(credential) {
-    try {
-      const response = await fetch("http://localhost:8080/auth/google", {
+    // abre o modal somente após o código ser enviado
+    setCodigo("");
+    setContador(60);
+    setModalCodigoAberto(true);
+  } catch (error) {
+    console.error("Erro ao enviar código:", error);
+    toast.error("Não foi possível conectar ao servidor.");
+  } finally {
+    setEnviandoCodigo(false);
+  }
+};
+
+async function reenviarCodigo() {
+  if (contador > 0) return;
+
+  try {
+    setEnviandoCodigo(true);
+
+    // solicita um novo código para o mesmo e-mail
+    const response = await fetch(
+      "http://localhost:8080/verificacao-email/cadastro/enviar",
+      {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ credential }),
-      });
-
-      if (!response.ok) {
-        toast.error("Não foi possível entrar com a conta Google.");
-        return;
-      }
-
-      const usuarioLogado = await response.json();
-
-      // salva o usuário logado no mesmo padrão do login normal
-      localStorage.setItem(
-        "pizzly_usuario",
-        JSON.stringify(usuarioLogado)
-      );
-
-      window.dispatchEvent(new Event("pizzlyUsuarioAtualizado"));
-
-      if (usuarioLogado.tipo === "CLIENTE") {
-        navigate("/");
-      } else if (usuarioLogado.tipo === "FUNCIONARIO") {
-        navigate("/admin");
-      }
-    } catch (error) {
-      console.error("Erro no login com Google:", error);
-      toast.error("Não foi possível conectar ao servidor.");
-    }
-  }
-
-  // carrega e inicializa o botão oficial do Google
-  useEffect(() => {
-    if (!window.google) return;
-
-    window.google.accounts.id.initialize({
-      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-      callback: (response) => {
-        loginComGoogle(response.credential);
-      },
-    });
-
-    window.google.accounts.id.renderButton(
-      document.getElementById("google-login-btn"),
-      {
-        theme: "outline",
-        size: "large",
-        width: 230,
-        text: "signin_with",
+        body: JSON.stringify({
+          email: email,
+        }),
       }
     );
+
+    if (!response.ok) {
+      toast.error("Não foi possível reenviar o código.");
+      return;
+    }
+
+    setCodigo("");
+    setContador(60);
+  } catch (error) {
+    console.error("Erro ao reenviar código:", error);
+    toast.error("Não foi possível conectar ao servidor.");
+  } finally {
+    setEnviandoCodigo(false);
+  }
+}
+
+async function validarCodigoECriarConta() {
+  if (codigo.trim().length !== 6) {
+    toast.warning("Digite o código de 6 dígitos.");
+    return;
+  }
+
+  try {
+    setValidandoCodigo(true);
+
+    // valida o código e só então cria a conta no backend
+    const response = await fetch(
+      "http://localhost:8080/verificacao-email/cadastro/validar",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email,
+          codigo: codigo,
+          cliente: {
+            nome: name,
+            email: email,
+            telefone: "",
+            senha: password,
+            cpf: "",
+          },
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const erro = await response.text();
+      toast.error(erro || "Código inválido ou expirado.");
+      return;
+    }
+
+    toast.success("Conta criada com sucesso!");
+
+    setTimeout(() => {
+      navigate("/login");
+    }, 1000);
     
-  }, []);
+  } catch (error) {
+    console.error("Erro ao validar código:", error);
+    toast.error("Não foi possível conectar ao servidor.");
+  } finally {
+    setValidandoCodigo(false);
+  }
+}
 
   return (
     <div className="lp-root">
@@ -184,12 +238,10 @@ export default function Login() {
           {/* Bem-vindo */}
           <div className="lp-welcome">
             <h1>
-              Bem-vindo<br />
-              de <span className="lp-yellow">volta!</span>
+              Crie sua <br /><span className="lp-yellow">conta!</span>
             </h1>
             <p>
-              Acesse sua conta para gerenciar pedidos,<br />
-              clientes e muito mais.
+             Cadastre-se para pedir suas pizzas favoritas de forma rápida e segura.
             </p>
           </div>
 
@@ -238,7 +290,7 @@ export default function Login() {
         </div>
 
         {/* Foto da pizza no rodapé */}
-        <div className="lp-pizza-photo" />
+        <div className="cc-pizza-photo" />
       </div>
 
       {/* ══════════════════════════════════════
@@ -253,11 +305,33 @@ export default function Login() {
           <div className="lp-card">
 
             <h2 className="lp-card-title">
-              Entrar na sua <span className="lp-red">conta</span>
+              Criar sua <span className="lp-red">conta</span>
             </h2>
             <p className="lp-card-sub">Informe seus dados para continuar</p>
 
             <form onSubmit={handleSubmit} className="lp-form">
+
+              {/* Nome */}
+              <div className="lp-field">
+                <label htmlFor="lp-name">Nome</label>
+
+                <div className={`lp-input-box ${nameTouched ? nameValid ? "valid" : "invalid" : ""}`}>
+                  <input
+                    id="lp-name"
+                    type="text"
+                    placeholder="Seu nome"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                  />
+                </div>
+                {nameTouched && !nameValid && (
+                  <span className="lp-field-error">
+                    Digite seu nome completo.
+                  </span>
+                )}
+              </div>
+
 
               {/* E-mail */}
               <div className="lp-field">
@@ -274,9 +348,10 @@ export default function Login() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     autoComplete="email"
+                    required
                   />
                 </div>
-                {emailError && (
+                {email && !emailValid && (
                   <span className="lp-field-error">
                     Digite um e-mail válido.
                   </span>
@@ -298,12 +373,15 @@ export default function Login() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     autoComplete="current-password"
+                    required
                   />
-                 <button
+                  <button
                     type="button"
                     className="lp-eye-btn"
                     onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
                   >
+                    {/* ícone olho estilo "scan / raios" igual ao mockup */}
                     {showPassword ? (
                       <svg
                         className="lp-eye-icon"
@@ -314,10 +392,10 @@ export default function Login() {
                         strokeLinecap="round"
                         strokeLinejoin="round"
                       >
-                        <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20C7 20 2.73 16.89 1 12a11.72 11.72 0 0 1 5.06-5.94"/>
-                        <path d="M9.9 4.24A10.45 10.45 0 0 1 12 4c5 0 9.27 3.11 11 8a11.5 11.5 0 0 1-2.16 3.19"/>
-                        <path d="M14.12 14.12A3 3 0 0 1 9.88 9.88"/>
-                        <path d="M1 1l22 22"/>
+                        <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20C7 20 2.73 16.89 1 12a11.72 11.72 0 0 1 5.06-5.94" />
+                        <path d="M9.9 4.24A10.45 10.45 0 0 1 12 4c5 0 9.27 3.11 11 8a11.5 11.5 0 0 1-2.16 3.19" />
+                        <path d="M14.12 14.12A3 3 0 0 1 9.88 9.88" />
+                        <path d="M1 1l22 22" />
                       </svg>
                     ) : (
                       <svg
@@ -329,84 +407,92 @@ export default function Login() {
                         strokeLinecap="round"
                         strokeLinejoin="round"
                       >
-                        <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/>
-                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" />
+                        <circle cx="12" cy="12" r="3" />
                       </svg>
                     )}
                   </button>
                 </div>
-                {passwordError && (
+
+                {password && (
+                  <div className="lp-password-strength">
+                    <div className="lp-strength-bar">
+                      <div className={`lp-strength-fill ${strengthClass}`} />
+                    </div>
+
+                    <div className="lp-strength-info">
+                      <span className={`lp-strength-text ${strengthClass}`}>
+                        {strengthLabel}
+                      </span>
+
+                      <span className="lp-strength-counter">
+                        Mínimo de 8 caracteres ({Math.min(passwordLength, 8)}/8)
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Confirmar senha */}
+              <div className="lp-field">
+                <label htmlFor="lp-confirm-password">
+                  Confirmar senha
+                </label>
+
+                <div className={`lp-input-box ${confirmTouched ? passwordsMatch ? "valid" : "invalid" : ""}`}>
+                  <input
+                    id="lp-confirm-password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Confirme sua senha"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                  />
+                </div>
+                {confirmTouched && !passwordsMatch && (
                   <span className="lp-field-error">
-                    Digite sua senha.
+                    As senhas não conferem.
                   </span>
                 )}
               </div>
 
-              {/* Lembrar / Esqueceu */}
-              <div className="lp-options-row">
-                <label className="lp-remember">
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                  />
-                  <span className="lp-check-box" aria-hidden="true">
-                    {rememberMe && (
-                      <svg viewBox="0 0 12 12" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
-                        <polyline points="2,6 5,9 10,3"/>
-                      </svg>
-                    )}
-                  </span>
-                  Lembrar de mim
-                </label>
-                
-                <button
-                  type="button"
-                  className="lp-forgot"
-                  onClick={() => navigate("/recuperar-senha")}
-                >
-                  Esqueceu sua senha?
-                </button>
-
-              </div>
 
               {/* Botão Entrar */}
-              <button type="submit" className="lp-btn-submit">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <button
+                type="submit"
+                className="lp-btn-submit"
+                disabled={enviandoCodigo}
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
                   <polyline points="10 17 15 12 10 7"/>
                   <line x1="15" y1="12" x2="3" y2="12"/>
                 </svg>
-                Entrar
+
+                {enviandoCodigo
+                    ? "Enviando código..."
+                    : "Criar conta"}
               </button>
 
             </form>
 
             
-            <div className="lp-divider">
-              <span>ou continue com</span>
-            </div>
 
-            <div className="lp-social-row">
-
-              {/**botão google */}
-              <div className="lp-google-wrapper">
-                <button type="button" className="lp-google-custom-btn">
-                  <img src={googleLogo} alt="Google" className="lp-google-custom-icon" />
-                  <span>Google</span>
-                </button>
-
-                <div id="google-login-btn" className="lp-google-real-btn"></div>
-              </div>
-
-              <button
-                type="button"
-                className="lp-login-create-btn"
-                onClick={() => navigate("/criar-conta")}
-              >
-                Criar conta
-              </button>
-            </div>
+            <p className="lp-signup-text">
+              Já possui conta?{" "}
+              <Link to="/login" className="lp-signup-link">
+                Entrar
+              </Link>
+            </p>
 
           </div>
         </div>
@@ -414,6 +500,71 @@ export default function Login() {
         </div>
 
       </div>
+
+      {/* ════════════════════════════════
+    MODAL DE VERIFICAÇÃO DO E-MAIL
+    ════════════════════════════════ */}
+    {modalCodigoAberto && (
+      <div className="cc-modal-overlay">
+
+        <div className="cc-modal">
+
+          <button
+            type="button"
+            className="cc-modal-close"
+            onClick={() => setModalCodigoAberto(false)}
+          >
+            ×
+          </button>
+
+          <div className="cc-modal-icon">
+            ✉️
+          </div>
+
+          <h2>Verifique seu e-mail</h2>
+
+          <p>
+            Enviamos um código de verificação para
+            <strong> {email}</strong>.
+          </p>
+
+          <input
+            className="cc-code-input"
+            type="text"
+            maxLength="6"
+            placeholder="000000"
+            value={codigo}
+            onChange={(e) =>
+              setCodigo(e.target.value.replace(/\D/g, ""))
+            }
+          />
+
+          <button
+            type="button"
+            className="cc-confirm-btn"
+            onClick={validarCodigoECriarConta}
+            disabled={validandoCodigo}
+          >
+            {validandoCodigo
+              ? "Validando..."
+              : "Confirmar código"}
+          </button>
+
+          <button
+            type="button"
+            className="cc-resend-btn"
+            onClick={reenviarCodigo}
+            disabled={contador > 0 || enviandoCodigo}
+          >
+            {contador > 0
+              ? `Reenviar em ${contador}s`
+              : "Reenviar código"}
+          </button>
+
+        </div>
+
+      </div>
+    )}
 
 
       {/* ─── Rodapé badges ─── */}

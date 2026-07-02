@@ -1,0 +1,692 @@
+/* ============================================================
+   HOME — Pizzly pública  |  src/assets/css/Home.css
+   ============================================================ */
+
+.ho-root *, .ho-root *::before, .ho-root *::after {
+  box-sizing: border-box; margin: 0; padding: 0;
+}
+
+.ho-root {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  color: #111;
+  background: #fff;
+}
+
+.ho-yellow { color: #FDD835; }
+
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.ho-hero {
+  background: #9b1010;
+  background:
+  linear-gradient(135deg, #b30000 0%, #8b0000 100%);
+  min-height: 420px;
+  height: 480px; /* controla o crescimento */
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.ho-hero-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 2rem;
+}
+
+.ho-hero-txt {
+  flex: 1;
+  max-width: 500px;
+  color: #fff;
+}
+
+.ho-hero-txt h1 {
+  font-size: 3rem;
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 1rem;
+  color: #fff;
+}
+
+.ho-hero-txt p {
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.85);
+  line-height: 1.65;
+  margin-bottom: 1.8rem;
+}
+
+.ho-hero-btns {
+  display: flex;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.ho-btn-peca {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #FDD835;
+  color: #111;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border-radius: 0.6rem;
+  padding: 0.75rem 1.5rem;
+  text-decoration: none;
+  transition: opacity 0.15s, transform 0.1s;
+}
+
+.ho-btn-peca:hover { opacity: 0.9; }
+.ho-btn-peca:active { transform: scale(0.97); }
+
+.ho-btn-cardapio {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: 2px solid rgba(255,255,255,0.55);
+  border-radius: 0.6rem;
+  padding: 0.72rem 1.4rem;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.ho-btn-cardapio:hover { background: rgba(255,255,255,0.1); }
+
+/* Imagem hero */
+.ho-hero-img-wrap {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.ho-hero-img {
+  width: 560px;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.35));
+  transform: translateY(20px) scale(1.08);
+  
+}
+
+/* ============================================================
+   MAIN
+   ============================================================ */
+.ho-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.ho-section {
+  padding: 2.5rem 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.ho-section:last-child { border-bottom: none; }
+
+.ho-section-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #111;
+  margin-bottom: 1.3rem;
+}
+
+/* ── Section header com link ── */
+.ho-sec-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.3rem;
+}
+
+.ho-ver-todas {
+  background: transparent;
+  border: none;
+  padding: 0;
+
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #c62828;
+  text-decoration: none;
+
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.ho-ver-todas:hover {
+  text-decoration: underline;
+}
+
+.ho-ver-todas:focus,
+.ho-ver-todas:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.ho-ver-todas:hover { text-decoration: underline; }
+
+/* ── Categorias ── */
+.ho-categorias {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.ho-cat-card {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+
+  width: 100%;
+
+  padding: 1.1rem 1rem;
+  border-radius: 0.9rem;
+
+  border: none;
+  cursor: pointer;
+
+  text-align: left;
+  font-family: inherit;
+
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.ho-cat-card > div {
+  flex: 1;
+}
+
+.ho-cat-arrow {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: #999;
+
+  opacity: 0;
+  transform: translateX(-5px);
+
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.ho-cat-card:hover .ho-cat-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.ho-cat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.10);
+}
+
+.ho-cat-emoji { font-size: 2rem; flex-shrink: 0; }
+
+.ho-cat-card strong {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 0.15rem;
+}
+
+.ho-cat-card p {
+  font-size: 0.76rem;
+  color: #666;
+  line-height: 1.35;
+}
+
+/* ── Pizzas grid ── */
+.ho-pizzas-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.1rem;
+}
+
+.ho-pizza-card {
+  border: 1px solid #f0f0f0;
+  border-radius: 0.9rem;
+  overflow: hidden;
+  background: #fff;
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+
+.ho-pizza-card:hover {
+  box-shadow: 0 6px 24px rgba(0,0,0,0.09);
+  transform: translateY(-2px);
+}
+
+.ho-pizza-img {
+  width: 100%;
+  height: 170px;
+  object-fit: cover;
+}
+
+.ho-pizza-body {
+  padding: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+}
+
+.ho-pizza-name { font-size: 0.95rem; font-weight: 700; color: #111; }
+
+.ho-pizza-desc {
+  font-size: 0.78rem;
+  color: #777;
+  line-height: 1.4;
+  min-height: 2.8em;
+}
+
+.ho-pizza-price {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #c62828;
+  margin-top: 0.2rem;
+}
+
+.ho-pizza-btn {
+  margin-top: 0.5rem;
+  background: #FDD835;
+  color: #111;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.6rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s, transform 0.1s;
+  width: 100%;
+}
+
+.ho-pizza-btn:hover  { opacity: 0.88; }
+.ho-pizza-btn:active { transform: scale(0.97); }
+
+/* ── Banner Combo ── */
+.ho-combo-banner {
+  background: #9b1010;
+  background-image: radial-gradient(ellipse at 30% 50%, #c62828 0%, #7f0000 100%);
+  border-radius: 1.2rem;
+  padding: 2rem 2rem 2rem 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #fff;
+  overflow: hidden;
+  position: relative;
+  min-height: 200px;
+}
+
+.ho-combo-left { flex: 1; max-width: 52%; position: relative; z-index: 2; }
+
+.ho-combo-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: #FDD835;
+  color: #7f0000;
+  font-size: 0.7rem;
+  font-weight: 800;
+  border-radius: 2rem;
+  padding: 0.22rem 0.7rem;
+  margin-bottom: 0.65rem;
+  letter-spacing: 0.04em;
+}
+
+.ho-combo-left h2 {
+  font-size: 2.2rem;
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 0.4rem;
+}
+
+.ho-combo-left p {
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 1rem;
+}
+
+.ho-combo-price-box {
+  display: inline-flex;
+  flex-direction: column;
+  background: rgba(0,0,0,0.25);
+  border-radius: 0.6rem;
+  padding: 0.5rem 1rem;
+  margin-bottom: 0.9rem;
+}
+
+.ho-combo-por { font-size: 0.72rem; color: rgba(255,255,255,0.7); }
+
+.ho-combo-val {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.15;
+}
+
+.ho-combo-checks {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.ho-combo-checks li {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.88);
+}
+
+.ho-combo-left .ho-btn-peca {
+  margin-top: 1.4rem;
+}
+
+/* Imagens do combo */
+.ho-combo-imgs {
+  position: relative;
+  width: 460px;
+  height: 180px;
+  flex-shrink: 0;
+}
+
+.ho-combo-pizza1 {
+  position: absolute;
+  right: 120px;
+  bottom: -10px;
+  width: 220px;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 50%;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  z-index: 2;
+}
+
+.ho-combo-pizza2 {
+  position: absolute;
+  right: -10px;
+  bottom: -20px;
+  width: 180px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 50%;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  z-index: 1;
+  opacity: 0.85;
+}
+
+/* ── Diferenciais ── */
+.ho-diferenciais {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.ho-dif-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.3rem;
+  border: 1px solid #f0f0f0;
+  border-radius: 1rem;
+  background: #fff;
+}
+
+.ho-dif-ico {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ho-dif-item strong {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 0.3rem;
+}
+
+.ho-dif-item p {
+  font-size: 0.8rem;
+  color: #666;
+  line-height: 1.45;
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.ho-footer {
+  background: linear-gradient(to right, #980000, #b40000);
+  color: rgba(255,255,255,0.75);
+  margin-top: 0;
+}
+
+.ho-footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem 2rem 2rem;
+  display: grid;
+  grid-template-columns: 1.8fr 1fr 1fr 1fr;
+  gap: 2.5rem;
+}
+
+/* Brand */
+.ho-footer-brand p {
+  font-size: 0.82rem;
+  line-height: 1.6;
+  margin-top: 0.8rem;
+  color: rgba(255,255,255,0.55);
+}
+
+.ho-footer-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.ho-footer-logo-text {
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-style: italic;
+  color: #fff;
+  letter-spacing: -0.5px;
+}
+
+/* Colunas */
+.ho-footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.ho-footer-col strong {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.3rem;
+}
+
+.ho-footer-col a {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.55);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.ho-footer-col a:hover { color: #FDD835; }
+
+/* Sociais */
+.ho-socials {
+  display: flex;
+  gap: 0.65rem;
+  margin-top: 0.3rem;
+}
+
+.ho-social-btn {
+  width: 38px; height: 38px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.ho-social-btn:hover { background: #c62828; }
+
+/* Footer bottom */
+.ho-footer-bottom {
+  border-top: 1px solid rgba(255,255,255,0.08);
+  text-align: center;
+  padding: 1.2rem 2rem;
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.35);
+}
+
+
+/* ============================================================
+   RESPONSIVO
+   ============================================================ */
+@media (max-width: 1024px) {
+  .ho-categorias   { grid-template-columns: repeat(2, 1fr); }
+  .ho-pizzas-grid  { grid-template-columns: repeat(2, 1fr); }
+  .ho-hero-img-wrap { width: 320px; height: 280px; }
+  .ho-hero-txt h1  { font-size: 2.2rem; }
+  .ho-footer-inner { grid-template-columns: 1fr 1fr; gap: 2rem; }
+}
+
+@media (max-width: 768px) {
+  html,
+  body {
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: auto;
+  }
+
+  .ho-root {
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .ho-hero {
+    height: auto;
+    min-height: auto;
+    overflow: visible;
+    padding: 1.3rem 0 1rem;
+   
+  }
+
+  .ho-hero-inner {
+    flex-direction: column;
+    text-align: center;
+    padding: 0.5rem 1rem;
+    gap: 0.5rem;
+  }
+
+  .ho-hero-txt {
+    max-width: 100%;
+  }
+
+  .ho-hero-txt h1 {
+    font-size: 2.4rem;
+    line-height: 1.15;
+  }
+
+  .ho-hero-img-wrap {
+    width: 100%;
+    height: auto;
+    margin-bottom: -50px;
+  }
+
+  .ho-hero-img {
+    width: 230px;
+    max-width: 90%;
+    transform: none;
+  }
+
+  .ho-hero-btns {
+    justify-content: center;
+  }
+
+  .ho-combo-banner {
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 1.5rem;
+  gap: 1.2rem;
+}
+
+.ho-combo-left {
+  max-width: 100%;
+  width: 100%;
+  z-index: 2;
+}
+
+.ho-combo-left .ho-btn-peca {
+  margin-top: 1rem;
+  position: relative;
+  z-index: 3;
+}
+
+.ho-combo-imgs {
+  width: 100%;
+  height: 170px;
+  margin-top: 0.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.ho-combo-pizza1 {
+  position: relative;
+  right: auto;
+  bottom: auto;
+  width: 170px;
+  height: 170px;
+  margin-left: auto;
+  display: block;
+}
+
+.ho-combo-pizza2 {
+  display: none;
+}
+
+  .ho-diferenciais {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+@media (max-width: 520px) {
+  .ho-pizzas-grid  { grid-template-columns: 1fr; }
+  .ho-categorias   { grid-template-columns: 1fr; }
+  .ho-footer-inner { grid-template-columns: 1fr; }
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  height: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.ho-root {
+  min-height: 100vh;
+  height: auto;
+  overflow: visible;
+}
+
+
