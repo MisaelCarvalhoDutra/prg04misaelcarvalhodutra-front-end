@@ -64,6 +64,8 @@ export default function Perfil() {
   const isCliente = usuario?.tipo === "CLIENTE";
   const isFuncionario = usuario?.tipo === "FUNCIONARIO";
 
+  const dadosPessoaisCompletos = Boolean(usuario?.telefone?.trim());
+
   useEffect(() => {
     const usuarioSalvo = JSON.parse(localStorage.getItem("pizzly_usuario"));
 
@@ -401,7 +403,9 @@ export default function Perfil() {
             <div className="pf-stat-icon pf-blue">👤</div>
             <div>
               <span>Dados pessoais</span>
-              <strong>Atualizados</strong>
+              <strong>
+                {dadosPessoaisCompletos ? "Completos" : "Pendentes"}
+              </strong>
             </div>
           </div>
 
@@ -477,7 +481,7 @@ export default function Perfil() {
 
                 <div className="pf-data-field">
                   <small>Telefone</small>
-                  <strong>{usuario.telefone}</strong>
+                  <strong>{usuario.telefone?.trim() || "Não informado"}</strong>
                 </div>
 
                 <div className="pf-data-field">

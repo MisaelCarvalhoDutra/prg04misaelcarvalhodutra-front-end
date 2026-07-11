@@ -7,7 +7,9 @@ const statusClass = {
   Confirmado: "mp-confirmado",
   Preparando: "mp-preparando",
   "Saiu para entrega": "mp-saiu",
+  "Pronto para retirada": "mp-pronto-retirada",
   Entregue: "mp-entregue",
+  Retirado: "mp-retirado",
   Cancelado: "mp-cancelado",
 };
 
@@ -23,8 +25,11 @@ function converterStatus(status) {
   if (status === "CONFIRMADO") return "Confirmado";
   if (status === "PREPARANDO") return "Preparando";
   if (status === "SAIU_PARA_ENTREGA") return "Saiu para entrega";
+  if (status === "PRONTO_PARA_RETIRADA") return "Pronto para retirada";
   if (status === "ENTREGUE") return "Entregue";
+  if (status === "RETIRADO") return "Retirado";
   if (status === "CANCELADO") return "Cancelado";
+
   return "Confirmado";
 }
 
@@ -92,7 +97,13 @@ useEffect(() => {
               ),
               total: formatarMoeda(pedido.total),
               tempo:
-                pedido.formaRecebimento === "retirada"
+                pedido.status === "ENTREGUE"
+                  ? "Entregue"
+                  : pedido.status === "RETIRADO"
+                  ? "Retirado"
+                  : pedido.status === "PRONTO_PARA_RETIRADA"
+                  ? "Pronto para retirada"
+                  : pedido.formaRecebimento === "retirada"
                   ? "25 min"
                   : "30 - 45 min",
               entrega:
@@ -233,8 +244,11 @@ async function enviarAvaliacao() {
                   Ver detalhes
                 </button>
 
-                {/* avaliação disponível apenas para pedidos entregues */}
-                {pedido.status === "Entregue" && (
+                {/* avaliação disponível apenas para pedidos entregues e retirados*/}
+                {(
+                  pedido.status === "Entregue" ||
+                  pedido.status === "Retirado"
+                ) && (
                   pedido.jaAvaliado ? (
                     <span className="mp-reviewed-badge">
                       ✓ Avaliado

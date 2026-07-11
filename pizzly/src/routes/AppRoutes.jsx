@@ -14,6 +14,7 @@ import Promocoes from "../pages/Promocoes";
 import PedidoConfirmado from "../pages/PedidoConfirmado";
 import Perfil from "../pages/Perfil";
 import RecuperarSenha from "../pages/RecuperarSenha";
+import NovaSenha from "../pages/NovaSenha";
 
 // define todas as rotas da aplicação
 function AppRoutes() {
@@ -44,6 +45,8 @@ function AppRoutes() {
         <Route path="/perfil" element={<Perfil />} />
 
         <Route path="/recuperar-senha" element={<RecuperarSenha />} />
+
+        <Route path="/nova-senha" element={<NovaSenha />} />
 
 
       </Routes>

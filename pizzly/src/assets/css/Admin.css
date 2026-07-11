@@ -334,7 +334,17 @@
   color: #b8860b;
 }
 
+.status-pronto-retirada {
+  background: #fff8e1;
+  color: #9a6700;
+}
+
 .status-entregue {
+  background: #f0fdf4;
+  color: #2e7d32;
+}
+
+.status-retirado {
   background: #f0fdf4;
   color: #2e7d32;
 }

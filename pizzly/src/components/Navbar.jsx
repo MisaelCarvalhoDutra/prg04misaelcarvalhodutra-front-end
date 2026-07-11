@@ -204,7 +204,11 @@ export default function Navbar() {
         <div className="ho-nav-inner">
 
           {/* logo que redireciona para a página inicial */}
-          <Link to="/" className="ho-logo" onClick={fecharMenu}>
+          <Link
+            to={isFuncionario ? "/admin" : "/"}
+            className="ho-logo"
+            onClick={fecharMenu}
+          >
             <svg width="34" height="34" viewBox="0 0 44 44" fill="none">
               <path d="M22 4 L40 38 H4 Z" fill="#FDD835" />
               <circle cx="18" cy="28" r="3" fill="#c0392b" />

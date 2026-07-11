@@ -39,7 +39,9 @@ const STATUS_COLOR = {
   Confirmado: "status-confirmado",
   Preparando: "status-preparando",
   "Saiu para entrega": "status-saiu",
+  "Pronto para retirada": "status-pronto-retirada",
   Entregue: "status-entregue",
+  Retirado: "status-retirado",
   Cancelado: "status-cancelado",
 };
 
@@ -70,7 +72,9 @@ function converterStatusPedido(status) {
   if (status === "CONFIRMADO") return "Confirmado";
   if (status === "PREPARANDO") return "Preparando";
   if (status === "SAIU_PARA_ENTREGA") return "Saiu para entrega";
+  if (status === "PRONTO_PARA_RETIRADA") return "Pronto para retirada";
   if (status === "ENTREGUE") return "Entregue";
+  if (status === "RETIRADO") return "Retirado";
   if (status === "CANCELADO") return "Cancelado";
 
   return "Confirmado";
@@ -80,7 +84,11 @@ function converterStatusBackend(status) {
   if (status === "Confirmado") return "CONFIRMADO";
   if (status === "Preparando") return "PREPARANDO";
   if (status === "Saiu para entrega") return "SAIU_PARA_ENTREGA";
+  if (status === "Pronto para retirada") {
+    return "PRONTO_PARA_RETIRADA";
+  }
   if (status === "Entregue") return "ENTREGUE";
+  if (status === "Retirado") return "RETIRADO";
   if (status === "Cancelado") return "CANCELADO";
 
   return "CONFIRMADO";
@@ -449,12 +457,17 @@ async function confirmarAcao(
             idBackend: pedido.id,
             clienteId: pedido.clienteId, // usado para identificar o cliente corretamente
             cliente: pedido.clienteNome || "Cliente Pizzly",
+            formaRecebimento: pedido.formaRecebimento,
             itens,
             produtos: `${itens.length} ${itens.length === 1 ? "item" : "itens"}`,
             status: converterStatusPedido(pedido.status),
             tempo:
               pedido.status === "ENTREGUE"
                 ? "Entregue"
+                : pedido.status === "RETIRADO"
+                ? "Retirado"
+                : pedido.status === "PRONTO_PARA_RETIRADA"
+                ? "Aguardando retirada"
                 : pedido.formaRecebimento === "retirada"
                 ? "25 min"
                 : "30 - 45 min",
@@ -815,13 +828,33 @@ useEffect(() => {
     const clientesUnicos = new Set(pedidos.map((pedido) => pedido.cliente)).size;
 
     const porStatus = {
-      Confirmado: pedidos.filter((p) => p.status === "Confirmado").length,
-      Preparando: pedidos.filter((p) => p.status === "Preparando").length,
-      "Saiu para entrega": pedidos.filter(
-        (p) => p.status === "Saiu para entrega"
+      Confirmado: pedidos.filter(
+        (pedido) => pedido.status === "Confirmado"
       ).length,
-      Entregue: pedidos.filter((p) => p.status === "Entregue").length,
-      Cancelado: pedidos.filter((p) => p.status === "Cancelado").length,
+
+      Preparando: pedidos.filter(
+        (pedido) => pedido.status === "Preparando"
+      ).length,
+
+      "Saiu para entrega": pedidos.filter(
+        (pedido) => pedido.status === "Saiu para entrega"
+      ).length,
+
+      "Pronto para retirada": pedidos.filter(
+        (pedido) => pedido.status === "Pronto para retirada"
+      ).length,
+
+      Entregue: pedidos.filter(
+        (pedido) => pedido.status === "Entregue"
+      ).length,
+
+      Retirado: pedidos.filter(
+        (pedido) => pedido.status === "Retirado"
+      ).length,
+
+      Cancelado: pedidos.filter(
+        (pedido) => pedido.status === "Cancelado"
+      ).length,
     };
 
     return {
@@ -836,7 +869,8 @@ useEffect(() => {
   const atividades = useMemo(() => {
     return pedidos.slice(0, 4).map((pedido) => ({
       icon:
-        pedido.status === "Entregue"
+        pedido.status === "Entregue" ||
+        pedido.status === "Retirado"
           ? "✅"
           : pedido.status === "Cancelado"
           ? "❌"
@@ -993,6 +1027,7 @@ const pedidosAtivosQuantidade = useMemo(() => {
   return pedidos.filter(
     (pedido) =>
       pedido.status !== "Entregue" &&
+      pedido.status !== "Retirado" &&
       pedido.status !== "Cancelado"
   ).length;
 }, [pedidos]);
@@ -1023,14 +1058,26 @@ const dadosGraficoVendas = useMemo(() => {
   }));
 }, [pedidosResumo]);
 
-function proximosStatus(statusAtual) {
-  const fluxo = {
+function proximosStatus(statusAtual, formaRecebimento) {
+  const ehRetirada = formaRecebimento === "retirada";
+
+  const fluxoEntrega = {
     Confirmado: ["Preparando", "Cancelado"],
     Preparando: ["Saiu para entrega", "Cancelado"],
     "Saiu para entrega": ["Entregue", "Cancelado"],
     Entregue: [],
     Cancelado: [],
   };
+
+  const fluxoRetirada = {
+    Confirmado: ["Preparando", "Cancelado"],
+    Preparando: ["Pronto para retirada", "Cancelado"],
+    "Pronto para retirada": ["Retirado", "Cancelado"],
+    Retirado: [],
+    Cancelado: [],
+  };
+
+  const fluxo = ehRetirada ? fluxoRetirada : fluxoEntrega;
 
   return fluxo[statusAtual] || [];
 }
@@ -1080,7 +1127,13 @@ function proximosStatus(statusAtual) {
   // atualiza o status do pedido no backend
   async function salvarStatus() {
 
-    if (!podeAlterarStatus(pedidoEditando.status, novoStatus)) {
+    if (
+      !podeAlterarStatus(
+        pedidoEditando.status,
+        novoStatus,
+        pedidoEditando.formaRecebimento
+      )
+    ) {
       toast.warning(
         `Não é possível alterar o pedido de "${pedidoEditando.status}" para "${novoStatus}".`
       );
@@ -1098,9 +1151,17 @@ function proximosStatus(statusAtual) {
       );
 
       if (!response.ok) {
-        toast.error("Não foi possível atualizar o status do pedido.");
-        return;
-      }
+          const erro = await response.text();
+
+          console.error(
+            "Erro ao atualizar status do pedido:",
+            response.status,
+            erro
+          );
+
+          toast.error("Não foi possível atualizar o status do pedido.");
+          return;
+        }
 
       await carregarPedidos();
       setPedidoEditando(null);
@@ -1110,29 +1171,6 @@ function proximosStatus(statusAtual) {
     }
   }
 
-  async function finalizarPedido(pedidoIdBackend) {
-    try {
-      const response = await fetch(
-        `http://localhost:8080/pedidos/${pedidoIdBackend}/status?status=ENTREGUE&funcionarioId=${funcionarioIdLogado}`,
-        {
-          method: "PATCH",
-        }
-      );
-
-      if (!response.ok) {
-        toast.error("Não foi possível finalizar o pedido.");
-        return;
-      }
-
-      await carregarPedidos();
-      setMenuAberto(null);
-      toast.success("Pedido finalizado com sucesso!");
-
-    } catch (error) {
-      console.error("Erro ao finalizar pedido:", error);
-      toast.error("Não foi possível conectar ao servidor.");
-    }
-  }
 
   async function cancelarPedido(pedidoIdBackend) {
     try {
@@ -1508,16 +1546,15 @@ async function alterarStatusFuncionario(funcionario) {
   }
 }
 
-function podeAlterarStatus(statusAtual, novoStatus) {
-  const fluxo = {
-    Confirmado: ["Preparando", "Cancelado"],
-    Preparando: ["Saiu para entrega", "Cancelado"],
-    "Saiu para entrega": ["Entregue", "Cancelado"],
-    Entregue: [],
-    Cancelado: [],
-  };
-
-  return fluxo[statusAtual]?.includes(novoStatus);
+function podeAlterarStatus(
+  statusAtual,
+  novoStatus,
+  formaRecebimento
+) {
+  return proximosStatus(
+    statusAtual,
+    formaRecebimento
+  ).includes(novoStatus);
 }
 
 function renderCardsPedidos(lista) {
@@ -1540,10 +1577,6 @@ function renderCardsPedidos(lista) {
           <div className="ad-pedido-card-actions">
             <button onClick={() => abrirModalPedido(pedido)}>
               Ver / editar
-            </button>
-
-            <button onClick={() => finalizarPedido(pedido.idBackend)}>
-              Finalizar
             </button>
 
             <button onClick={() => cancelarPedido(pedido.idBackend)}>
@@ -1613,9 +1646,7 @@ function renderCardsPedidos(lista) {
                       <button onClick={() => abrirModalPedido(pedido)}>
                         👁️ Ver / editar
                       </button>
-                      <button onClick={() => finalizarPedido(pedido.idBackend)}>
-                        ✅ Finalizar
-                      </button>
+
                       <button onClick={() => cancelarPedido(pedido.idBackend)}>
                         ❌ Cancelar
                       </button>
@@ -1914,7 +1945,9 @@ function renderCardsPedidos(lista) {
             <option value="Confirmado">Confirmado</option>
             <option value="Preparando">Preparando</option>
             <option value="Saiu para entrega">Saiu para entrega</option>
+            <option value="Pronto para retirada">Pronto para retirada</option>
             <option value="Entregue">Entregue</option>
+            <option value="Retirado">Retirado</option>
             <option value="Cancelado">Cancelado</option>
           </select>
         </div>
@@ -3229,13 +3262,21 @@ function AuditoriaContent() {
                 <select
                   value={novoStatus}
                   onChange={(e) => setNovoStatus(e.target.value)}
-                  disabled={proximosStatus(pedidoEditando.status).length === 0}
+                  disabled={
+                    proximosStatus(
+                      pedidoEditando.status,
+                      pedidoEditando.formaRecebimento
+                    ).length === 0
+                  }
                 >
                   <option value={pedidoEditando.status}>
                     {pedidoEditando.status}
                   </option>
 
-                  {proximosStatus(pedidoEditando.status).map((status) => (
+                  {proximosStatus(
+                    pedidoEditando.status,
+                    pedidoEditando.formaRecebimento
+                  ).map((status) => (
                     <option key={status} value={status}>
                       {status}
                     </option>

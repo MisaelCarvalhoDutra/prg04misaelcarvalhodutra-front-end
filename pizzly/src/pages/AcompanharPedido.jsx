@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 
+// dados padrão utilizados caso não exista pedido vindo da navegação ou do localStorage
 const PEDIDO_PADRAO = {
   id: "#1025",
   data: "03/06/2026",
@@ -14,14 +15,21 @@ const PEDIDO_PADRAO = {
   pagamento: "Pix",
 };
 
-const STATUS_ORDEM = [
+const STATUS_ORDEM_ENTREGA = [
   "Confirmado",
   "Preparando",
   "Saiu para entrega",
   "Entregue",
 ];
 
-const ETAPAS_BASE = [
+const STATUS_ORDEM_RETIRADA = [
+  "Confirmado",
+  "Preparando",
+  "Pronto para retirada",
+  "Retirado",
+];
+
+const ETAPAS_ENTREGA = [
   {
     status: "Confirmado",
     titulo: "Pedido confirmado",
@@ -44,69 +52,197 @@ const ETAPAS_BASE = [
     status: "Entregue",
     titulo: "Entregue",
     desc: "Pedido entregue ao cliente.",
-    hora: "Previsto",
+    hora: "Concluído",
   },
 ];
 
+const ETAPAS_RETIRADA = [
+  {
+    status: "Confirmado",
+    titulo: "Pedido confirmado",
+    desc: "Recebemos seu pedido com sucesso.",
+    hora: "Agora",
+  },
+  {
+    status: "Preparando",
+    titulo: "Preparando",
+    desc: "Sua pizza está sendo preparada.",
+    hora: "Em andamento",
+  },
+  {
+    status: "Pronto para retirada",
+    titulo: "Pronto para retirada",
+    desc: "Seu pedido já pode ser retirado no balcão.",
+    hora: "Aguardando cliente",
+  },
+  {
+    status: "Retirado",
+    titulo: "Retirado",
+    desc: "Pedido retirado com sucesso.",
+    hora: "Concluído",
+  },
+];
+
+function converterStatus(status) {
+  if (status === "CONFIRMADO") return "Confirmado";
+  if (status === "PREPARANDO") return "Preparando";
+  if (status === "SAIU_PARA_ENTREGA") return "Saiu para entrega";
+  if (status === "PRONTO_PARA_RETIRADA") return "Pronto para retirada";
+  if (status === "ENTREGUE") return "Entregue";
+  if (status === "RETIRADO") return "Retirado";
+  if (status === "CANCELADO") return "Cancelado";
+
+  return "Confirmado";
+}
+
+// página responsável por exibir o acompanhamento do pedido do cliente
 export default function AcompanharPedido() {
   const navigate = useNavigate();
   const [pedido, setPedido] = useState(PEDIDO_PADRAO);
   const location = useLocation();
 
+  // identifica se o pedido foi cancelado para exibir uma mensagem específica
   const pedidoCancelado = pedido.status === "Cancelado";
 
+  const ehRetirada = pedido.formaRecebimento === "retirada";
+
+  const statusOrdem = ehRetirada
+    ? STATUS_ORDEM_RETIRADA
+    : STATUS_ORDEM_ENTREGA;
+
+  const etapasBase = ehRetirada
+    ? ETAPAS_RETIRADA
+    : ETAPAS_ENTREGA;
+
     useEffect(() => {
-    const pedidoDaNavegacao = location.state?.pedido;
+      const pedidoDaNavegacao = location.state?.pedido;
 
-    if (pedidoDaNavegacao) {
-      setPedido({
-        ...PEDIDO_PADRAO,
-        ...pedidoDaNavegacao,
-      });
-
-      localStorage.setItem(
-        "pizzly_pedido_atual",
-        JSON.stringify(pedidoDaNavegacao)
+      const pedidoSalvo = JSON.parse(
+        localStorage.getItem("pizzly_pedido_atual")
       );
 
-      return;
-    }
+      const pedidoInicial = pedidoDaNavegacao || pedidoSalvo;
 
-    const pedidoAtual = JSON.parse(localStorage.getItem("pizzly_pedido_atual"));
+      if (!pedidoInicial?.id) {
+        return;
+      }
 
-    if (pedidoAtual) {
+      // Mostra inicialmente os dados já disponíveis.
       setPedido({
         ...PEDIDO_PADRAO,
-        ...pedidoAtual,
+        ...pedidoInicial,
       });
-    }
-  }, [location.state]);
 
+      async function carregarPedidoAtualizado() {
+        try {
+          const response = await fetch(
+            `http://localhost:8080/pedidos/${pedidoInicial.id}`
+          );
+
+          if (!response.ok) {
+            console.error(
+              "Não foi possível carregar o pedido atualizado:",
+              response.status
+            );
+            return;
+          }
+
+          const pedidoBackend = await response.json();
+
+          console.log("Pedido atualizado recebido:", pedidoBackend);
+          console.log("Status recebido:", pedidoBackend.status);
+
+          const pedidoAtualizado = {
+            ...PEDIDO_PADRAO,
+            ...pedidoInicial,
+
+            id: pedidoBackend.id,
+            status: converterStatus(pedidoBackend.status),
+            formaRecebimento: pedidoBackend.formaRecebimento,
+
+            total: `R$ ${Number(pedidoBackend.total || 0)
+              .toFixed(2)
+              .replace(".", ",")}`,
+
+            tempo:
+              pedidoBackend.status === "ENTREGUE"
+                ? "Entregue"
+                : pedidoBackend.status === "RETIRADO"
+                ? "Retirado"
+                : pedidoBackend.status === "PRONTO_PARA_RETIRADA"
+                ? "Pronto para retirada"
+                : pedidoBackend.formaRecebimento === "retirada"
+                ? "25 min"
+                : "30 - 45 min",
+
+            entrega:
+              pedidoBackend.formaRecebimento === "retirada"
+                ? "Retirada na Pizzly"
+                : pedidoInicial.entrega || "Entrega",
+          };
+
+          setPedido(pedidoAtualizado);
+
+          localStorage.setItem(
+            "pizzly_pedido_atual",
+            JSON.stringify(pedidoAtualizado)
+          );
+        } catch (error) {
+          console.error("Erro ao atualizar o pedido:", error);
+        }
+      }
+
+      // Busca imediatamente ao abrir a página.
+      carregarPedidoAtualizado();
+
+      function atualizarAoVoltarParaPagina() {
+        carregarPedidoAtualizado();
+      }
+
+      window.addEventListener("focus", atualizarAoVoltarParaPagina);
+
+      const intervalo = setInterval(() => {
+        carregarPedidoAtualizado();
+      }, 10000);
+
+      return () => {
+        clearInterval(intervalo);
+        window.removeEventListener("focus", atualizarAoVoltarParaPagina);
+      };
+      }, [location.state]);
+
+  // calcula qual etapa da linha do tempo deve aparecer como concluída
   const etapaAtual = useMemo(() => {
-    const index = STATUS_ORDEM.indexOf(pedido.status);
-    return index === -1 ? 1 : index;
-  }, [pedido.status]);
+    const index = statusOrdem.indexOf(pedido.status);
 
-  const etapas = ETAPAS_BASE.map((etapa, index) => ({
+    return index === -1 ? 0 : index;
+  }, [pedido.status, statusOrdem]);
+
+  // marca cada etapa como concluída ou pendente com base no status atual do pedido
+  const etapas = etapasBase.map((etapa, index) => ({
     ...etapa,
     concluido: index <= etapaAtual,
   }));
 
   return (
     <div className="ap-root">
+      {/* navbar principal da aplicação */}
       <Navbar />
 
       <main className="ap-main">
+        {/* cabeçalho da página com número do pedido e tempo estimado */}
         <section className="ap-hero">
           <div>
             <span className="ap-tag">Pedido {pedido.id}</span>
             <h1>Acompanhe seu pedido</h1>
             <p>
-              Veja o andamento do seu pedido e acompanhe as informações da
-              entrega.
+              {ehRetirada
+                ? "Veja o andamento do seu pedido até a retirada no balcão."
+                : "Veja o andamento do seu pedido e acompanhe as informações da entrega."}
             </p>
           </div>
 
+          {/* card principal com o status e a linha do tempo do pedido */}
           <div className="ap-time-card">
             <span>Tempo estimado</span>
             <strong>{pedido.tempo}</strong>
@@ -115,13 +251,16 @@ export default function AcompanharPedido() {
 
         <section className="ap-grid">
           <div className="ap-card ap-timeline-card">
-            <h2>Status da entrega</h2>
+            <h2>
+              {ehRetirada ? "Status da retirada" : "Status da entrega"}
+            </h2>
 
             <div className="ap-current-status">
               <span>Status atual</span>
               <strong>{pedido.status}</strong>
             </div>
 
+            {/* se o pedido estiver cancelado, exibe uma mensagem em vez da linha do tempo */}
             {pedidoCancelado ? (
               <div className="ap-cancelado-box">
                 <strong>Pedido cancelado</strong>
@@ -132,6 +271,7 @@ export default function AcompanharPedido() {
               </div>
             ) : (
               <div className="ap-timeline">
+                {/* renderiza as etapas do acompanhamento do pedido */}
                 {etapas.map((etapa, index) => (
                   <div
                     key={etapa.titulo}
@@ -154,7 +294,8 @@ export default function AcompanharPedido() {
               </div>
             )}
           </div>
-
+            
+          {/* painel lateral com resumo, entrega e pagamento */}  
           <aside className="ap-side">
             <div className="ap-card">
               <h2>Resumo do pedido</h2>
@@ -174,21 +315,23 @@ export default function AcompanharPedido() {
             </div>
 
             <div className="ap-card">
-              <h2>Entrega</h2>
+              <h2>{ehRetirada ? "Retirada" : "Entrega"}</h2>
 
               <div className="ap-info">
                 <small>Endereço / Retirada</small>
-                <strong>{pedido.entrega || "Rua das Flores, 123 — Centro"}</strong>
+                <strong>{pedido.entrega}</strong>
               </div>
 
-              <div className="ap-info">
-                <small>Entregador</small>
-                <strong>Marcos Silva</strong>
-              </div>
+              {!ehRetirada && (
+                <div className="ap-info">
+                  <small>Entregador</small>
+                  <strong>Marcos Silva</strong>
+                </div>
+              )}
 
               <div className="ap-info">
                 <small>Pagamento</small>
-                <strong>{pedido.pagamento || "Pix"}</strong>
+                <strong>{pedido.pagamento}</strong>
               </div>
             </div>
 

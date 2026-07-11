@@ -1,37 +1,28 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import "../assets/css/RecuperarSenha.css";
 
 import logo from "../assets/images/logopizza.png";
 
 export default function RecuperarSenha() {
-  const navigate = useNavigate();
-
   const [email, setEmail] = useState("");
-  const [codigo, setCodigo] = useState("");
-  const [novaSenha, setNovaSenha] = useState("");
-  const [confirmarSenha, setConfirmarSenha] = useState("");
-
-  // controla a etapa atual da recuperação
-  const [etapa, setEtapa] = useState("email");
-
-  // controla loading dos botões
   const [carregando, setCarregando] = useState(false);
+  const [linkEnviado, setLinkEnviado] = useState(false);
 
-  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  const senhaValida = novaSenha.length >= 8;
-  const senhasConferem = novaSenha === confirmarSenha;
+  const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  async function enviarCodigo(e) {
+  async function enviarLink(e) {
     e.preventDefault();
 
-    if (!emailValid) return;
+    if (!emailValido) {
+      toast.warning("Digite um e-mail válido.");
+      return;
+    }
 
     try {
       setCarregando(true);
 
-      // envia o código para o e-mail cadastrado
       const response = await fetch(
         "http://localhost:8080/verificacao-email/senha/enviar",
         {
@@ -45,70 +36,19 @@ export default function RecuperarSenha() {
 
       if (!response.ok) {
         const erro = await response.text();
-        toast.error(erro || "Não foi possível enviar o código.");
+
+        toast.error(
+          erro || "Não foi possível enviar o link de recuperação."
+        );
+
         return;
       }
 
-      setEtapa("codigo");
+      setLinkEnviado(true);
+
+      toast.success("Link de recuperação enviado!");
     } catch (error) {
-      console.error("Erro ao enviar código:", error);
-      toast.error("Não foi possível conectar ao servidor.");
-    } finally {
-      setCarregando(false);
-    }
-  }
-
-  async function redefinirSenha(e) {
-    e.preventDefault();
-
-    if (codigo.length !== 6) {
-      toast.warning("Digite o código de 6 dígitos.");
-      return;
-    }
-
-    if (!senhaValida) {
-      toast.warning("A nova senha deve ter no mínimo 8 caracteres.");
-      return;
-    }
-
-    if (!senhasConferem) {
-      toast.warning("As senhas não conferem.");
-      return;
-    }
-
-    try {
-      setCarregando(true);
-
-      // valida o código e redefine a senha no backend
-      const response = await fetch(
-        "http://localhost:8080/verificacao-email/senha/redefinir",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email,
-            codigo,
-            novaSenha,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        const erro = await response.text();
-        toast.error(erro || "Código inválido ou expirado.");
-        return;
-      }
-
-      toast.success("Senha redefinida com sucesso!");
-
-      setTimeout(() => {
-        navigate("/login");
-      }, 1000);
-
-    } catch (error) {
-      console.error("Erro ao redefinir senha:", error);
+      console.error("Erro ao enviar link:", error);
       toast.error("Não foi possível conectar ao servidor.");
     } finally {
       setCarregando(false);
@@ -146,7 +86,8 @@ export default function RecuperarSenha() {
             <div className="rp-info-box">
               <span>🔒</span>
               <p>
-                O código será enviado apenas para o e-mail cadastrado.
+                O link será enviado apenas para o e-mail cadastrado e expirará
+                em 15 minutos.
               </p>
             </div>
           </div>
@@ -156,37 +97,45 @@ export default function RecuperarSenha() {
 
         <div className="rp-right">
           <div className="rp-card-wrap">
-            <div className={`rp-card ${etapa === "codigo" ? "rp-card-reset" : ""}`}>
-              <div className="rp-card-icon">
-                {etapa === "email" ? "🔐" : "✉️"}
+            <div className="rp-card">
+              <div
+                className={`rp-card-icon ${
+                  linkEnviado ? "success" : ""
+                }`}
+              >
+                {linkEnviado ? "✓" : "🔐"}
               </div>
 
               <h2 className="rp-card-title">
-                {etapa === "email" ? (
+                {linkEnviado ? (
                   <>
-                    Recuperar <span>senha</span>
+                    Verifique seu <span>e-mail</span>
                   </>
                 ) : (
                   <>
-                    Nova <span>senha</span>
+                    Recuperar <span>senha</span>
                   </>
                 )}
               </h2>
 
               <p className="rp-card-sub">
-                {etapa === "email"
-                  ? "Informe seu e-mail cadastrado para receber o código de recuperação."
-                  : `Digite o código enviado para ${email} e cadastre sua nova senha.`}
+                {linkEnviado
+                  ? `Enviamos um link de recuperação para ${email}.`
+                  : "Informe seu e-mail cadastrado para receber o link de recuperação."}
               </p>
 
-              {etapa === "email" ? (
-                <form onSubmit={enviarCodigo} className="rp-form">
+              {!linkEnviado ? (
+                <form onSubmit={enviarLink} className="rp-form">
                   <div className="rp-field">
                     <label htmlFor="rp-email">E-mail</label>
 
                     <div
                       className={`rp-input-box ${
-                        email ? (emailValid ? "valid" : "invalid") : ""
+                        email
+                          ? emailValido
+                            ? "valid"
+                            : "invalid"
+                          : ""
                       }`}
                     >
                       <input
@@ -198,8 +147,10 @@ export default function RecuperarSenha() {
                       />
                     </div>
 
-                    {email && !emailValid && (
-                      <span className="rp-error">Digite um e-mail válido.</span>
+                    {email && !emailValido && (
+                      <span className="rp-error">
+                        Digite um e-mail válido.
+                      </span>
                     )}
                   </div>
 
@@ -208,104 +159,40 @@ export default function RecuperarSenha() {
                     className="rp-btn-submit"
                     disabled={carregando}
                   >
-                    {carregando ? "Enviando..." : "Enviar código"}
+                    {carregando
+                      ? "Enviando..."
+                      : "Enviar link de recuperação"}
                   </button>
                 </form>
               ) : (
-                <form onSubmit={redefinirSenha} className="rp-form">
-                  <div className="rp-field">
-                    <label>Código recebido</label>
-
-                    <div className="rp-input-box">
-                      <input
-                        type="text"
-                        maxLength="6"
-                        placeholder="000000"
-                        value={codigo}
-                        onChange={(e) =>
-                          setCodigo(e.target.value.replace(/\D/g, ""))
-                        }
-                      />
-                    </div>
-                  </div>
-
-                  <div className="rp-field">
-                    <label>Nova senha</label>
-
-                    <div
-                      className={`rp-input-box ${
-                        novaSenha
-                          ? senhaValida
-                            ? "valid"
-                            : "invalid"
-                          : ""
-                      }`}
-                    >
-                      <input
-                        type="password"
-                        placeholder="Nova senha"
-                        value={novaSenha}
-                        onChange={(e) => setNovaSenha(e.target.value)}
-                      />
-                    </div>
-
-                    {novaSenha && !senhaValida && (
-                      <span className="rp-error">
-                        A senha deve ter no mínimo 8 caracteres.
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="rp-field">
-                    <label>Confirmar senha</label>
-
-                    <div
-                      className={`rp-input-box ${
-                        confirmarSenha
-                          ? senhasConferem
-                            ? "valid"
-                            : "invalid"
-                          : ""
-                      }`}
-                    >
-                      <input
-                        type="password"
-                        placeholder="Confirme sua senha"
-                        value={confirmarSenha}
-                        onChange={(e) => setConfirmarSenha(e.target.value)}
-                      />
-                    </div>
-
-                    {confirmarSenha && !senhasConferem && (
-                      <span className="rp-error">
-                        As senhas não conferem.
-                      </span>
-                    )}
-                  </div>
+                <div className="rp-success-box">
+                  <p>
+                    Abra sua caixa de entrada e clique no link enviado para
+                    criar uma nova senha.
+                  </p>
 
                   <button
-                    type="submit"
-                    className="rp-btn-submit"
+                    type="button"
+                    className="rp-btn-secondary"
+                    onClick={enviarLink}
                     disabled={carregando}
                   >
-                    {carregando ? "Redefinindo..." : "Redefinir senha"}
+                    {carregando ? "Enviando..." : "Reenviar link"}
                   </button>
 
                   <button
                     type="button"
                     className="rp-btn-secondary"
-                    onClick={() => setEtapa("email")}
+                    onClick={() => setLinkEnviado(false)}
                   >
                     Trocar e-mail
                   </button>
-                </form>
+                </div>
               )}
 
-              {etapa === "email" && (
-                <Link to="/login" className="rp-back-link">
-                  ← Voltar para o login
-                </Link>
-              )}
+              <Link to="/login" className="rp-back-link">
+                ← Voltar para o login
+              </Link>
             </div>
           </div>
         </div>
