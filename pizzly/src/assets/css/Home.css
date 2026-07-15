@@ -1,133 +1,212 @@
-/* ============================================================
-   HOME — Pizzly pública  |  src/assets/css/Home.css
-   ============================================================ */
-
+/*reset*/
 .ho-root *, .ho-root *::before, .ho-root *::after {
   box-sizing: border-box; margin: 0; padding: 0;
 }
 
+html, body, #root {
+  min-height: 100%; height: auto;
+  overflow-x: hidden; overflow-y: auto;
+}
+
 .ho-root {
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  color: #111;
-  background: #fff;
+  color: #111; background: #fff;
+  min-height: 100vh; height: auto; overflow: visible;
 }
 
 .ho-yellow { color: #FDD835; }
 
+/*Animações:*/
+@keyframes shimmer {
+  0%   { transform: translateX(-100%) skewX(-15deg); }
+  100% { transform: translateX(260%) skewX(-15deg); }
+}
 
-/* ============================================================
-   HERO
-   ============================================================ */
+@keyframes floatImg {
+  0%,100% { transform: translateY(20px) scale(1.08); }
+  50%      { transform: translateY(8px) scale(1.08); }
+}
+
+@keyframes floatCircle {
+  0%,100% { transform: scale(1) rotate(0deg); }
+  50%      { transform: scale(1.06) rotate(4deg); }
+}
+
+@keyframes floatCircle2 {
+  0%,100% { transform: scale(1) rotate(0deg); }
+  50%      { transform: scale(1.04) rotate(-3deg); }
+}
+
+@keyframes neonPulseYellow {
+  0%,100% { box-shadow: 0 4px 14px rgba(253,216,53,.3); }
+  50%      { box-shadow: 0 4px 24px rgba(253,216,53,.55); }
+}
+
+@keyframes neonPulseRed {
+  0%,100% { box-shadow: 0 4px 14px rgba(198,40,40,.28); }
+  50%      { box-shadow: 0 4px 22px rgba(198,40,40,.44); }
+}
+
+@keyframes borderGlow {
+  0%,100% { opacity: .5; }
+  50%      { opacity: 1; }
+}
+
+@keyframes stripeDown {
+  0%   { top: -120%; }
+  100% { top: 240%; }
+}
+
+@keyframes tagPop {
+  0%,100% { transform: scale(1); }
+  50%      { transform: scale(1.04); }
+}
+
+/*Hero*/
 .ho-hero {
-  background: #9b1010;
   background:
-  linear-gradient(135deg, #b30000 0%, #8b0000 100%);
-  min-height: 420px;
-  height: 480px; /* controla o crescimento */
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-  position: relative;
+    radial-gradient(ellipse 65% 80% at 20% 60%, rgba(180,0,0,.55) 0%, transparent 65%),
+    radial-gradient(ellipse 45% 55% at 85% 20%, rgba(120,0,0,.4) 0%, transparent 60%),
+    linear-gradient(135deg, #b30000 0%, #8b0000 100%);
+  min-height: 420px; height: 480px;
+  display: flex; align-items: center;
+  overflow: hidden; position: relative;
+}
+
+/* linha neon topo */
+.ho-hero::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg,
+    transparent 5%,
+    rgba(253,216,53,.55) 30%,
+    rgba(198,40,40,.7) 55%,
+    rgba(253,216,53,.45) 80%,
+    transparent 95%);
+  animation: borderGlow 3s ease-in-out infinite;
+  z-index: 3;
+}
+
+/* círculo grande fundo direito */
+.ho-hero::after {
+  content: '';
+  position: absolute; right: -100px; top: -100px;
+  width: 500px; height: 500px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(150,0,0,.35) 0%, transparent 68%);
+  pointer-events: none;
+  animation: floatCircle 9s ease-in-out infinite;
+  z-index: 0;
+}
+
+/* segundo círculo menor, canto inf esquerdo */
+.ho-hero-inner::before {
+  content: '';
+  position: absolute; left: -60px; bottom: -80px;
+  width: 280px; height: 280px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(253,216,53,.08) 0%, transparent 70%);
+  pointer-events: none;
+  animation: floatCircle2 7s ease-in-out infinite;
+  z-index: 0;
 }
 
 .ho-hero-inner {
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: 1200px; margin: 0 auto;
   padding: 3rem 2rem;
-  display: flex;
-  align-items: center;
+  display: flex; align-items: center;
   justify-content: space-between;
-  width: 100%;
-  gap: 2rem;
+  width: 100%; gap: 2rem;
+  position: relative; z-index: 2;
 }
 
-.ho-hero-txt {
-  flex: 1;
-  max-width: 500px;
-  color: #fff;
-}
+.ho-hero-txt { flex: 1; max-width: 500px; color: #fff; position: relative; z-index: 2; }
 
 .ho-hero-txt h1 {
-  font-size: 3rem;
-  font-weight: 900;
-  line-height: 1.1;
-  margin-bottom: 1rem;
-  color: #fff;
+  font-size: 3rem; font-weight: 900; line-height: 1.1;
+  margin-bottom: 1rem; color: #fff;
+  text-shadow: 0 2px 20px rgba(0,0,0,.2);
+}
+
+/* "para qualquer" com glow */
+.ho-yellow {
+  color: #FDD835;
+  text-shadow: 0 0 20px rgba(253,216,53,.55), 0 0 40px rgba(253,216,53,.2);
 }
 
 .ho-hero-txt p {
-  font-size: 0.95rem;
-  color: rgba(255,255,255,0.85);
-  line-height: 1.65;
-  margin-bottom: 1.8rem;
+  font-size: 0.95rem; color: rgba(255,255,255,.82);
+  line-height: 1.7; margin-bottom: 1.8rem;
 }
 
-.ho-hero-btns {
-  display: flex;
-  gap: 0.9rem;
-  flex-wrap: wrap;
-}
+.ho-hero-btns { display: flex; gap: 0.9rem; flex-wrap: wrap; }
 
+/* Botão Peça Agora */
 .ho-btn-peca {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: #FDD835;
-  color: #111;
-  font-weight: 700;
-  font-size: 0.95rem;
-  border-radius: 0.6rem;
-  padding: 0.75rem 1.5rem;
-  text-decoration: none;
-  transition: opacity 0.15s, transform 0.1s;
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: #FDD835; color: #111;
+  font-weight: 700; font-size: 0.95rem;
+  border-radius: 0.7rem; padding: 0.78rem 1.55rem;
+  text-decoration: none; border: none; cursor: pointer;
+  font-family: inherit; position: relative; overflow: hidden;
+  transition: transform 0.18s, box-shadow 0.22s;
+  animation: neonPulseYellow 3s ease-in-out infinite;
+  letter-spacing: 0.01em;
 }
 
-.ho-btn-peca:hover { opacity: 0.9; }
+.ho-btn-peca::before {
+  content: '';
+  position: absolute; top: 0; left: 0;
+  width: 40%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.32), transparent);
+  transform: translateX(-100%) skewX(-15deg);
+}
+
+.ho-btn-peca:hover::before { animation: shimmer 0.52s ease forwards; }
+.ho-btn-peca:hover  { transform: translateY(-2px); box-shadow: 0 8px 26px rgba(253,216,53,.52), 0 0 30px rgba(253,216,53,.28); }
 .ho-btn-peca:active { transform: scale(0.97); }
 
 .ho-btn-cardapio {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: transparent;
-  color: #fff;
-  font-weight: 600;
-  font-size: 0.95rem;
-  border: 2px solid rgba(255,255,255,0.55);
-  border-radius: 0.6rem;
-  padding: 0.72rem 1.4rem;
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: transparent; color: #fff; font-weight: 600;
+  font-size: 0.95rem; border: 2px solid rgba(255,255,255,.5);
+  border-radius: 0.7rem; padding: 0.72rem 1.4rem;
   text-decoration: none;
-  transition: background 0.15s;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
 
-.ho-btn-cardapio:hover { background: rgba(255,255,255,0.1); }
+.ho-btn-cardapio:hover {
+  background: rgba(255,255,255,.1);
+  border-color: rgba(255,255,255,.85);
+  box-shadow: 0 0 16px rgba(255,255,255,.15);
+}
 
 /* Imagem hero */
 .ho-hero-img-wrap {
   flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; z-index: 2;
+}
+
+/* anel de brilho atrás da pizza */
+.ho-hero-img-wrap::before {
+  content: '';
+  position: absolute;
+  width: 380px; height: 380px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(253,216,53,.12) 0%, transparent 68%);
+  animation: floatCircle 6s ease-in-out infinite;
+  pointer-events: none;
 }
 
 .ho-hero-img {
-  width: 560px;
-  max-width: 100%;
-  height: auto;
+  width: 560px; max-width: 100%; height: auto;
   object-fit: contain;
-  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.35));
-  transform: translateY(20px) scale(1.08);
-  
+  filter: drop-shadow(0 20px 40px rgba(0,0,0,.45)) drop-shadow(0 0 30px rgba(253,216,53,.12));
+  animation: floatImg 5s ease-in-out infinite;
+  position: relative; z-index: 1;
 }
 
-/* ============================================================
-   MAIN
-   ============================================================ */
+/*main*/
 .ho-main {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 2rem;
+  max-width: 1200px; margin: 0 auto; padding: 0 2rem;
 }
 
 .ho-section {
@@ -138,555 +217,623 @@
 .ho-section:last-child { border-bottom: none; }
 
 .ho-section-title {
-  font-size: 1.3rem;
-  font-weight: 800;
-  color: #111;
+  font-size: 1.3rem; font-weight: 800; color: #111; margin-bottom: 1.3rem;
+  position: relative; display: inline-block;
+}
+
+/* underline neon gradiente */
+.ho-section-title::after {
+  content: '';
+  display: block;
+  width: 40px; height: 3px;
+  background: linear-gradient(90deg, #c62828, #FDD835);
+  border-radius: 2px; margin-top: 6px;
+  box-shadow: 0 0 8px rgba(198,40,40,.4);
+}
+
+.ho-sec-hdr {
+  display: flex; align-items: center; justify-content: space-between;
   margin-bottom: 1.3rem;
 }
 
-/* ── Section header com link ── */
-.ho-sec-hdr {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.3rem;
-}
+.ho-sec-hdr .ho-section-title { margin-bottom: 0; }
 
 .ho-ver-todas {
-  background: transparent;
-  border: none;
-  padding: 0;
-
-  font-size: 0.88rem;
-  font-weight: 700;
-  color: #c62828;
-  text-decoration: none;
-
-  cursor: pointer;
-  font-family: inherit;
+  background: transparent; border: none; padding: 0;
+  font-size: 0.88rem; font-weight: 700; color: #c62828;
+  cursor: pointer; font-family: inherit;
+  transition: color 0.2s, text-shadow 0.2s, gap 0.2s;
+  display: inline-flex; align-items: center; gap: 4px;
 }
 
 .ho-ver-todas:hover {
   text-decoration: underline;
+  text-shadow: 0 0 10px rgba(198,40,40,.38);
 }
 
-.ho-ver-todas:focus,
-.ho-ver-todas:focus-visible {
-  outline: none;
-  box-shadow: none;
-}
-
-.ho-ver-todas:hover { text-decoration: underline; }
+.ho-ver-todas:focus, .ho-ver-todas:focus-visible { outline: none; }
 
 /* ── Categorias ── */
 .ho-categorias {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
+  display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem;
 }
 
 .ho-cat-card {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-
-  width: 100%;
-
-  padding: 1.1rem 1rem;
-  border-radius: 0.9rem;
-
-  border: none;
-  cursor: pointer;
-
-  text-align: left;
-  font-family: inherit;
-
-  transition: transform 0.15s, box-shadow 0.15s;
+  display: flex; align-items: center; gap: 0.8rem;
+  width: 100%; padding: 1.15rem 1rem; border-radius: 1.1rem;
+  border: 1.5px solid transparent;
+  cursor: pointer; text-align: left; font-family: inherit;
+  position: relative; overflow: hidden;
+  transition: transform 0.22s, box-shadow 0.25s, border-color 0.25s;
 }
 
-.ho-cat-card > div {
-  flex: 1;
+/* linha neon colorida no topo do card — aparece no hover */
+.ho-cat-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, currentColor, transparent);
+  opacity: 0; transition: opacity 0.28s;
 }
+
+.ho-cat-card:hover::before { opacity: 0.7; }
+
+/* shine */
+.ho-cat-card::after {
+  content: '';
+  position: absolute; top: 0; left: 0;
+  width: 40%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.45), transparent);
+  transform: translateX(-100%) skewX(-15deg);
+}
+
+.ho-cat-card:hover::after { animation: shimmer 0.5s ease forwards; }
+
+.ho-cat-card > div { flex: 1; }
 
 .ho-cat-arrow {
-  font-size: 1.1rem;
-  font-weight: 900;
-  color: #999;
-
-  opacity: 0;
-  transform: translateX(-5px);
-
-  transition:
-    opacity 0.2s ease,
-    transform 0.2s ease;
+  font-size: 1.1rem; font-weight: 900; color: #999;
+  opacity: 0; transform: translateX(-7px);
+  transition: opacity 0.22s, transform 0.22s;
 }
 
-.ho-cat-card:hover .ho-cat-arrow {
-  opacity: 1;
-  transform: translateX(0);
-}
+.ho-cat-card:hover .ho-cat-arrow { opacity: 1; transform: translateX(0); }
 
 .ho-cat-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 24px rgba(0,0,0,0.10);
+  transform: translateY(-5px);
+  box-shadow: 0 12px 32px rgba(0,0,0,.13);
+  border-color: rgba(198,40,40,.18);
 }
 
-.ho-cat-emoji { font-size: 2rem; flex-shrink: 0; }
+.ho-cat-emoji {
+  font-size: 2rem; flex-shrink: 0;
+  transition: transform 0.3s cubic-bezier(.34,1.56,.64,1), filter 0.3s;
+}
+
+.ho-cat-card:hover .ho-cat-emoji {
+  transform: scale(1.25) rotate(-10deg);
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,.2));
+}
 
 .ho-cat-card strong {
-  display: block;
-  font-size: 0.9rem;
-  font-weight: 700;
-  margin-bottom: 0.15rem;
+  display: block; font-size: 0.9rem; font-weight: 700; margin-bottom: 0.15rem;
 }
 
-.ho-cat-card p {
-  font-size: 0.76rem;
-  color: #666;
-  line-height: 1.35;
-}
+.ho-cat-card p { font-size: 0.76rem; color: #666; line-height: 1.35; }
 
 /* ── Pizzas grid ── */
 .ho-pizzas-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.1rem;
+  display: grid; grid-template-columns: repeat(4,1fr); gap: 1.1rem;
 }
 
 .ho-pizza-card {
-  border: 1px solid #f0f0f0;
-  border-radius: 0.9rem;
-  overflow: hidden;
-  background: #fff;
-  transition: box-shadow 0.15s, transform 0.15s;
+  border: 1.5px solid #f0f0f0; border-radius: 1.1rem;
+  overflow: hidden; background: #fff; position: relative;
+  transition: box-shadow 0.28s, transform 0.28s, border-color 0.28s;
+}
+
+/* stripe neon topo */
+.ho-pizza-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, #c62828 40%, #FDD835 70%, transparent);
+  opacity: 0; transition: opacity 0.3s; z-index: 3;
+}
+
+.ho-pizza-card:hover::before { opacity: 1; }
+
+/* stripe descendo dentro do card */
+.ho-pizza-card::after {
+  content: '';
+  position: absolute; top: -120%; left: 0; right: 0; height: 55%;
+  background: linear-gradient(180deg, transparent, rgba(198,40,40,.03), transparent);
+  animation: stripeDown 6s ease-in-out infinite;
+  pointer-events: none; z-index: 0;
 }
 
 .ho-pizza-card:hover {
-  box-shadow: 0 6px 24px rgba(0,0,0,0.09);
-  transform: translateY(-2px);
+  box-shadow: 0 16px 40px rgba(198,40,40,.13), 0 4px 16px rgba(0,0,0,.07);
+  transform: translateY(-5px);
+  border-color: rgba(198,40,40,.22);
 }
 
 .ho-pizza-img {
-  width: 100%;
-  height: 170px;
-  object-fit: cover;
+  width: 100%; height: 170px; object-fit: cover;
+  transition: transform 0.45s;
 }
 
+.ho-pizza-card:hover .ho-pizza-img { transform: scale(1.06); }
+
 .ho-pizza-body {
-  padding: 0.9rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.28rem;
+  padding: 0.9rem; display: flex; flex-direction: column; gap: 0.28rem;
+  position: relative; z-index: 1;
 }
 
 .ho-pizza-name { font-size: 0.95rem; font-weight: 700; color: #111; }
 
-.ho-pizza-desc {
-  font-size: 0.78rem;
-  color: #777;
-  line-height: 1.4;
-  min-height: 2.8em;
-}
+.ho-pizza-desc { font-size: 0.78rem; color: #777; line-height: 1.4; min-height: 2.8em; }
 
 .ho-pizza-price {
-  font-size: 1rem;
-  font-weight: 800;
-  color: #c62828;
+  font-size: 1rem; font-weight: 800; color: #c62828;
   margin-top: 0.2rem;
+  text-shadow: 0 0 8px rgba(198,40,40,.18);
 }
 
+/* Botão Adicionar */
 .ho-pizza-btn {
   margin-top: 0.5rem;
-  background: #FDD835;
-  color: #111;
-  border: none;
-  border-radius: 0.5rem;
-  padding: 0.6rem;
-  font-size: 0.85rem;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: inherit;
-  transition: opacity 0.15s, transform 0.1s;
-  width: 100%;
+  background: #FDD835; color: #111;
+  border: none; border-radius: 0.65rem;
+  padding: 0.62rem; font-size: 0.85rem; font-weight: 700;
+  cursor: pointer; font-family: inherit;
+  width: 100%; position: relative; overflow: hidden;
+  transition: transform 0.18s, box-shadow 0.22s;
 }
 
-.ho-pizza-btn:hover  { opacity: 0.88; }
+.ho-pizza-btn::before {
+  content: '';
+  position: absolute; top: 0; left: 0;
+  width: 40%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.4), transparent);
+  transform: translateX(-100%) skewX(-15deg);
+}
+
+.ho-pizza-btn:hover::before { animation: shimmer 0.5s ease forwards; }
+.ho-pizza-btn:hover  { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(253,216,53,.42); }
 .ho-pizza-btn:active { transform: scale(0.97); }
 
 /* ── Banner Combo ── */
 .ho-combo-banner {
-  background: #9b1010;
-  background-image: radial-gradient(ellipse at 30% 50%, #c62828 0%, #7f0000 100%);
-  border-radius: 1.2rem;
-  padding: 2rem 2rem 2rem 2.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: #fff;
-  overflow: hidden;
-  position: relative;
-  min-height: 200px;
+  background:
+    radial-gradient(ellipse 55% 80% at 25% 55%, rgba(198,40,40,.6) 0%, transparent 65%),
+    radial-gradient(ellipse 40% 60% at 80% 30%, rgba(100,0,0,.5) 0%, transparent 65%),
+    linear-gradient(135deg, #9b0000 0%, #7f0000 100%);
+  border-radius: 1.5rem;
+  padding: 2.2rem 2rem 2.2rem 2.5rem;
+  display: flex; align-items: center; justify-content: space-between;
+  color: #fff; overflow: hidden; position: relative; min-height: 210px;
+  border: 1px solid rgba(253,216,53,.2);
+  box-shadow: 0 10px 40px rgba(198,40,40,.25), inset 0 1px 0 rgba(255,255,255,.06);
+  transition: box-shadow 0.3s, border-color 0.3s;
+}
+
+/* neon topo */
+.ho-combo-banner::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg,
+    transparent 5%,
+    rgba(253,216,53,.65) 35%,
+    rgba(198,40,40,.6) 65%,
+    transparent 95%);
+  animation: borderGlow 3s ease-in-out infinite;
+  z-index: 2;
+}
+
+/* stripe descendo */
+.ho-combo-banner::after {
+  content: '';
+  position: absolute; top: -120%; left: 0; right: 0; height: 50%;
+  background: linear-gradient(180deg, transparent, rgba(255,255,255,.04), transparent);
+  animation: stripeDown 5s ease-in-out infinite;
+  pointer-events: none; z-index: 1;
+}
+
+.ho-combo-banner:hover {
+  box-shadow: 0 16px 52px rgba(198,40,40,.38), 0 0 0 1px rgba(253,216,53,.28);
+  border-color: rgba(253,216,53,.28);
 }
 
 .ho-combo-left { flex: 1; max-width: 52%; position: relative; z-index: 2; }
 
 .ho-combo-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  background: #FDD835;
-  color: #7f0000;
-  font-size: 0.7rem;
-  font-weight: 800;
-  border-radius: 2rem;
-  padding: 0.22rem 0.7rem;
-  margin-bottom: 0.65rem;
-  letter-spacing: 0.04em;
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  background: #FDD835; color: #7f0000;
+  font-size: 0.7rem; font-weight: 800;
+  border-radius: 2rem; padding: 0.24rem 0.75rem;
+  margin-bottom: 0.65rem; letter-spacing: 0.05em;
+  box-shadow: 0 0 14px rgba(253,216,53,.55), 0 2px 8px rgba(0,0,0,.2);
+  animation: tagPop 2.5s ease-in-out infinite;
 }
 
 .ho-combo-left h2 {
-  font-size: 2.2rem;
-  font-weight: 900;
-  line-height: 1.1;
-  margin-bottom: 0.4rem;
+  font-size: 2.2rem; font-weight: 900; line-height: 1.1; margin-bottom: 0.4rem;
+  text-shadow: 0 2px 12px rgba(0,0,0,.2);
 }
 
-.ho-combo-left p {
-  font-size: 0.9rem;
-  color: rgba(255,255,255,0.85);
-  margin-bottom: 1rem;
-}
+.ho-combo-left p { font-size: 0.9rem; color: rgba(255,255,255,.85); margin-bottom: 1rem; }
 
 .ho-combo-price-box {
-  display: inline-flex;
-  flex-direction: column;
-  background: rgba(0,0,0,0.25);
-  border-radius: 0.6rem;
-  padding: 0.5rem 1rem;
-  margin-bottom: 0.9rem;
+  display: inline-flex; flex-direction: column;
+  background: rgba(0,0,0,.28);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 0.8rem; padding: 0.55rem 1.1rem; margin-bottom: 0.9rem;
+  backdrop-filter: blur(6px);
+  transition: border-color 0.25s, box-shadow 0.25s;
 }
 
-.ho-combo-por { font-size: 0.72rem; color: rgba(255,255,255,0.7); }
+.ho-combo-banner:hover .ho-combo-price-box {
+  border-color: rgba(253,216,53,.3);
+  box-shadow: 0 0 14px rgba(253,216,53,.15);
+}
+
+.ho-combo-por { font-size: 0.72rem; color: rgba(255,255,255,.6); }
 
 .ho-combo-val {
-  font-size: 1.6rem;
-  font-weight: 900;
-  color: #fff;
-  line-height: 1.15;
+  font-size: 1.6rem; font-weight: 900; color: #fff; line-height: 1.15;
+  text-shadow: 0 0 18px rgba(253,216,53,.4);
 }
 
-.ho-combo-checks {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-}
+.ho-combo-checks { list-style: none; display: flex; flex-direction: column; gap: 0.3rem; }
 
-.ho-combo-checks li {
-  font-size: 0.82rem;
-  color: rgba(255,255,255,0.88);
-}
+.ho-combo-checks li { font-size: 0.82rem; color: rgba(255,255,255,.85); }
 
-.ho-combo-left .ho-btn-peca {
-  margin-top: 1.4rem;
-}
+.ho-combo-left .ho-btn-peca { margin-top: 1.4rem; }
 
-/* Imagens do combo */
-.ho-combo-imgs {
-  position: relative;
-  width: 460px;
-  height: 180px;
-  flex-shrink: 0;
-}
+.ho-combo-imgs { position: relative; width: 460px; height: 180px; flex-shrink: 0; }
 
 .ho-combo-pizza1 {
-  position: absolute;
-  right: 120px;
-  bottom: -10px;
-  width: 220px;
-  height: 220px;
-  object-fit: cover;
+  position: absolute; right: 120px; bottom: -10px;
+  width: 220px; height: 220px; object-fit: cover;
   border-radius: 50%;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  box-shadow: 0 8px 32px rgba(0,0,0,.35), 0 0 24px rgba(253,216,53,.22);
   z-index: 2;
+  transition: transform 0.45s cubic-bezier(.34,1.3,.64,1), box-shadow 0.45s;
+}
+
+.ho-combo-banner:hover .ho-combo-pizza1 {
+  transform: scale(1.06) translateY(-6px) rotate(3deg);
+  box-shadow: 0 16px 48px rgba(0,0,0,.4), 0 0 36px rgba(253,216,53,.32);
 }
 
 .ho-combo-pizza2 {
-  position: absolute;
-  right: -10px;
-  bottom: -20px;
-  width: 180px;
-  height: 180px;
-  object-fit: cover;
-  border-radius: 50%;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-  z-index: 1;
-  opacity: 0.85;
+  position: absolute; right: -10px; bottom: -20px;
+  width: 180px; height: 180px; object-fit: cover;
+  border-radius: 50%; box-shadow: 0 8px 32px rgba(0,0,0,.3);
+  z-index: 1; opacity: 0.85;
 }
 
-/* ── Diferenciais ── */
+/* ── Diferenciais — glassmorphism sutil ── */
 .ho-diferenciais {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem;
 }
 
 .ho-dif-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 1.3rem;
-  border: 1px solid #f0f0f0;
-  border-radius: 1rem;
-  background: #fff;
+  display: flex; align-items: flex-start; gap: 1rem;
+  padding: 1.5rem; border: 1.5px solid #efefef;
+  border-radius: 1.2rem; background: #fff;
+  position: relative; overflow: hidden;
+  transition: border-color 0.28s, box-shadow 0.28s, transform 0.28s;
+  cursor: default;
+}
+
+/* linha neon topo */
+.ho-dif-item::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, #c62828 40%, #FDD835 70%, transparent);
+  opacity: 0; transition: opacity 0.3s;
+}
+
+.ho-dif-item:hover::before { opacity: 1; }
+
+/* shine */
+.ho-dif-item::after {
+  content: '';
+  position: absolute; top: 0; left: 0;
+  width: 40%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(198,40,40,.04), transparent);
+  transform: translateX(-100%) skewX(-15deg);
+}
+
+.ho-dif-item:hover::after { animation: shimmer 0.6s ease forwards; }
+
+.ho-dif-item:hover {
+  border-color: rgba(198,40,40,.2);
+  box-shadow: 0 10px 32px rgba(198,40,40,.1), 0 2px 8px rgba(0,0,0,.05);
+  transform: translateY(-4px);
 }
 
 .ho-dif-ico {
-  width: 48px; height: 48px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 50px; height: 50px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
+  transition: transform 0.35s cubic-bezier(.34,1.56,.64,1), box-shadow 0.35s;
+}
+
+.ho-dif-item:hover .ho-dif-ico {
+  transform: scale(1.15) rotate(-8deg);
+  box-shadow: 0 0 20px rgba(198,40,40,.55);
 }
 
 .ho-dif-item strong {
-  display: block;
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #111;
-  margin-bottom: 0.3rem;
+  display: block; font-size: 0.95rem; font-weight: 700; color: #111;
+  margin-bottom: 0.3rem; transition: color 0.22s;
 }
 
-.ho-dif-item p {
-  font-size: 0.8rem;
-  color: #666;
-  line-height: 1.45;
-}
+.ho-dif-item:hover strong { color: #c62828; }
 
-/* ============================================================
-   FOOTER
-   ============================================================ */
+.ho-dif-item p { font-size: 0.8rem; color: #666; line-height: 1.5; }
+
+/* footer: */
 .ho-footer {
-  background: linear-gradient(to right, #980000, #b40000);
-  color: rgba(255,255,255,0.75);
-  margin-top: 0;
+  background:
+    radial-gradient(ellipse 60% 70% at 10% 50%, rgba(150,0,0,.4) 0%, transparent 65%),
+    linear-gradient(135deg, #7f0000 0%, #b00000 55%, #900000 100%);
+  color: rgba(255,255,255,.75); margin-top: 0;
+  position: relative; overflow: hidden;
 }
 
-.ho-footer-inner {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 3rem 2rem 2rem;
-  display: grid;
-  grid-template-columns: 1.8fr 1fr 1fr 1fr;
-  gap: 2.5rem;
-}
-
-/* Brand */
-.ho-footer-brand p {
-  font-size: 0.82rem;
-  line-height: 1.6;
-  margin-top: 0.8rem;
-  color: rgba(255,255,255,0.55);
-}
-
-.ho-footer-logo {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-}
-
-.ho-footer-logo-text {
-  font-size: 1.5rem;
-  font-weight: 800;
-  font-style: italic;
-  color: #fff;
-  letter-spacing: -0.5px;
-}
-
-/* Colunas */
-.ho-footer-col {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-.ho-footer-col strong {
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 0.3rem;
-}
-
-.ho-footer-col a {
-  font-size: 0.82rem;
-  color: rgba(255,255,255,0.55);
-  text-decoration: none;
-  transition: color 0.15s;
-}
-
-.ho-footer-col a:hover { color: #FDD835; }
-
-/* Sociais */
-.ho-socials {
-  display: flex;
-  gap: 0.65rem;
-  margin-top: 0.3rem;
-}
-
-.ho-social-btn {
-  width: 38px; height: 38px;
-  background: rgba(255,255,255,0.1);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  transition: background 0.15s;
-}
-
-.ho-social-btn:hover { background: #c62828; }
-
-/* Footer bottom */
-.ho-footer-bottom {
-  border-top: 1px solid rgba(255,255,255,0.08);
-  text-align: center;
-  padding: 1.2rem 2rem;
-  font-size: 0.78rem;
-  color: rgba(255,255,255,0.35);
-}
-
-
-/* ============================================================
-   RESPONSIVO
-   ============================================================ */
-@media (max-width: 1024px) {
-  .ho-categorias   { grid-template-columns: repeat(2, 1fr); }
-  .ho-pizzas-grid  { grid-template-columns: repeat(2, 1fr); }
-  .ho-hero-img-wrap { width: 320px; height: 280px; }
-  .ho-hero-txt h1  { font-size: 2.2rem; }
-  .ho-footer-inner { grid-template-columns: 1fr 1fr; gap: 2rem; }
-}
-
-@media (max-width: 768px) {
-  html,
-  body {
-    overflow-x: hidden;
-    overflow-y: auto;
-    height: auto;
-  }
-
-  .ho-root {
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  .ho-hero {
-    height: auto;
-    min-height: auto;
-    overflow: visible;
-    padding: 1.3rem 0 1rem;
-   
-  }
-
-  .ho-hero-inner {
-    flex-direction: column;
-    text-align: center;
-    padding: 0.5rem 1rem;
-    gap: 0.5rem;
-  }
-
-  .ho-hero-txt {
-    max-width: 100%;
-  }
-
-  .ho-hero-txt h1 {
-    font-size: 2.4rem;
-    line-height: 1.15;
-  }
-
-  .ho-hero-img-wrap {
-    width: 100%;
-    height: auto;
-    margin-bottom: -50px;
-  }
-
-  .ho-hero-img {
-    width: 230px;
-    max-width: 90%;
-    transform: none;
-  }
-
-  .ho-hero-btns {
-    justify-content: center;
-  }
-
-  .ho-combo-banner {
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 1.5rem;
-  gap: 1.2rem;
-}
-
-.ho-combo-left {
-  max-width: 100%;
-  width: 100%;
+/* neon topo footer */
+.ho-footer::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg,
+    transparent 5%,
+    rgba(253,216,53,.5) 30%,
+    rgba(198,40,40,.65) 55%,
+    rgba(253,216,53,.4) 80%,
+    transparent 95%);
+  animation: borderGlow 3.5s ease-in-out infinite;
   z-index: 2;
 }
 
-.ho-combo-left .ho-btn-peca {
-  margin-top: 1rem;
-  position: relative;
-  z-index: 3;
+/* brilho de fundo canto direito */
+.ho-footer::after {
+  content: '';
+  position: absolute; right: -80px; bottom: -80px;
+  width: 340px; height: 340px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(198,40,40,.15) 0%, transparent 68%);
+  pointer-events: none; z-index: 0;
 }
 
-.ho-combo-imgs {
-  width: 100%;
-  height: 170px;
-  margin-top: 0.5rem;
-  position: relative;
-  overflow: hidden;
+.ho-footer-inner {
+  max-width: 1200px; margin: 0 auto;
+  padding: 3rem 2rem 2rem;
+  display: grid; grid-template-columns: 1.8fr 1fr 1fr 1fr; gap: 2.5rem;
+  position: relative; z-index: 1;
 }
 
-.ho-combo-pizza1 {
-  position: relative;
-  right: auto;
-  bottom: auto;
-  width: 170px;
-  height: 170px;
-  margin-left: auto;
-  display: block;
+.ho-footer-brand p {
+  font-size: 0.82rem; line-height: 1.65; margin-top: 0.8rem;
+  color: rgba(255,255,255,.48);
 }
 
-.ho-combo-pizza2 {
-  display: none;
+.ho-footer-logo {
+  display: flex; align-items: center; gap: 0.45rem;
+  width: fit-content; cursor: default;
+  transition: filter 0.3s;
 }
 
-  .ho-diferenciais {
-    grid-template-columns: 1fr;
+.ho-footer-logo:hover {
+  filter: drop-shadow(0 0 10px rgba(253,216,53,.4));
+}
+
+.ho-footer-logo-text {
+  font-size: 1.5rem; font-weight: 800; font-style: italic;
+  color: #fff; letter-spacing: -0.5px;
+  transition: text-shadow 0.3s;
+}
+
+.ho-footer-logo:hover .ho-footer-logo-text {
+  text-shadow: 0 0 18px rgba(253,216,53,.55);
+}
+
+.ho-footer-col { display: flex; flex-direction: column; gap: 0.6rem; }
+
+.ho-footer-col strong {
+  font-size: 0.9rem; font-weight: 700; color: #fff;
+  margin-bottom: 0.3rem; letter-spacing: 0.2px;
+}
+
+.ho-footer-col a {
+  font-size: 0.82rem; color: rgba(255,255,255,.48); text-decoration: none;
+  width: fit-content; position: relative;
+  transition: color 0.22s, text-shadow 0.22s;
+  padding-left: 0;
+}
+
+/* pontinho neon que aparece antes do link no hover */
+.ho-footer-col a::before {
+  content: '›';
+  position: absolute; left: -12px;
+  opacity: 0; color: #FDD835;
+  transition: opacity 0.2s, left 0.2s;
+}
+
+.ho-footer-col a:hover {
+  color: #FDD835; padding-left: 14px;
+  text-shadow: 0 0 10px rgba(253,216,53,.38);
+}
+
+.ho-footer-col a:hover::before { opacity: 1; left: 0; }
+
+/* Sociais */
+.ho-socials { display: flex; gap: 0.65rem; margin-top: 0.3rem; }
+
+.ho-social-btn {
+  width: 38px; height: 38px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  text-decoration: none;
+  transition: background 0.22s, border-color 0.22s, box-shadow 0.3s, transform 0.22s;
+}
+
+.ho-social-btn:hover {
+  background: #c62828; border-color: rgba(198,40,40,.7);
+  box-shadow: 0 0 18px rgba(198,40,40,.6), 0 4px 12px rgba(0,0,0,.2);
+  transform: scale(1.15) translateY(-2px);
+}
+
+.ho-footer-bottom {
+  border-top: 1px solid rgba(255,255,255,.07);
+  text-align: center; padding: 1.2rem 2rem;
+  font-size: 0.78rem; color: rgba(255,255,255,.28);
+  position: relative; z-index: 1;
+}
+
+/*Responsividade: */
+@media (max-width: 1024px) {
+  .ho-categorias  {
+    grid-template-columns: repeat(2,1fr);
   }
 
+  .ho-pizzas-grid {
+    grid-template-columns: repeat(2,1fr); 
+  }
+
+  .ho-hero-img {
+    width: 360px; 
+  }
+
+  .ho-hero-txt h1 {
+    font-size: 2.3rem; 
+  }
+
+  .ho-footer-inner { 
+    grid-template-columns: 1fr 1fr; gap: 2rem; }
+  } 
+
+@media (max-width: 768px) {
+  html, body { 
+    overflow-x: hidden;
+    overflow-y: auto; 
+    height: auto;
+  }
+
+  .ho-hero { 
+    height: auto; 
+    min-height: auto; 
+    overflow: visible; 
+    padding: 1.3rem 0 1rem;
+  }
+
+  .ho-hero-inner { 
+    flex-direction: column; 
+    text-align: center; 
+    padding: 0.5rem 1rem; 
+    gap: 0.5rem; 
+  }
+
+  .ho-hero-inner::before { 
+    display: none; 
+  }
+
+  .ho-hero-txt { 
+    max-width: 100%; 
+  }
+
+  .ho-hero-txt h1 { 
+    font-size: 2.4rem; 
+    line-height: 1.15; 
+  }
+
+  .ho-hero-img-wrap { 
+    width: 100%; 
+    height: auto; 
+    margin-bottom: -50px; 
+  }
+
+  .ho-hero-img-wrap::before { 
+    display: none; 
+  }
+
+  .ho-hero-img { 
+    width: 230px; 
+    max-width: 90%; 
+    animation: none; 
+    transform: none; 
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,.35)); 
+  }
+
+  .ho-hero-btns { 
+    justify-content: center; 
+  }
+
+  .ho-combo-banner { 
+    flex-direction: column; 
+    align-items: flex-start; 
+    padding: 1.5rem; gap: 1.2rem; 
+  }
+
+  .ho-combo-left { 
+    max-width: 100%; 
+    width: 100%; 
+    z-index: 2; 
+  }
+
+  .ho-combo-left .ho-btn-peca { 
+    margin-top: 1rem; 
+    position: relative; 
+    z-index: 3; 
+  }
+
+  .ho-combo-imgs { 
+    width: 100%; 
+    height: 170px; 
+    margin-top: 0.5rem; 
+    position: relative; 
+    overflow: hidden; 
+  }
+
+  .ho-combo-pizza1 { 
+    position: relative; 
+    right: auto; 
+    bottom: auto; 
+    width: 170px; 
+    height: 170px; 
+    margin-left: auto; 
+    display: block; 
+  }
+
+  .ho-combo-pizza2 { 
+    display: none; 
+  }
+
+  .ho-diferenciais { 
+    grid-template-columns: 1fr; 
+  }
 }
 
 @media (max-width: 520px) {
-  .ho-pizzas-grid  { grid-template-columns: 1fr; }
-  .ho-categorias   { grid-template-columns: 1fr; }
-  .ho-footer-inner { grid-template-columns: 1fr; }
+  .ho-pizzas-grid  { 
+    grid-template-columns: 1fr; 
+  }
+
+  .ho-categorias   { 
+    grid-template-columns: 1fr; 
+  }
+
+  .ho-footer-inner { 
+    grid-template-columns: 1fr; 
+  }
+
+  .ho-footer-col a { 
+    padding-left: 0 !important; 
+  }
+
+  .ho-footer-col a::before { 
+    display: none; 
+  }
 }
-
-html,
-body,
-#root {
-  min-height: 100%;
-  height: auto;
-  overflow-x: hidden;
-  overflow-y: auto;
-}
-
-.ho-root {
-  min-height: 100vh;
-  height: auto;
-  overflow: visible;
-}
-
-

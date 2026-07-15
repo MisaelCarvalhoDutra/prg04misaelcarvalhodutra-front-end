@@ -74,7 +74,7 @@ export default function NovaSenha() {
       }, 1000);
     } catch (error) {
       console.error("Erro ao redefinir senha:", error);
-      toast.error("Não foi possível conectar ao servidor.");
+      toastServidorOffline();
     } finally {
       setCarregando(false);
     }

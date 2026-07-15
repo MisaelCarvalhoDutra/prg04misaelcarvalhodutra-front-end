@@ -329,7 +329,7 @@ export default function Navbar() {
                 }}
                 aria-label="Abrir notificações"
               >
-                🔔
+                <span className="ho-notification-bell">🔔</span>
 
                 {notificacoes.length > 0 && (
                   <span className="ho-notification-badge">

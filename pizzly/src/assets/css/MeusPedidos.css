@@ -8,17 +8,18 @@
 .mp-main {
   max-width: 1050px;
   margin: 0 auto;
-  padding: 2rem;
+  padding:1rem;
 }
 
 .mp-header {
   background: linear-gradient(135deg, #b30000, #8b0000);
   border-radius: 1.2rem;
   color: #fff;
-  padding: 2rem;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  flex-direction:column;
+  align-items:flex-start;
+  padding:1.5rem;
   gap: 2rem;
   margin-bottom: 1.5rem;
 }
@@ -35,7 +36,7 @@
 }
 
 .mp-header h1 {
-  font-size: 2rem;
+  font-size: 1.6rem;
   margin-bottom: 0.4rem;
 }
 
@@ -54,6 +55,7 @@
   cursor: pointer;
   white-space: nowrap;
   transition: 0.2s;
+  width:100%;
 }
 
 .mp-new-order:hover {
@@ -141,7 +143,7 @@
 
 .mp-card-bottom {
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
+  grid-template-columns:1fr;
   align-items: center;
   gap: 1rem;
   margin-top: 1rem;
@@ -171,6 +173,7 @@
   font-weight: 700;
   cursor: pointer;
   transition: 0.2s;
+  width:100%;
 }
 
 .mp-details-btn:hover {
@@ -183,6 +186,7 @@
   display: flex;
   gap: 0.75rem;
   justify-content: flex-end;
+  flex-direction:column;
 }
 
 /* botão de avaliação */
@@ -195,6 +199,7 @@
   font-weight: 700;
   cursor: pointer;
   transition: 0.2s;
+  width:100%;
 }
 
 .mp-avaliar-btn:hover {
@@ -310,38 +315,926 @@
   font-size: 0.85rem;
 }
 
-@media (max-width: 768px) {
-  .mp-main {
-    padding: 1rem;
+/* ========================================================== */
+
+@keyframes mpFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
   }
 
-  .mp-header {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 1.5rem;
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mpShimmer {
+  from {
+    transform: translateX(-160%) skewX(-18deg);
   }
 
-  .mp-header h1 {
-    font-size: 1.6rem;
+  to {
+    transform: translateX(310%) skewX(-18deg);
+  }
+}
+
+@keyframes mpStatusPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 6px rgba(198, 40, 40, 0.06);
   }
 
-  .mp-new-order {
-    width: 100%;
+  50% {
+    box-shadow: 0 0 14px rgba(198, 40, 40, 0.14);
+  }
+}
+
+/*Fundo e estrutura da página*/
+.mp-root {
+  background:
+    radial-gradient(
+      circle at 8% 5%,
+      rgba(198, 40, 40, 0.08),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 94% 38%,
+      rgba(253, 216, 53, 0.07),
+      transparent 25%
+    ),
+    linear-gradient(
+      180deg,
+      #f7f8fa 0%,
+      #f1f2f5 100%
+    );
+}
+
+.mp-main {
+  animation: mpFadeUp 0.5s ease both;
+}
+
+/* ==========================================================
+   CABEÇALHO
+   ========================================================== */
+
+.mp-header {
+  position: relative;
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      circle at 88% 10%,
+      rgba(253, 216, 53, 0.17),
+      transparent 30%
+    ),
+    linear-gradient(
+      135deg,
+      #b80000 0%,
+      #8e0000 58%,
+      #680000 100%
+    );
+
+  border: 1px solid rgba(255, 255, 255, 0.12);
+
+  box-shadow:
+    0 18px 42px rgba(108, 0, 0, 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.13);
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.mp-header::before {
+  content: "";
+
+  position: absolute;
+  top: -70%;
+  left: -25%;
+
+  width: 34%;
+  height: 230%;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.08),
+      transparent
+    );
+
+  transform: rotate(18deg);
+  pointer-events: none;
+}
+
+.mp-header::after {
+  content: "";
+
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  height: 2px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(253, 216, 53, 0.25),
+      rgba(253, 216, 53, 0.75),
+      rgba(198, 40, 40, 0.65),
+      transparent
+    );
+
+  box-shadow:
+    0 0 12px rgba(253, 216, 53, 0.24);
+}
+
+.mp-header:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 23px 50px rgba(108, 0, 0, 0.31),
+    0 0 22px rgba(198, 40, 40, 0.11);
+}
+
+.mp-header > * {
+  position: relative;
+  z-index: 1;
+}
+
+.mp-tag {
+  background:
+    linear-gradient(
+      135deg,
+      #ffe766,
+      #fdd835
+    );
+
+  box-shadow:
+    0 0 10px rgba(253, 216, 53, 0.35),
+    0 4px 12px rgba(0, 0, 0, 0.12);
+
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+.mp-tag:hover {
+  transform:
+    translateY(-2px)
+    scale(1.04);
+
+  box-shadow:
+    0 0 18px rgba(253, 216, 53, 0.55),
+    0 6px 15px rgba(0, 0, 0, 0.16);
+}
+
+.mp-header h1 {
+  text-shadow:
+    0 3px 12px rgba(0, 0, 0, 0.22),
+    0 0 16px rgba(255, 255, 255, 0.05);
+}
+
+/* Botão Novo Pedido*/
+
+.mp-new-order {
+  position: relative;
+  overflow: hidden;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ffe766,
+      #fdd835
+    );
+
+  box-shadow:
+    0 8px 20px rgba(253, 216, 53, 0.27);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.22s ease,
+    filter 0.22s ease;
+}
+
+.mp-new-order::before {
+  content: "";
+
+  position: absolute;
+  top: 0;
+  left: -70%;
+
+  width: 44%;
+  height: 100%;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.76),
+      transparent
+    );
+
+  transform: skewX(-18deg);
+}
+
+.mp-new-order:hover::before {
+  animation: mpShimmer 0.55s ease forwards;
+}
+
+.mp-new-order:hover {
+  opacity: 1;
+
+  transform: translateY(-2px);
+
+  filter: brightness(1.03);
+
+  box-shadow:
+    0 11px 26px rgba(253, 216, 53, 0.43),
+    0 0 16px rgba(253, 216, 53, 0.24);
+}
+
+.mp-new-order:active {
+  transform: scale(0.97);
+}
+
+/* ==========================================================
+   CARDS DOS PEDIDOS
+   ========================================================== */
+
+.mp-card {
+  position: relative;
+  overflow: hidden;
+
+  border-color: rgba(198, 40, 40, 0.08);
+
+  box-shadow:
+    0 7px 24px rgba(0, 0, 0, 0.055),
+    inset 0 1px #fff;
+
+  transition:
+    transform 0.28s cubic-bezier(.2, .8, .2, 1),
+    border-color 0.28s ease,
+    box-shadow 0.28s ease;
+}
+
+.mp-card::before {
+  content: "";
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+
+  height: 2px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      #c62828,
+      #fdd835,
+      transparent
+    );
+
+  opacity: 0;
+
+  transition: opacity 0.25s ease;
+}
+
+.mp-card::after {
+  content: "";
+
+  position: absolute;
+  top: 15%;
+  left: 0;
+
+  width: 3px;
+  height: 70%;
+
+  border-radius: 0 999px 999px 0;
+
+  background:
+    linear-gradient(
+      180deg,
+      #c62828,
+      #fdd835
+    );
+
+  opacity: 0;
+
+  transition: opacity 0.25s ease;
+}
+
+.mp-card:hover::before,
+.mp-card:hover::after {
+  opacity: 1;
+}
+
+.mp-card:hover {
+  transform:
+    translateY(-5px)
+    scale(1.005);
+
+  border-color: rgba(198, 40, 40, 0.17);
+
+  box-shadow:
+    0 17px 38px rgba(0, 0, 0, 0.095),
+    0 0 18px rgba(198, 40, 40, 0.055);
+}
+
+.mp-card-top h2 {
+  transition:
+    color 0.22s ease,
+    text-shadow 0.22s ease;
+}
+
+.mp-card:hover .mp-card-top h2 {
+  color: #a71919;
+
+  text-shadow:
+    0 0 9px rgba(198, 40, 40, 0.1);
+}
+
+/* ==========================================================
+   STATUS
+   ========================================================== */
+
+.mp-status {
+  border: 1px solid transparent;
+
+  box-shadow:
+    0 4px 11px rgba(0, 0, 0, 0.055);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
+
+.mp-status:hover {
+  transform:
+    translateY(-2px)
+    scale(1.03);
+
+  filter: saturate(1.08);
+}
+
+.mp-confirmado {
+  border-color: rgba(21, 101, 192, 0.14);
+
+  box-shadow:
+    0 0 10px rgba(21, 101, 192, 0.08);
+}
+
+.mp-preparando {
+  border-color: rgba(198, 40, 40, 0.14);
+
+  animation:
+    mpStatusPulse
+    3s
+    ease-in-out
+    infinite;
+}
+
+.mp-saiu {
+  border-color: rgba(184, 134, 11, 0.16);
+
+  box-shadow:
+    0 0 10px rgba(184, 134, 11, 0.09);
+}
+
+.mp-entregue,
+.mp-retirado {
+  background: #f0fdf4;
+  color: #2e7d32;
+
+  border-color: rgba(46, 125, 50, 0.14);
+
+  box-shadow:
+    0 0 10px rgba(46, 125, 50, 0.08);
+}
+
+.mp-pronto-retirada {
+  background: #fff8e1;
+  color: #a66a00;
+
+  border-color: rgba(166, 106, 0, 0.16);
+
+  box-shadow:
+    0 0 10px rgba(253, 216, 53, 0.12);
+}
+
+.mp-cancelado {
+  border-color: rgba(102, 102, 102, 0.1);
+}
+
+/* ==========================================================
+   ITENS DO PEDIDO
+   ========================================================== */
+
+.mp-items {
+  position: relative;
+}
+
+.mp-items span {
+  display: block;
+
+  padding: 0.35rem 0.5rem;
+
+  border-radius: 0.5rem;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.mp-items span:hover {
+  transform: translateX(4px);
+
+  background: #fff7f7;
+
+  color: #9f1717;
+}
+
+/* ==========================================================
+   PARTE INFERIOR DO CARD
+   ========================================================== */
+
+.mp-card-bottom > div:not(.mp-actions) {
+  padding: 0.6rem;
+
+  border-radius: 0.65rem;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.mp-card-bottom > div:not(.mp-actions):hover {
+  background: #fff8f8;
+  transform: translateY(-2px);
+}
+
+.mp-total {
+  font-size: 1.08rem;
+
+  text-shadow:
+    0 0 9px rgba(198, 40, 40, 0.14);
+}
+
+/* ==========================================================
+   BOTÃO VER DETALHES
+   ========================================================== */
+
+.mp-details-btn {
+  position: relative;
+  overflow: hidden;
+
+  box-shadow:
+    0 5px 14px rgba(198, 40, 40, 0.08);
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.22s ease;
+}
+
+.mp-details-btn::before {
+  content: "";
+
+  position: absolute;
+  top: 0;
+  left: -70%;
+
+  width: 44%;
+  height: 100%;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.28),
+      transparent
+    );
+
+  transform: skewX(-18deg);
+}
+
+.mp-details-btn:hover::before {
+  animation: mpShimmer 0.55s ease forwards;
+}
+
+.mp-details-btn:hover {
+  transform: translateY(-2px);
+
+  background:
+    linear-gradient(
+      135deg,
+      #d42f2f,
+      #9f1515
+    );
+
+  box-shadow:
+    0 9px 21px rgba(198, 40, 40, 0.3),
+    0 0 13px rgba(198, 40, 40, 0.13);
+}
+
+.mp-details-btn:active {
+  transform: scale(0.97);
+}
+
+/* ==========================================================
+   BOTÃO AVALIAR
+   ========================================================== */
+
+.mp-avaliar-btn {
+  position: relative;
+  overflow: hidden;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ffe766,
+      #fdd835
+    );
+
+  box-shadow:
+    0 6px 16px rgba(253, 216, 53, 0.24);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.22s ease,
+    filter 0.22s ease;
+}
+
+.mp-avaliar-btn::before {
+  content: "";
+
+  position: absolute;
+  top: 0;
+  left: -70%;
+
+  width: 44%;
+  height: 100%;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.75),
+      transparent
+    );
+
+  transform: skewX(-18deg);
+}
+
+.mp-avaliar-btn:hover::before {
+  animation: mpShimmer 0.55s ease forwards;
+}
+
+.mp-avaliar-btn:hover {
+  opacity: 1;
+
+  transform: translateY(-2px);
+
+  filter: brightness(1.03);
+
+  box-shadow:
+    0 10px 23px rgba(253, 216, 53, 0.4),
+    0 0 15px rgba(253, 216, 53, 0.22);
+}
+
+.mp-avaliar-btn span {
+  display: inline-block;
+
+  transition: transform 0.22s ease;
+}
+
+.mp-avaliar-btn:hover span {
+  transform:
+    rotate(-10deg)
+    scale(1.15);
+}
+
+/* AVALIADO */
+
+.mp-reviewed-badge {
+  border: 1px solid rgba(46, 125, 50, 0.13);
+
+  box-shadow:
+    0 5px 13px rgba(46, 125, 50, 0.08);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.mp-reviewed-badge:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 8px 17px rgba(46, 125, 50, 0.13);
+}
+
+/* ==========================================================
+   MODAL DE AVALIAÇÃO
+   ========================================================== */
+
+.mp-modal-overlay {
+  background: rgba(20, 0, 0, 0.58);
+
+  backdrop-filter: blur(6px);
+
+  animation: mpFadeUp 0.2s ease both;
+}
+
+.mp-modal {
+  overflow: hidden;
+
+  border: 1px solid rgba(198, 40, 40, 0.11);
+
+  box-shadow:
+    0 28px 75px rgba(0, 0, 0, 0.32),
+    0 0 25px rgba(198, 40, 40, 0.07);
+
+  animation: mpFadeUp 0.32s ease both;
+}
+
+.mp-modal::before {
+  content: "";
+
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+
+  height: 2px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      #c62828,
+      #fdd835,
+      transparent
+    );
+
+  box-shadow:
+    0 0 11px rgba(198, 40, 40, 0.15);
+}
+
+.mp-modal-close {
+  border: 1px solid rgba(198, 40, 40, 0.1);
+
+  box-shadow:
+    0 4px 12px rgba(198, 40, 40, 0.08);
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.mp-modal-close:hover {
+  transform:
+    rotate(90deg)
+    scale(1.07);
+
+  background: #c62828;
+  color: #fff;
+
+  box-shadow:
+    0 0 16px rgba(198, 40, 40, 0.3);
+}
+
+.mp-modal-tag {
+  background:
+    linear-gradient(
+      135deg,
+      #ffe766,
+      #fdd835
+    );
+
+  box-shadow:
+    0 0 10px rgba(253, 216, 53, 0.28);
+}
+
+/* Avaliação Por Estrelas */
+.mp-stars {
+  justify-content: center;
+
+  padding: 0.8rem;
+
+  border-radius: 0.9rem;
+
+  background:
+    linear-gradient(
+      145deg,
+      #fffdf5,
+      #fff
+    );
+
+  border: 1px solid rgba(253, 216, 53, 0.16);
+}
+
+.mp-stars button {
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease,
+    filter 0.2s ease;
+}
+
+.mp-stars button:hover {
+  transform:
+    translateY(-3px)
+    scale(1.14);
+
+  color: #fdd835;
+
+  filter:
+    drop-shadow(
+      0 0 7px rgba(253, 216, 53, 0.45)
+    );
+}
+
+.mp-stars button.active {
+  text-shadow:
+    0 0 10px rgba(253, 216, 53, 0.4);
+}
+
+/*Campo de comentário*/
+.mp-modal textarea {
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.mp-modal textarea:hover {
+  border-color: rgba(198, 40, 40, 0.25);
+}
+
+.mp-modal textarea:focus {
+  transform: translateY(-1px);
+
+  border-color: #c62828;
+
+  box-shadow:
+    0 0 0 3px rgba(198, 40, 40, 0.1),
+    0 0 13px rgba(198, 40, 40, 0.07);
+}
+
+/*Botão Enviar Avaliação*/
+.mp-submit-review {
+  position: relative;
+  overflow: hidden;
+
+  background:
+    linear-gradient(
+      135deg,
+      #d42f2f,
+      #9f1515
+    );
+
+  box-shadow:
+    0 8px 19px rgba(198, 40, 40, 0.27);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.22s ease,
+    filter 0.22s ease;
+}
+
+.mp-submit-review::before {
+  content: "";
+
+  position: absolute;
+  top: 0;
+  left: -70%;
+
+  width: 44%;
+  height: 100%;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.35),
+      transparent
+    );
+
+  transform: skewX(-18deg);
+}
+
+.mp-submit-review:hover::before {
+  animation: mpShimmer 0.55s ease forwards;
+}
+
+.mp-submit-review:hover {
+  transform: translateY(-2px);
+
+  filter: brightness(1.04);
+
+  box-shadow:
+    0 11px 25px rgba(198, 40, 40, 0.38),
+    0 0 15px rgba(198, 40, 40, 0.16);
+}
+
+.mp-submit-review:active {
+  transform: scale(0.97);
+}
+
+/* Foco pelo teclado */
+.mp-new-order:focus-visible,
+.mp-details-btn:focus-visible,
+.mp-avaliar-btn:focus-visible,
+.mp-submit-review:focus-visible,
+.mp-modal-close:focus-visible,
+.mp-stars button:focus-visible {
+  outline: 3px solid rgba(253, 216, 53, 0.78);
+  outline-offset: 3px;
+}
+
+/* Reduz Animações quando configurado no sistema*/
+@media (prefers-reduced-motion: reduce) {
+  .mp-main,
+  .mp-preparando,
+  .mp-modal,
+  .mp-modal-overlay {
+    animation: none;
   }
 
-  .mp-card-bottom {
-    grid-template-columns: 1fr;
+  .mp-header,
+  .mp-card,
+  .mp-status,
+  .mp-details-btn,
+  .mp-avaliar-btn,
+  .mp-submit-review {
+    transition: none;
   }
 
-  .mp-details-btn {
-    width: 100%;
+  .mp-header:hover,
+  .mp-card:hover,
+  .mp-status:hover,
+  .mp-details-btn:hover,
+  .mp-avaliar-btn:hover,
+  .mp-submit-review:hover {
+    transform: none;
   }
+}
 
-  .mp-actions {
-    flex-direction: column;
-  }
+/* RESPONSIVIDADE — MOBILE FIRST */
 
-  .mp-avaliar-btn {
-    width: 100%;
-  }
+/* Tablet (768px+)*/
+@media (min-width:768px){
+
+    .mp-main{
+        padding:2rem;
+    }
+
+    .mp-header{
+        flex-direction:row;
+        align-items:center;
+        padding:2rem;
+    }
+
+    .mp-header h1{
+        font-size:2rem;
+    }
+
+    .mp-new-order{
+        width:auto;
+    }
+
+    .mp-card-bottom{
+        grid-template-columns:1fr 1fr auto;
+    }
+
+    .mp-actions{
+        flex-direction:row;
+    }
+
+    .mp-details-btn,
+    .mp-avaliar-btn{
+        width:auto;
+    }
+
+}
+
+/* Desktop (1024px+ */
+@media (min-width:1024px){
+
+    .mp-main{
+        max-width:1050px;
+    }
+
 }

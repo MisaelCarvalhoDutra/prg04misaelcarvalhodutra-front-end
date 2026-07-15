@@ -91,6 +91,7 @@ const IMAGENS_PRODUTOS = {
   pizzaChocolate,
 };
 
+/*FUNÇÕES AUXILIARES: */
 function formatarMoeda(valor) {
   return `R$ ${Number(valor).toFixed(2).replace(".", ",")}`;
 }
@@ -100,6 +101,7 @@ function normalizarTexto(texto) {
     .trim()
     .toLowerCase();
 }
+
 
 function exibirTexto(texto) {
   return String(texto || "").trim();
@@ -120,7 +122,7 @@ export default function Home() {
   const [categorias, setCategorias] = useState([]);
   const [produtosDestaque, setProdutosDestaque] = useState([]);
 
-  //combo mais pedido
+  //armazena o combo em destaque exibido na Home
   const [comboDestaque, setComboDestaque] = useState(null);
 
 
@@ -135,7 +137,7 @@ export default function Home() {
     }
   }, [navigate]);
 
-
+  // carrega categorias, produtos em destaque e o combo principal.
   useEffect(() => {
     async function carregarHome() {
       try {
@@ -149,9 +151,6 @@ export default function Home() {
 
         const categoriasBackend = categoriasDados.content || [];
         const produtosBackend = produtosDados.content || [];
-
-        console.log("Categorias Home:", categoriasBackend);
-        console.log("Produtos Home:", produtosBackend);
 
         const produtosDisponiveis = produtosBackend
           .filter((produto) => produto.disponivel !== false)
@@ -206,19 +205,16 @@ export default function Home() {
   }, []);
 
 
+  //renderização
   return (
     <div className="ho-root">
 
-      {/* ══════════════════════════════
-          NAVBAR
-      ══════════════════════════════ */}
+      {/* NAVBAR*/}
       <Navbar />
 
       
 
-      {/* ══════════════════════════════
-          HERO
-      ══════════════════════════════ */}
+      {/* HERO */}
       <section className="ho-hero">
         <div className="ho-hero-inner">
           <div className="ho-hero-txt">
@@ -255,9 +251,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ══════════════════════════════
-          CONTEÚDO
-      ══════════════════════════════ */}
+      {/*conteudo*/}
       <main className="ho-main">
 
         {/* ── Categorias ── */}
@@ -419,9 +413,7 @@ export default function Home() {
         </section>
       </main>
 
-      {/* ══════════════════════════════
-          FOOTER
-      ══════════════════════════════ */}
+      {/* Footer*/}
       <footer className="ho-footer">
         <div className="ho-footer-inner">
 

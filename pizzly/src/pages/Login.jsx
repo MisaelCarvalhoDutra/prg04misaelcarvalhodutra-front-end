@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "../assets/css/Login.css";
+import { toastServidorOffline } from "../utils/toastUtils";
 
 
 import logo from "../assets/images/logopizza.png";
@@ -91,7 +92,7 @@ export default function Login() {
 
     } catch (error) {
       console.error("Erro ao fazer login:", error);
-      toast.error("Não foi possível conectar ao servidor.");
+      toastServidorOffline();
     }
   };
 
@@ -128,7 +129,7 @@ export default function Login() {
       }
     } catch (error) {
       console.error("Erro no login com Google:", error);
-      toast.error("Não foi possível conectar ao servidor.");
+      toastServidorOffline();
     }
   }
 

@@ -3,14 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Navbar from "../components/Navbar";
 import "../assets/css/Perfil.css";
+import { toastServidorOffline } from "../utils/toastUtils";
 
 const USUARIO_PADRAO = {
   nome: "Misael Dutra",
   email: "misael@email.com",
   telefone: "(74) 99999-9999",
 };
-
-
 
 const ENDERECO_FORM_INICIAL = {
   tipo: "Casa",
@@ -23,6 +22,8 @@ const ENDERECO_FORM_INICIAL = {
   uf: "BA",
   principal: false,
 };
+
+/*Funções Auxiliares: */
 
 function converterEnderecoBackend(endereco) {
   return {
@@ -44,19 +45,26 @@ function converterEnderecoBackend(endereco) {
   };
 }
 
+
+/*componente principal */
 export default function Perfil() {
   const navigate = useNavigate();
 
+  // Navegação
   const [abaAtiva, setAbaAtiva] = useState("dados");
 
+  // Usuário
   const [usuario, setUsuario] = useState(null);
   const [form, setForm] = useState(USUARIO_PADRAO);
 
+  // Modais
   const [modalAberto, setModalAberto] = useState(false);
-
   const [modalEnderecoAberto, setModalEnderecoAberto] = useState(false);
+
+  // Formulário de endereço
   const [formEndereco, setFormEndereco] = useState(ENDERECO_FORM_INICIAL);
 
+  // Dados carregados
   const [ultimosPedidos, setUltimosPedidos] = useState([]);
   const [totalPedidos, setTotalPedidos] = useState(0);
   const [enderecos, setEnderecos] = useState([]);
@@ -66,6 +74,7 @@ export default function Perfil() {
 
   const dadosPessoaisCompletos = Boolean(usuario?.telefone?.trim());
 
+  /*Carregamento inicial */
   useEffect(() => {
     const usuarioSalvo = JSON.parse(localStorage.getItem("pizzly_usuario"));
 
@@ -105,6 +114,8 @@ export default function Perfil() {
     }
 
   }, []);
+
+  /*PERFIL: */
 
   function abrirModal() {
     setForm(usuario);
@@ -177,9 +188,11 @@ export default function Perfil() {
     toast.success("Perfil atualizado com sucesso!");
   } catch (error) {
     console.error("Erro ao atualizar perfil:", error);
-    toast.error("Não foi possível conectar ao servidor.");
+    toastServidorOffline();
   }
 }
+
+  /*Endereços: */
 
   function abrirModalEndereco() {
     setFormEndereco(ENDERECO_FORM_INICIAL);
@@ -250,7 +263,7 @@ export default function Perfil() {
 
     } catch (error) {
       console.error("Erro ao cadastrar endereço:", error);
-      toast.error("Não foi possível conectar ao servidor.");
+      toastServidorOffline();
     }
   }
 
@@ -277,7 +290,7 @@ export default function Perfil() {
       
     } catch (error) {
       console.error("Erro ao excluir endereço:", error);
-      toast.error("Não foi possível conectar ao servidor.");
+      toastServidorOffline();
     }
   }
 
@@ -306,10 +319,11 @@ export default function Perfil() {
       toast.success("Endereço principal atualizado!");
     } catch (error) {
       console.error("Erro ao definir endereço principal:", error);
-      toast.error("Não foi possível conectar ao servidor.");
+      toastServidorOffline();
     }
   }
 
+  /*Usuario não autenticado */
   if (!usuario) {
     return (
       <div className="pf-root">
@@ -363,11 +377,13 @@ export default function Perfil() {
     );
   }
 
+  /*renderização */
   return (
     <div className="pf-root">
       <Navbar />
 
       <main className="pf-main">
+        {/* cabeçalho */}
         <section className="pf-header">
           <div>
             <span className="pf-tag">Minha conta</span>
@@ -387,6 +403,7 @@ export default function Perfil() {
 
         </section>
 
+        {/*perfil */}
         <section className="pf-profile-card">
           <div className="pf-avatar">{usuario.nome.charAt(0).toUpperCase()}</div>
 
@@ -398,6 +415,7 @@ export default function Perfil() {
           <button onClick={abrirModal}>Editar perfil</button>
         </section>
 
+        {/*indicadores */}
         <section className="pf-stats">
           <div className="pf-stat-card">
             <div className="pf-stat-icon pf-blue">👤</div>
@@ -428,6 +446,7 @@ export default function Perfil() {
           </div>
         </section>
 
+        {/*conteudo das abas */}
         <section className="pf-tabs-card">
           <div className="pf-tabs">
             <button
@@ -630,6 +649,7 @@ export default function Perfil() {
         </section>
       </main>
 
+      {/*modal de perfil */}
       {modalAberto && (
         <div className="pf-modal-overlay" onClick={fecharModal}>
           <div className="pf-modal" onClick={(e) => e.stopPropagation()}>
@@ -696,6 +716,7 @@ export default function Perfil() {
         </div>
       )}
 
+      {/*modal de endereço */}
       {modalEnderecoAberto && (
         <div className="pf-modal-overlay" onClick={fecharModalEndereco}>
           <div

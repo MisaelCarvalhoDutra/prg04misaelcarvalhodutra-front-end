@@ -3,7 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify"; //substitui alerts()
 import Swal from "sweetalert2"; //import para modal moderno
 import "../assets/css/Admin.css";
+import { toastServidorOffline } from "../utils/toastUtils";
 
+
+// Imagens utilizadas nos produtos e promoções
 import pizzaCalabresa from "../assets/images/pizzaCalabresa.jpg";
 import pizzaFrango from "../assets/images/pizzaFrango.jpg";
 import pizzaPortuguesa from "../assets/images/pizzaPortuguesa.jpg";
@@ -20,6 +23,12 @@ import pizzaChocolate from "../assets/images/pizzaChocolate.jpg";
   SweetAlert2 para confirmações de ações importantes. (modal moderno)*/
 }
 
+
+
+
+/*CONSTANTES E MAPEAMENTOS*/
+
+// Relaciona a chave salva no banco à imagem importada no front-end
 const IMAGENS_PRODUTOS = {
   calabresa: pizzaCalabresa,
   marguerita: pizzaMarguerita,
@@ -33,8 +42,18 @@ const IMAGENS_PRODUTOS = {
   pizzaChocolate: pizzaChocolate,
 };
 
+// imagens disponíveis para o cadastro de promoções
+const IMAGENS_PROMOCOES = {
+  comboFamilia,
+  calabresa: pizzaCalabresa,
+  frango: pizzaFrango,
+  portuguesa: pizzaPortuguesa,
+  marguerita: pizzaMarguerita,
+  quatroQueijos: pizzaHero,
+  pizzaChocolate,
+};
 
-
+// relaciona cada status de pedido à sua classe visual no CSS
 const STATUS_COLOR = {
   Confirmado: "status-confirmado",
   Preparando: "status-preparando",
@@ -46,6 +65,7 @@ const STATUS_COLOR = {
 };
 
 
+/*FUNÇÕES AUXILIARES DE FORMATAÇÃO E CONVERSÃO */
 function moedaParaNumero(valor) {
   if (!valor) return 0;
 
@@ -68,6 +88,20 @@ function formatarData(data) {
   return new Date(data).toLocaleDateString("pt-BR");
 }
 
+function capitalizarTexto(texto) {
+  return String(texto || "")
+    .trim()
+    .toLowerCase()
+    .split(" ")
+    .map(
+      (palavra) =>
+        palavra.charAt(0).toUpperCase() +
+        palavra.slice(1)
+    )
+    .join(" ");
+}
+
+// converte o status recebido do backend para o texto exibido na interface
 function converterStatusPedido(status) {
   if (status === "CONFIRMADO") return "Confirmado";
   if (status === "PREPARANDO") return "Preparando";
@@ -80,6 +114,7 @@ function converterStatusPedido(status) {
   return "Confirmado";
 }
 
+// aqui converte o texto exibido na interface para o enum esperado pelo backend
 function converterStatusBackend(status) {
   if (status === "Confirmado") return "CONFIRMADO";
   if (status === "Preparando") return "PREPARANDO";
@@ -108,6 +143,7 @@ function converterProdutoBackend(produto) {
   };
 }
 
+// adapta a promoção retornada pelo backend ao formato utilizado no painel
 function converterPromocaoBackend(promocao) {
   return {
     id: promocao.id,
@@ -142,35 +178,10 @@ function converterFormaPagamento(forma) {
   return "Não informado";
 }
 
-function normalizarPedido(pedido, index) {
-  const itens = pedido.itens || [];
-  const total = pedido.total || pedido.valor || "R$ 0,00";
 
-  return {
-    id: pedido.id || `#${1200 + index}`,
-    cliente: pedido.cliente || pedido.nomeCliente || "Cliente Pizzly",
-    itens,
-    produtos:
-      pedido.produtos ||
-      `${itens.length} ${itens.length === 1 ? "item" : "itens"}`,
-    status: pedido.status || "Confirmado",
-    tempo: pedido.tempo || "30 - 45 min",
-    total,
-    valor: total,
-    entrega: pedido.entrega || "Endereço não informado",
-    pagamento: pedido.pagamento || "Não informado",
-    data: pedido.data || new Date().toLocaleDateString("pt-BR"),
-    subtotal: pedido.subtotal,
-    taxaEntrega: pedido.taxaEntrega,
-    desconto: pedido.desconto,
-    cupomAplicado: pedido.cupomAplicado,
-    observacaoPedido: pedido.observacaoPedido,
-    observacaoEntrega: pedido.observacaoEntrega,
-    valorTroco: pedido.valorTroco,
-  };
-}
 
 //para fazer o grafico de dados
+//renderiza um gráfico de linha em SVG com os valores de vendas do período selecionado
 function LineChart({ dados }) {
   const W = 280;
   const H = 100;
@@ -233,7 +244,9 @@ function LineChart({ dados }) {
   );
 }
 
+
 export default function Admin() {
+  //Navegação e Estados da Interface
   const navigate = useNavigate();
 
   // mantém a última aba acessada mesmo após atualizar a página
@@ -264,51 +277,53 @@ export default function Admin() {
     localStorage.setItem("pizzly_admin_aba", activeNav);
   }, [activeNav]);
 
+  //AUTENTICAÇÃO E CONTROLE DE PERMISSÕES:
+
     // usuário autenticado
-const usuarioLogado = JSON.parse(localStorage.getItem("pizzly_usuario"));
+    const usuarioLogado = JSON.parse(localStorage.getItem("pizzly_usuario"));
 
-// perfil do funcionário logado
-const perfilFuncionario = usuarioLogado?.perfil || "ATENDENTE";
+    // perfil do funcionário logado
+    const perfilFuncionario = usuarioLogado?.perfil || "ATENDENTE";
 
-// id usado para registrar logs de auditoria no backend
-const funcionarioIdLogado = usuarioLogado?.id;
+    // id usado para registrar logs de auditoria no backend
+    const funcionarioIdLogado = usuarioLogado?.id;
 
-// permissões de acesso por perfil
-const permissoesPorPerfil = {
-  ADMINISTRADOR: [
-    "Dashboard",
-    "Pedidos",
-    "Clientes",
-    "Cardápio",
-    "Categorias",
-    "Promoções",
-    "Relatórios",
-    "Funcionários",
-    "Auditoria",
-    "Configurações",
-  ],
+    // permissões de acesso por perfil
+    const permissoesPorPerfil = {
+      ADMINISTRADOR: [
+        "Dashboard",
+        "Pedidos",
+        "Clientes",
+        "Cardápio",
+        "Categorias",
+        "Promoções",
+        "Relatórios",
+        "Funcionários",
+        "Auditoria",
+        "Configurações",
+      ],
 
-  GERENTE: [
-    "Dashboard",
-    "Pedidos",
-    "Clientes",
-    "Cardápio",
-    "Categorias",
-    "Promoções",
-    "Relatórios",
-  ],
+      GERENTE: [
+        "Dashboard",
+        "Pedidos",
+        "Clientes",
+        "Cardápio",
+        "Categorias",
+        "Promoções",
+        "Relatórios",
+      ],
 
-  ATENDENTE: [
-    "Dashboard",
-    "Pedidos",
-    "Clientes",
-  ],
+      ATENDENTE: [
+        "Dashboard",
+        "Pedidos",
+        "Clientes",
+      ],
 
-  ENTREGADOR: [
-    "Dashboard",
-    "Pedidos",
-  ],
-};
+      ENTREGADOR: [
+        "Dashboard",
+        "Pedidos",
+      ],
+    };
 
   // impede acesso a abas sem permissão
   useEffect(() => {
@@ -321,78 +336,77 @@ const permissoesPorPerfil = {
   }, [activeNav, perfilFuncionario]);
 
 
-const [categorias, setCategorias] = useState([]);
+  /*ESTADOS DOS DADOS ADMINISTRATIVOS*/
+  const [categorias, setCategorias] = useState([]);
 
-const [categoriaEditando, setCategoriaEditando] = useState(null);
+  const [categoriaEditando, setCategoriaEditando] = useState(null);
 
-const [promocoes, setPromocoes] = useState([]);
-
-
-const [promocaoEditando, setPromocaoEditando] = useState(null);
-
-const [configuracoes, setConfiguracoes] = useState({
-  nomePizzaria: "Pizzly",
-  whatsapp: "",
-  endereco: "",
-  taxaEntrega: "0,00",
-  tempoEntrega: "",
-  aberta: true,
-  temaEscuro: false,
-});
+  const [promocoes, setPromocoes] = useState([]);
 
 
-const [produtos, setProdutos] = useState([]);
+  const [promocaoEditando, setPromocaoEditando] = useState(null);
 
-const [funcionarios, setFuncionarios] = useState([]);
-
-const [funcionarioEditando, setFuncionarioEditando] = useState(null);
-
-const [logsAuditoria, setLogsAuditoria] = useState([]);
-
-// armazena as avaliações feitas pelos clientes
-const [avaliacoes, setAvaliacoes] = useState([]);
-
-// armazena os clientes reais cadastrados no backend
-const [clientesBackend, setClientesBackend] = useState([]);
-
-useEffect(() => {
-  const usuarioLogado = JSON.parse(localStorage.getItem("pizzly_usuario"));
-
-  // somente funcionários podem acessar o painel administrativo
-  if (!usuarioLogado || usuarioLogado.tipo !== "FUNCIONARIO") {
-    navigate("/login");
-  }
-}, [navigate]);
-
-
-/**
- * Exibe um modal de confirmação antes de executar ações importantes.
- * Retorna true caso o usuário confirme a operação.
- */
-async function confirmarAcao(
-  titulo,
-  texto,
-  textoBotao = "Confirmar"
-) {
-  const resultado = await Swal.fire({
-    title: titulo,
-    text: texto,
-    icon: "warning",
-
-    showCancelButton: true,
-
-    confirmButtonText: textoBotao,
-    cancelButtonText: "Cancelar",
-
-    confirmButtonColor: "#c62828",
-    cancelButtonColor: "#6b7280",
-
-    reverseButtons: true,
-    focusCancel: true,
+  const [configuracoes, setConfiguracoes] = useState({
+    nomePizzaria: "Pizzly",
+    whatsapp: "",
+    endereco: "",
+    taxaEntrega: "0,00",
+    tempoEntrega: "",
+    aberta: true,
+    temaEscuro: localStorage.getItem("pizzly_admin_tema_escuro") === "true",
   });
 
-  return resultado.isConfirmed;
-}
+
+  const [produtos, setProdutos] = useState([]);
+
+  const [funcionarios, setFuncionarios] = useState([]);
+
+  const [funcionarioEditando, setFuncionarioEditando] = useState(null);
+
+  const [logsAuditoria, setLogsAuditoria] = useState([]);
+
+  // armazena as avaliações feitas pelos clientes
+  const [avaliacoes, setAvaliacoes] = useState([]);
+
+  // armazena os clientes reais cadastrados no backend
+  const [clientesBackend, setClientesBackend] = useState([]);
+
+  useEffect(() => {
+    const usuarioLogado = JSON.parse(localStorage.getItem("pizzly_usuario"));
+
+    // somente funcionários podem acessar o painel administrativo
+    if (!usuarioLogado || usuarioLogado.tipo !== "FUNCIONARIO") {
+      navigate("/login");
+    }
+  }, [navigate]);
+
+
+  //aqui é pra exibir um modal de confirmação antes de executar ações importantes
+  //retorna true caso o usuário confirme a operação
+  async function confirmarAcao(
+    titulo,
+    texto,
+    textoBotao = "Confirmar"
+  ) {
+    const resultado = await Swal.fire({
+      title: titulo,
+      text: texto,
+      icon: "warning",
+
+      showCancelButton: true,
+
+      confirmButtonText: textoBotao,
+      cancelButtonText: "Cancelar",
+
+      confirmButtonColor: "#c62828",
+      cancelButtonColor: "#6b7280",
+
+      reverseButtons: true,
+      focusCancel: true,
+    });
+
+    return resultado.isConfirmed;
+  }
 
   // busca os clientes reais cadastrados no backend
   async function carregarClientes() {
@@ -409,11 +423,11 @@ async function confirmarAcao(
       setClientesBackend(dados.content || dados);
     } catch (error) {
       console.error("Erro ao carregar clientes:", error);
-      toast.error("Não foi possível conectar ao servidor.");
+      toastServidorOffline();
     }
   }
 
-  
+  //carrega os pedidos e complementa cada registro com seus itens e dados de pagamento
   async function carregarPedidos() {
     try {
       // busca todos os pedidos reais cadastrados no backend
@@ -501,7 +515,7 @@ async function confirmarAcao(
       setUltimaAtualizacao(new Date());
     } catch (error) {
       console.error("Erro ao carregar pedidos:", error);
-      toast.error("Não foi possível conectar ao servidor.");
+      toastServidorOffline();
     }
   }
 
@@ -521,7 +535,7 @@ async function confirmarAcao(
       setProdutos(produtosBackend.map(converterProdutoBackend));
     } catch (error) {
       console.error("Erro ao carregar produtos:", error);
-      toast.error("Não foi possível conectar ao servidor.");
+      toastServidorOffline();
     }
   }
 
@@ -548,10 +562,11 @@ async function confirmarAcao(
       );
     } catch (error) {
       console.error("Erro ao carregar categorias:", error);
-      toast.error("Não foi possível conectar ao servidor.");
+      toastServidorOffline();
     }
   }
 
+  //busca as promoções reais no backend
   async function carregarPromocoes() {
     try {
       const response = await fetch("http://localhost:8080/promocoes?size=100");
@@ -567,122 +582,121 @@ async function confirmarAcao(
       setPromocoes(promocoesBackend.map(converterPromocaoBackend));
     } catch (error) {
       console.error("Erro ao carregar promoções:", error);
-      toast.error("Não foi possível conectar ao servidor.");
+      toastServidorOffline();
     }
   }
 
   // busca funcionários cadastrados no backend
-async function carregarFuncionarios() {
-  try {
-    const response = await fetch("http://localhost:8080/funcionarios?size=100");
+  async function carregarFuncionarios() {
+    try {
+      const response = await fetch("http://localhost:8080/funcionarios?size=100");
 
-    if (!response.ok) {
-      toast.error("Não foi possível carregar os funcionários.");
-      return;
+      if (!response.ok) {
+        toast.error("Não foi possível carregar os funcionários.");
+        return;
+      }
+
+      const dados = await response.json();
+      setFuncionarios(dados.content || dados);
+    } catch (error) {
+      console.error("Erro ao carregar funcionários:", error);
+      toastServidorOffline();
     }
-
-    const dados = await response.json();
-    setFuncionarios(dados.content || dados);
-  } catch (error) {
-    console.error("Erro ao carregar funcionários:", error);
-    toast.error("Não foi possível conectar ao servidor.");
   }
-}
 
-/**
- * Busca as avaliações feitas pelos clientes.
- */
-async function carregarAvaliacoes() {
-  try {
-    const response = await fetch(
-      "http://localhost:8080/avaliacoes?size=100&sort=dataAvaliacao,desc"
-    );
+  //busca as avaliações feitas pelos clientes
+  async function carregarAvaliacoes() {
+    try {
+      const response = await fetch(
+        "http://localhost:8080/avaliacoes?size=100&sort=dataAvaliacao,desc"
+      );
 
-    if (!response.ok) {
-      toast.error("Não foi possível carregar as avaliações.");
-      return;
+      if (!response.ok) {
+        toast.error("Não foi possível carregar as avaliações.");
+        return;
+      }
+
+      const dados = await response.json();
+      setAvaliacoes(dados.content || dados);
+    } catch (error) {
+      console.error("Erro ao carregar avaliações:", error);
+      toastServidorOffline();
     }
-
-    const dados = await response.json();
-    setAvaliacoes(dados.content || dados);
-  } catch (error) {
-    console.error("Erro ao carregar avaliações:", error);
-    toast.error("Não foi possível conectar ao servidor.");
   }
-}
 
-// busca os logs de auditoria registrados no backend
-async function carregarLogsAuditoria() {
-  try {
-    const response = await fetch("http://localhost:8080/logs?size=100&sort=dataHora,desc");
+  // busca os logs de auditoria registrados no backend
+  async function carregarLogsAuditoria() {
+    try {
+      const response = await fetch("http://localhost:8080/logs?size=100&sort=dataHora,desc");
 
-    if (!response.ok) {
-      toast.error("Não foi possível carregar os logs de auditoria.");
-      return;
+      if (!response.ok) {
+        toast.error("Não foi possível carregar os logs de auditoria.");
+        return;
+      }
+
+      const dados = await response.json();
+      setLogsAuditoria(dados.content || dados);
+    } catch (error) {
+      console.error("Erro ao carregar logs de auditoria:", error);
+      toastServidorOffline();
     }
-
-    const dados = await response.json();
-    setLogsAuditoria(dados.content || dados);
-  } catch (error) {
-    console.error("Erro ao carregar logs de auditoria:", error);
-    toast.error("Não foi possível conectar ao servidor.");
-  }
-}
-
-function abrirNovoFuncionario() {
-  setFuncionarioEditando({
-    id: null,
-    nome: "",
-    email: "",
-    telefone: "",
-    senha: "",
-    matricula: "",
-    perfil: "ATENDENTE",
-  });
-}
-
-// cadastra ou atualiza funcionário no backend
-async function salvarFuncionario() {
-  if (
-    !funcionarioEditando.nome ||
-    !funcionarioEditando.email ||
-    !funcionarioEditando.senha ||
-    !funcionarioEditando.matricula ||
-    !funcionarioEditando.perfil
-  ) {
-    toast.warning("Preencha nome, e-mail, senha, matrícula e perfil.");
-    return;
   }
 
-  try {
-    const url = funcionarioEditando.id
-      ? `http://localhost:8080/funcionarios/${funcionarioEditando.id}?funcionarioId=${funcionarioIdLogado}`
-      : `http://localhost:8080/funcionarios?funcionarioId=${funcionarioIdLogado}`;
-
-    const metodo = funcionarioEditando.id ? "PUT" : "POST";
-
-    const response = await fetch(url, {
-      method: metodo,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(funcionarioEditando),
+  function abrirNovoFuncionario() {
+    setFuncionarioEditando({
+      id: null,
+      nome: "",
+      email: "",
+      telefone: "",
+      senha: "",
+      matricula: "",
+      perfil: "ATENDENTE",
     });
+  }
 
-    if (!response.ok) {
-      const erro = await response.text();
-      toast.error("Erro ao salvar funcionário: " + erro);
+  // cadastra ou atualiza funcionário no backend
+  async function salvarFuncionario() {
+    if (
+      !funcionarioEditando.nome ||
+      !funcionarioEditando.email ||
+      !funcionarioEditando.senha ||
+      !funcionarioEditando.matricula ||
+      !funcionarioEditando.perfil
+    ) {
+      toast.warning("Preencha nome, e-mail, senha, matrícula e perfil.");
       return;
     }
 
-    await carregarFuncionarios();
-    setFuncionarioEditando(null);
-  } catch (error) {
-    console.error("Erro ao salvar funcionário:", error);
-    toast.error("Não foi possível conectar ao servidor.");
-  }
-}
+    try {
+      const url = funcionarioEditando.id
+        ? `http://localhost:8080/funcionarios/${funcionarioEditando.id}?funcionarioId=${funcionarioIdLogado}`
+        : `http://localhost:8080/funcionarios?funcionarioId=${funcionarioIdLogado}`;
 
+      const metodo = funcionarioEditando.id ? "PUT" : "POST";
+
+      const response = await fetch(url, {
+        method: metodo,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(funcionarioEditando),
+      });
+
+      if (!response.ok) {
+        const erro = await response.text();
+        toast.error("Erro ao salvar funcionário: " + erro);
+        return;
+      }
+
+      await carregarFuncionarios();
+      setFuncionarioEditando(null);
+    } catch (error) {
+      console.error("Erro ao salvar funcionário:", error);
+      toastServidorOffline();
+    }
+  }
+
+  //carrega as configurações da pizzaria
   async function carregarConfiguracoes() {
     try {
       const response = await fetch("http://localhost:8080/configuracoes");
@@ -694,7 +708,6 @@ async function salvarFuncionario() {
 
       const dados = await response.json();
 
-      console.log("CONFIGURAÇÕES:", dados);
 
       setConfiguracoes((configAtual) => ({
         ...configAtual,
@@ -709,10 +722,11 @@ async function salvarFuncionario() {
       }));
     } catch (error) {
       console.error("Erro ao carregar configurações:", error);
-      toast.error("Não foi possível conectar ao servidor.");
+      toastServidorOffline();
     }
   }
 
+  //salva as configurações feitas pelo admin
   async function salvarConfiguracoes() {
     try {
       const configuracaoDTO = {
@@ -745,23 +759,31 @@ async function salvarFuncionario() {
       toast.success("Configurações salvas com sucesso!");
     } catch (error) {
       console.error("Erro ao salvar configurações:", error);
-      toast.error("Não foi possível conectar ao servidor.");
+      toastServidorOffline();
     }
   }
 
+  /*Efeitos e Sincronizações: */
 
-useEffect(() => {
-  if (configuracoes.temaEscuro) {
-    document.body.classList.add("dark-admin");
-  } else {
-    document.body.classList.remove("dark-admin");
-  }
+    // aqui aplica o tema escolhido no body e salva a preferência localmente
+  useEffect(() => {
+    if (configuracoes.temaEscuro) {
+      document.body.classList.add("dark-admin");
+    } else {
+      document.body.classList.remove("dark-admin");
+    }
 
-  return () => {
-    document.body.classList.remove("dark-admin");
-  };
-}, [configuracoes.temaEscuro]);
+    localStorage.setItem(
+      "pizzly_admin_tema_escuro",
+      configuracoes.temaEscuro ? "true" : "false"
+    );
 
+    return () => {
+      document.body.classList.remove("dark-admin");
+    };
+  }, [configuracoes.temaEscuro]);
+
+  // Carrega os dados necessários na abertura do painel
   useEffect(() => {
     carregarPedidos();
     carregarClientes();
@@ -774,6 +796,7 @@ useEffect(() => {
     carregarLogsAuditoria();
   }, []);
 
+    // Atualiza os pedidos do Dashboard a cada 30 segundos
   useEffect(() => {
     if (activeNav !== "Dashboard") return;
 
@@ -784,6 +807,8 @@ useEffect(() => {
     return () => clearInterval(intervalo);
   }, [activeNav]);
 
+  /*Dados calculados e filtros: */
+
   const estatisticas = useMemo(() => {
     const totalPedidos = pedidos.length;
 
@@ -791,10 +816,6 @@ useEffect(() => {
       (soma, pedido) => soma + moedaParaNumero(pedido.total),
       0
     );
-
-    
-
-    
 
     const pizzasVendidas = pedidos.reduce((soma, pedido) => {
       const saboresPizza = [
@@ -930,157 +951,160 @@ useEffect(() => {
   const clientesFiltrados = useMemo(() => {
   const busca = buscaCliente.toLowerCase();
 
-  return clientes.filter((cliente) =>
-    cliente.nome.toLowerCase().includes(busca)
-  );
-}, [clientes, buscaCliente]);
+    return clientes.filter((cliente) =>
+      cliente.nome.toLowerCase().includes(busca)
+    );
+  }, [clientes, buscaCliente]);
 
-const produtosMaisVendidos = useMemo(() => {
-  const mapa = {};
+  // Calcula o ranking dos produtos com maior quantidade vendida
+  const produtosMaisVendidos = useMemo(() => {
+    const mapa = {};
 
-  pedidos.forEach((pedido) => {
-    pedido.itens?.forEach((item) => {
-      const quantidade = Number(item.match(/^(\d+)x/i)?.[1]) || 1;
+    pedidos.forEach((pedido) => {
+      pedido.itens?.forEach((item) => {
+        const quantidade = Number(item.match(/^(\d+)x/i)?.[1]) || 1;
 
-      const nome = item
-        .replace(/^(\d+)x\s*/i, "")
-        .replace(/\s*\(.*?\)/g, "")
-        .trim();
+        const nome = item
+          .replace(/^(\d+)x\s*/i, "")
+          .replace(/\s*\(.*?\)/g, "")
+          .trim();
 
-      const produtoCardapio = produtos.find((produto) => {
-        const nomeProduto = produto.nome.toLowerCase();
-        const nomeItem = nome.toLowerCase().replace("pizza ", "");
+        const produtoCardapio = produtos.find((produto) => {
+          const nomeProduto = produto.nome.toLowerCase();
+          const nomeItem = nome.toLowerCase().replace("pizza ", "");
 
-        return (
-          nomeProduto === nomeItem ||
-          nomeProduto.includes(nomeItem) ||
-          nomeItem.includes(nomeProduto)
-        );
+          return (
+            nomeProduto === nomeItem ||
+            nomeProduto.includes(nomeItem) ||
+            nomeItem.includes(nomeProduto)
+          );
+        });
+
+        const precoUnitario = moedaParaNumero(produtoCardapio?.preco || 0);
+
+        if (!mapa[nome]) {
+          mapa[nome] = {
+            nome,
+            quantidade: 0,
+            faturamento: 0,
+          };
+        }
+
+        mapa[nome].quantidade += quantidade;
+        mapa[nome].faturamento += quantidade * precoUnitario;
       });
+    });
 
-      const precoUnitario = moedaParaNumero(produtoCardapio?.preco || 0);
+    return Object.values(mapa)
+      .sort((a, b) => b.quantidade - a.quantidade)
+      .slice(0, 4);
+  }, [pedidos, produtos]);
 
-      if (!mapa[nome]) {
-        mapa[nome] = {
-          nome,
-          quantidade: 0,
-          faturamento: 0,
-        };
+  const produtosFiltrados = useMemo(() => {
+    const busca = buscaProduto.toLowerCase();
+
+    return produtos.filter(
+      (produto) =>
+        produto.nome.toLowerCase().includes(busca) ||
+        produto.categoria.toLowerCase().includes(busca)
+    );
+  }, [produtos, buscaProduto]);
+
+
+  const pedidosResumo = useMemo(() => {
+    const hoje = new Date();
+
+    return pedidos.filter((pedido) => {
+      if (periodoResumo === "todos") return true;
+
+      const dataPedido = new Date(pedido.dataOriginal);
+
+      if (periodoResumo === "hoje") {
+        return dataPedido.toDateString() === hoje.toDateString();
       }
 
-      mapa[nome].quantidade += quantidade;
-      mapa[nome].faturamento += quantidade * precoUnitario;
+      const dias = periodoResumo === "7dias" ? 7 : 30;
+
+      const dataLimite = new Date();
+      dataLimite.setDate(hoje.getDate() - dias);
+
+      return dataPedido >= dataLimite;
     });
-  });
+  }, [pedidos, periodoResumo]);
 
-  return Object.values(mapa)
-    .sort((a, b) => b.quantidade - a.quantidade)
-    .slice(0, 4);
-}, [pedidos, produtos]);
+  // Calcula o resumo financeiro do período selecionado
+  const resumoVendas = useMemo(() => {
+    const faturamento = pedidosResumo.reduce(
+      (soma, pedido) => soma + moedaParaNumero(pedido.total),
+      0
+    );
 
-const produtosFiltrados = useMemo(() => {
-  const busca = buscaProduto.toLowerCase();
+    return {
+      totalPedidos: pedidosResumo.length,
+      faturamento,
+    };
+  }, [pedidosResumo]);
 
-  return produtos.filter(
-    (produto) =>
-      produto.nome.toLowerCase().includes(busca) ||
-      produto.categoria.toLowerCase().includes(busca)
-  );
-}, [produtos, buscaProduto]);
+  const pedidosAtivosQuantidade = useMemo(() => {
+    return pedidos.filter(
+      (pedido) =>
+        pedido.status !== "Entregue" &&
+        pedido.status !== "Retirado" &&
+        pedido.status !== "Cancelado"
+    ).length;
+  }, [pedidos]);
 
+  //agrupa o faturamento por data para alimentar o gráfico de vendas
+  const dadosGraficoVendas = useMemo(() => {
+    const mapa = {};
 
-const pedidosResumo = useMemo(() => {
-  const hoje = new Date();
+    pedidosResumo.forEach((pedido) => {
+      if (!pedido.dataOriginal) return;
 
-  return pedidos.filter((pedido) => {
-    if (periodoResumo === "todos") return true;
+      const data = new Date(pedido.dataOriginal);
 
-    const dataPedido = new Date(pedido.dataOriginal);
+      const chave = data.toLocaleDateString("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+      });
 
-    if (periodoResumo === "hoje") {
-      return dataPedido.toDateString() === hoje.toDateString();
-    }
+      if (!mapa[chave]) {
+        mapa[chave] = 0;
+      }
 
-    const dias = periodoResumo === "7dias" ? 7 : 30;
-
-    const dataLimite = new Date();
-    dataLimite.setDate(hoje.getDate() - dias);
-
-    return dataPedido >= dataLimite;
-  });
-}, [pedidos, periodoResumo]);
-
-//Criar os dados reais do gráfico
-const resumoVendas = useMemo(() => {
-  const faturamento = pedidosResumo.reduce(
-    (soma, pedido) => soma + moedaParaNumero(pedido.total),
-    0
-  );
-
-  return {
-    totalPedidos: pedidosResumo.length,
-    faturamento,
-  };
-}, [pedidosResumo]);
-
-const pedidosAtivosQuantidade = useMemo(() => {
-  return pedidos.filter(
-    (pedido) =>
-      pedido.status !== "Entregue" &&
-      pedido.status !== "Retirado" &&
-      pedido.status !== "Cancelado"
-  ).length;
-}, [pedidos]);
-
-const dadosGraficoVendas = useMemo(() => {
-  const mapa = {};
-
-  pedidosResumo.forEach((pedido) => {
-    if (!pedido.dataOriginal) return;
-
-    const data = new Date(pedido.dataOriginal);
-
-    const chave = data.toLocaleDateString("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
+      mapa[chave] += moedaParaNumero(pedido.total);
     });
 
-    if (!mapa[chave]) {
-      mapa[chave] = 0;
-    }
+    return Object.entries(mapa).map(([data, valor]) => ({
+      data,
+      valor,
+    }));
+  }, [pedidosResumo]);
 
-    mapa[chave] += moedaParaNumero(pedido.total);
-  });
+  //retorna os próximos status permitidos conforme a forma de recebimento: entrega ou retirada no balcão
+  function proximosStatus(statusAtual, formaRecebimento) {
+    const ehRetirada = formaRecebimento === "retirada";
 
-  return Object.entries(mapa).map(([data, valor]) => ({
-    data,
-    valor,
-  }));
-}, [pedidosResumo]);
+    const fluxoEntrega = {
+      Confirmado: ["Preparando", "Cancelado"],
+      Preparando: ["Saiu para entrega", "Cancelado"],
+      "Saiu para entrega": ["Entregue", "Cancelado"],
+      Entregue: [],
+      Cancelado: [],
+    };
 
-function proximosStatus(statusAtual, formaRecebimento) {
-  const ehRetirada = formaRecebimento === "retirada";
+    const fluxoRetirada = {
+      Confirmado: ["Preparando", "Cancelado"],
+      Preparando: ["Pronto para retirada", "Cancelado"],
+      "Pronto para retirada": ["Retirado", "Cancelado"],
+      Retirado: [],
+      Cancelado: [],
+    };
 
-  const fluxoEntrega = {
-    Confirmado: ["Preparando", "Cancelado"],
-    Preparando: ["Saiu para entrega", "Cancelado"],
-    "Saiu para entrega": ["Entregue", "Cancelado"],
-    Entregue: [],
-    Cancelado: [],
-  };
+    const fluxo = ehRetirada ? fluxoRetirada : fluxoEntrega;
 
-  const fluxoRetirada = {
-    Confirmado: ["Preparando", "Cancelado"],
-    Preparando: ["Pronto para retirada", "Cancelado"],
-    "Pronto para retirada": ["Retirado", "Cancelado"],
-    Retirado: [],
-    Cancelado: [],
-  };
-
-  const fluxo = ehRetirada ? fluxoRetirada : fluxoEntrega;
-
-  return fluxo[statusAtual] || [];
-}
+    return fluxo[statusAtual] || [];
+  }
 
 
   const navItems = [
@@ -1105,23 +1129,6 @@ function proximosStatus(statusAtual, formaRecebimento) {
     setPedidoEditando(pedido);
     setNovoStatus(pedido.status);
     setMenuAberto(null);
-  }
-
-  function atualizarPedidosLocalStorage(listaAtualizada) {
-    setPedidos(listaAtualizada);
-
-    const pedidosUsuario =
-      JSON.parse(localStorage.getItem("pizzly_pedidos")) || [];
-
-    if (pedidosUsuario.length > 0) {
-      const atualizadosStorage = pedidosUsuario.map((pedido) => {
-        const atualizado = listaAtualizada.find((p) => p.id === pedido.id);
-
-        return atualizado ? { ...pedido, status: atualizado.status } : pedido;
-      });
-
-      localStorage.setItem("pizzly_pedidos", JSON.stringify(atualizadosStorage));
-    }
   }
 
   // atualiza o status do pedido no backend
@@ -1167,7 +1174,7 @@ function proximosStatus(statusAtual, formaRecebimento) {
       setPedidoEditando(null);
     } catch (error) {
       console.error("Erro ao salvar status:", error);
-      toast.error("Não foi possível conectar ao servidor.");
+      toastServidorOffline();
     }
   }
 
@@ -1192,408 +1199,419 @@ function proximosStatus(statusAtual, formaRecebimento) {
 
     } catch (error) {
       console.error("Erro ao cancelar pedido:", error);
-      toast.error("Não foi possível conectar ao servidor.");
+      toastServidorOffline();
     }
   }
 
-function abrirNovoProduto() {
-  setProdutoEditando({
-    id: null,
-    nome: "",
-    descricao: "",
-    preco: "",
-    categoriaId: categorias[0]?.id || "",
-    categoria: categorias[0]?.nome || "",
-    imagem: "calabresa",
-    disponivel: true,
-  });
-}
+  //OPERAÇÕES DE PRODUTOS:
 
-// cadastra ou atualiza um produto no backend
-async function salvarProduto() {
-  if (!produtoEditando.nome || !produtoEditando.preco || !produtoEditando.categoriaId) {
-    toast.warning("Preencha nome, preço e categoria do produto.");
-    return;
+  function abrirNovoProduto() {
+    setProdutoEditando({
+      id: null,
+      nome: "",
+      descricao: "",
+      preco: "",
+      categoriaId: categorias[0]?.id || "",
+      categoria: categorias[0]?.nome || "",
+      imagem: "calabresa",
+      disponivel: true,
+    });
   }
 
-  try {
-    const produtoDTO = {
-      nome: produtoEditando.nome,
-      descricao: produtoEditando.descricao || "",
-      preco: moedaInputParaNumero(produtoEditando.preco),
-      imagem: produtoEditando.imagem || "calabresa",
-      disponivel: produtoEditando.disponivel !== false,
-      categoriaId: Number(produtoEditando.categoriaId),
-    };
-
-    const url = produtoEditando.id
-    ? `http://localhost:8080/produtos/${produtoEditando.id}?funcionarioId=${funcionarioIdLogado}`
-    : `http://localhost:8080/produtos?funcionarioId=${funcionarioIdLogado}`;
-
-    const metodo = produtoEditando.id ? "PUT" : "POST";
-
-    const response = await fetch(url, {
-      method: metodo,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(produtoDTO),
-    });
-
-    if (!response.ok) {
-      const erro = await response.text();
-      toast.error("Erro ao salvar produto: " + erro);
+  // cadastra ou atualiza um produto no backend
+  async function salvarProduto() {
+    if (!produtoEditando.nome || !produtoEditando.preco || !produtoEditando.categoriaId) {
+      toast.warning("Preencha nome, preço e categoria do produto.");
       return;
     }
 
-    await carregarProdutos();
-    setProdutoEditando(null);
-    toast.success("Produto salvo com sucesso!");
+    try {
+      const produtoDTO = {
+        nome: produtoEditando.nome,
+        descricao: produtoEditando.descricao || "",
+        preco: moedaInputParaNumero(produtoEditando.preco),
+        imagem: produtoEditando.imagem || "calabresa",
+        disponivel: produtoEditando.disponivel !== false,
+        categoriaId: Number(produtoEditando.categoriaId),
+      };
 
-  } catch (error) {
-    console.error("Erro ao salvar produto:", error);
-    toast.error("Não foi possível conectar ao servidor.");
+      const url = produtoEditando.id
+      ? `http://localhost:8080/produtos/${produtoEditando.id}?funcionarioId=${funcionarioIdLogado}`
+      : `http://localhost:8080/produtos?funcionarioId=${funcionarioIdLogado}`;
+
+      const metodo = produtoEditando.id ? "PUT" : "POST";
+
+      const response = await fetch(url, {
+        method: metodo,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(produtoDTO),
+      });
+
+      if (!response.ok) {
+        const erro = await response.text();
+        toast.error("Erro ao salvar produto: " + erro);
+        return;
+      }
+
+      await carregarProdutos();
+      setProdutoEditando(null);
+      toast.success("Produto salvo com sucesso!");
+
+    } catch (error) {
+      console.error("Erro ao salvar produto:", error);
+      toastServidorOffline();
+    }
   }
-}
 
-// remove um produto do banco de dados
-async function excluirProduto(id) {
+  // remove um produto do banco de dados
+  async function excluirProduto(id) {
 
-  const confirmar = await confirmarAcao(
-      "Excluir produto?",
+    const confirmar = await confirmarAcao(
+        "Excluir produto?",
+        "Esta ação não poderá ser desfeita.",
+        "Sim, excluir"
+    );
+
+    if (!confirmar) {
+        return;
+    }
+
+    try {
+      const response = await fetch(
+        `http://localhost:8080/produtos/${id}?funcionarioId=${funcionarioIdLogado}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        const erro = await response.text();
+        toast.error("Erro ao excluir produto: " + erro);
+        return;
+      }
+
+      await carregarProdutos();
+      toast.success("Produto excluído com sucesso!");
+
+    } catch (error) {
+      console.error("Erro ao excluir produto:", error);
+      toastServidorOffline();
+    }
+  }
+
+  //OPERAÇÕES DE CATEGORIAS:
+  function abrirNovaCategoria() {
+    setCategoriaEditando({
+      id: null,
+      nome: "",
+      descricao: "",
+      icon: "🍕",
+    });
+  }
+
+  // cadastra ou atualiza uma categoria no backend
+  async function salvarCategoria() {
+    if (!categoriaEditando.nome) {
+      toast.warning("Preencha o nome da categoria.");
+      return;
+    }
+
+    try {
+      const categoriaDTO = {
+        nome: categoriaEditando.nome,
+        descricao: categoriaEditando.descricao || "",
+        icon: categoriaEditando.icon || "🍽️",
+      };
+
+      const url = categoriaEditando.id
+        ? `http://localhost:8080/categorias/${categoriaEditando.id}?funcionarioId=${funcionarioIdLogado}`
+        : `http://localhost:8080/categorias?funcionarioId=${funcionarioIdLogado}`;
+
+      const metodo = categoriaEditando.id ? "PUT" : "POST";
+
+      const response = await fetch(url, {
+        method: metodo,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(categoriaDTO),
+      });
+
+      if (!response.ok) {
+        const erro = await response.text();
+        toast.error("Erro ao salvar categoria: " + erro);
+        return;
+      }
+
+      await carregarCategorias();
+      await carregarProdutos();
+
+      setCategoriaEditando(null);
+      toast.success("Categoria salva com sucesso!");
+
+    } catch (error) {
+      console.error("Erro ao salvar categoria:", error);
+      toastServidorOffline();
+    }
+  }
+
+  // remove uma categoria do banco, desde que não possua produtos vinculados
+  async function excluirCategoria(id, nome) {
+    const temProduto = produtos.some((produto) => produto.categoria === nome);
+
+    if (temProduto) {
+      toast.warning("Não é possível excluir uma categoria que possui produtos.");
+      return;
+    }
+
+    const confirmar = await confirmarAcao(
+      "Excluir categoria?",
       "Esta ação não poderá ser desfeita.",
       "Sim, excluir"
-  );
-
-  if (!confirmar) {
-      return;
-  }
-
-  try {
-    const response = await fetch(
-      `http://localhost:8080/produtos/${id}?funcionarioId=${funcionarioIdLogado}`,
-      {
-        method: "DELETE",
-      }
     );
 
-    if (!response.ok) {
-      const erro = await response.text();
-      toast.error("Erro ao excluir produto: " + erro);
+    if (!confirmar) {
       return;
     }
 
-    await carregarProdutos();
-    toast.success("Produto excluído com sucesso!");
+    try {
+      const response = await fetch(
+        `http://localhost:8080/categorias/${id}?funcionarioId=${funcionarioIdLogado}`,
+        {
+          method: "DELETE",
+        }
+      );
 
-  } catch (error) {
-    console.error("Erro ao excluir produto:", error);
-    toast.error("Não foi possível conectar ao servidor.");
-  }
-}
+      if (!response.ok) {
+        const erro = await response.text();
+        toast.error("Erro ao excluir categoria: " + erro);
+        return;
+      }
 
-function abrirNovaCategoria() {
-  setCategoriaEditando({
-    id: null,
-    nome: "",
-    descricao: "",
-    icon: "🍕",
-  });
-}
+      await carregarCategorias();
+      toast.success("Categoria excluída com sucesso!");
 
-// cadastra ou atualiza uma categoria no backend
-async function salvarCategoria() {
-  if (!categoriaEditando.nome) {
-    toast.warning("Preencha o nome da categoria.");
-    return;
+    } catch (error) {
+      console.error("Erro ao excluir categoria:", error);
+      toastServidorOffline();
+    }
   }
 
-  try {
-    const categoriaDTO = {
-      nome: categoriaEditando.nome,
-      descricao: categoriaEditando.descricao || "",
-      icon: categoriaEditando.icon || "🍽️",
-    };
+  //OPERAÇÕES DE PROMOÇÕES:
 
-    const url = categoriaEditando.id
-      ? `http://localhost:8080/categorias/${categoriaEditando.id}?funcionarioId=${funcionarioIdLogado}`
-      : `http://localhost:8080/categorias?funcionarioId=${funcionarioIdLogado}`;
-
-    const metodo = categoriaEditando.id ? "PUT" : "POST";
-
-    const response = await fetch(url, {
-      method: metodo,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(categoriaDTO),
+  function abrirNovaPromocao() {
+    setPromocaoEditando({
+      id: null,
+      titulo: "",
+      desc: "",
+      tag: "OFERTA",
+      imagem: "comboFamilia",
+      precoAntigo: "",
+      precoNovo: "",
+      dataInicio: "",
+      dataFim: "",
+      ativa: true,
+      produtosIds: [],
     });
+  }
 
-    if (!response.ok) {
-      const erro = await response.text();
-      toast.error("Erro ao salvar categoria: " + erro);
+  async function salvarPromocao() {
+    if (
+      !promocaoEditando.titulo ||
+      !promocaoEditando.precoAntigo ||
+      !promocaoEditando.precoNovo ||
+      !promocaoEditando.dataInicio ||
+      !promocaoEditando.dataFim ||
+      promocaoEditando.produtosIds.length === 0
+    ) {
+      toast.warning("Preencha título, preços, datas e selecione pelo menos um produto.");
       return;
     }
 
-    await carregarCategorias();
-    await carregarProdutos();
+    try {
+      const promocaoDTO = {
+        titulo: promocaoEditando.titulo,
+        descricao: promocaoEditando.desc || "",
+        tag: promocaoEditando.tag || "OFERTA",
+        imagem: promocaoEditando.imagem || "comboFamilia",
+        precoAntigo: moedaInputParaNumero(promocaoEditando.precoAntigo),
+        precoPromocional: moedaInputParaNumero(promocaoEditando.precoNovo),
+        dataInicio: promocaoEditando.dataInicio,
+        dataFim: promocaoEditando.dataFim,
+        ativa: promocaoEditando.ativa,
+        produtosIds: promocaoEditando.produtosIds.map(Number),
+      };
 
-    setCategoriaEditando(null);
-    toast.success("Categoria salva com sucesso!");
+      const url = promocaoEditando.id
+        ? `http://localhost:8080/promocoes/${promocaoEditando.id}?funcionarioId=${funcionarioIdLogado}`
+        : `http://localhost:8080/promocoes?funcionarioId=${funcionarioIdLogado}`;
 
-  } catch (error) {
-    console.error("Erro ao salvar categoria:", error);
-    toast.error("Não foi possível conectar ao servidor.");
-  }
-}
+      const metodo = promocaoEditando.id ? "PUT" : "POST";
 
-// remove uma categoria do banco, desde que não possua produtos vinculados
-async function excluirCategoria(id, nome) {
-  const temProduto = produtos.some((produto) => produto.categoria === nome);
+      const response = await fetch(url, {
+        method: metodo,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(promocaoDTO),
+      });
 
-  if (temProduto) {
-    toast.warning("Não é possível excluir uma categoria que possui produtos.");
-    return;
-  }
-
-  const confirmar = await confirmarAcao(
-    "Excluir categoria?",
-    "Esta ação não poderá ser desfeita.",
-    "Sim, excluir"
-  );
-
-  if (!confirmar) {
-    return;
-  }
-
-  try {
-    const response = await fetch(
-      `http://localhost:8080/categorias/${id}?funcionarioId=${funcionarioIdLogado}`,
-      {
-        method: "DELETE",
+      if (!response.ok) {
+        const erro = await response.text();
+        toast.error("Erro ao salvar promoção: " + erro);
+        return;
       }
+
+      await carregarPromocoes();
+      setPromocaoEditando(null);
+      toast.success("Promoção salva com sucesso!");
+
+    } catch (error) {
+      console.error("Erro ao salvar promoção:", error);
+      toastServidorOffline();
+    }
+  }
+
+  async function excluirPromocao(id) {
+    const promocao = promocoes.find((promo) => promo.id === id);
+
+    if (promocao?.ativa) {
+      toast.warning("Não é possível excluir uma promoção ativa. Desative a promoção antes de removê-la.");
+      return;
+    }
+
+    const confirmar = await confirmarAcao(
+      "Excluir promoção?",
+      "Esta ação não poderá ser desfeita.",
+      "Sim, excluir"
     );
 
-    if (!response.ok) {
-      const erro = await response.text();
-      toast.error("Erro ao excluir categoria: " + erro);
+    if (!confirmar) {
       return;
     }
 
-    await carregarCategorias();
-    toast.success("Categoria excluída com sucesso!");
+    try {
+      const response = await fetch(
+        `http://localhost:8080/promocoes/${id}?funcionarioId=${funcionarioIdLogado}`,
+        {
+          method: "DELETE",
+        }
+      );
 
-  } catch (error) {
-    console.error("Erro ao excluir categoria:", error);
-    toast.error("Não foi possível conectar ao servidor.");
-  }
-}
-
-function abrirNovaPromocao() {
-  setPromocaoEditando({
-    id: null,
-    titulo: "",
-    desc: "",
-    tag: "OFERTA",
-    imagem: "comboFamilia",
-    precoAntigo: "",
-    precoNovo: "",
-    dataInicio: "",
-    dataFim: "",
-    ativa: true,
-    produtosIds: [],
-  });
-}
-
-async function salvarPromocao() {
-  if (
-    !promocaoEditando.titulo ||
-    !promocaoEditando.precoAntigo ||
-    !promocaoEditando.precoNovo ||
-    !promocaoEditando.dataInicio ||
-    !promocaoEditando.dataFim ||
-    promocaoEditando.produtosIds.length === 0
-  ) {
-    toast.warning("Preencha título, preços, datas e selecione pelo menos um produto.");
-    return;
-  }
-
-  try {
-    const promocaoDTO = {
-      titulo: promocaoEditando.titulo,
-      descricao: promocaoEditando.desc || "",
-      tag: promocaoEditando.tag || "OFERTA",
-      imagem: promocaoEditando.imagem || "comboFamilia",
-      precoAntigo: moedaInputParaNumero(promocaoEditando.precoAntigo),
-      precoPromocional: moedaInputParaNumero(promocaoEditando.precoNovo),
-      dataInicio: promocaoEditando.dataInicio,
-      dataFim: promocaoEditando.dataFim,
-      ativa: promocaoEditando.ativa,
-      produtosIds: promocaoEditando.produtosIds.map(Number),
-    };
-
-    const url = promocaoEditando.id
-      ? `http://localhost:8080/promocoes/${promocaoEditando.id}?funcionarioId=${funcionarioIdLogado}`
-      : `http://localhost:8080/promocoes?funcionarioId=${funcionarioIdLogado}`;
-
-    const metodo = promocaoEditando.id ? "PUT" : "POST";
-
-    const response = await fetch(url, {
-      method: metodo,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(promocaoDTO),
-    });
-
-    if (!response.ok) {
-      const erro = await response.text();
-      toast.error("Erro ao salvar promoção: " + erro);
-      return;
-    }
-
-    await carregarPromocoes();
-    setPromocaoEditando(null);
-    toast.success("Promoção salva com sucesso!");
-
-  } catch (error) {
-    console.error("Erro ao salvar promoção:", error);
-    toast.error("Não foi possível conectar ao servidor.");
-  }
-}
-
-async function excluirPromocao(id) {
-  const promocao = promocoes.find((promo) => promo.id === id);
-
-  if (promocao?.ativa) {
-    toast.warning("Não é possível excluir uma promoção ativa. Desative a promoção antes de removê-la.");
-    return;
-  }
-
-  const confirmar = await confirmarAcao(
-    "Excluir promoção?",
-    "Esta ação não poderá ser desfeita.",
-    "Sim, excluir"
-  );
-
-  if (!confirmar) {
-    return;
-  }
-
-  try {
-    const response = await fetch(
-      `http://localhost:8080/promocoes/${id}?funcionarioId=${funcionarioIdLogado}`,
-      {
-        method: "DELETE",
+      if (!response.ok) {
+        const erro = await response.text();
+        toast.error("Erro ao excluir promoção: " + erro);
+        return;
       }
-    );
 
-    if (!response.ok) {
-      const erro = await response.text();
-      toast.error("Erro ao excluir promoção: " + erro);
-      return;
+      await carregarPromocoes();
+      toast.success("Promoção excluída com sucesso!");
+
+    } catch (error) {
+      console.error("Erro ao excluir promoção:", error);
+      toastServidorOffline();
     }
-
-    await carregarPromocoes();
-    toast.success("Promoção excluída com sucesso!");
-
-  } catch (error) {
-    console.error("Erro ao excluir promoção:", error);
-    toast.error("Não foi possível conectar ao servidor.");
-  }
-}
-
-// ativa ou inativa funcionário sem apagar o histórico
-async function alterarStatusFuncionario(funcionario) {
-  const novoStatus = !funcionario.ativo;
-
-  const confirmar = await confirmarAcao(
-    novoStatus ? "Ativar funcionário?" : "Inativar funcionário?",
-    novoStatus
-      ? "O funcionário voltará a ter acesso ao sistema."
-      : "O funcionário perderá o acesso ao sistema.",
-    novoStatus ? "Sim, ativar" : "Sim, inativar"
-  );
-
-  if (!confirmar) {
-    return;
   }
 
-  try {
-    const response = await fetch(
-      `http://localhost:8080/funcionarios/${funcionario.id}/status?ativo=${novoStatus}&funcionarioId=${funcionarioIdLogado}`,
-      {
-        method: "PATCH",
-      }
-    );
+   //OPERAÇÕES DE FUNCIONÁRIOS:
 
-    if (!response.ok) {
-      const erro = await response.text();
-      toast.error("Erro ao alterar status do funcionário: " + erro);
-      return;
-    }
+  // ativa ou inativa funcionário sem apagar o histórico
+  async function alterarStatusFuncionario(funcionario) {
+    const novoStatus = !funcionario.ativo;
 
-    await carregarFuncionarios();
-    toast.success(
+    const confirmar = await confirmarAcao(
+      novoStatus ? "Ativar funcionário?" : "Inativar funcionário?",
       novoStatus
-        ? "Funcionário ativado com sucesso!"
-        : "Funcionário inativado com sucesso!"
+        ? "O funcionário voltará a ter acesso ao sistema."
+        : "O funcionário perderá o acesso ao sistema.",
+      novoStatus ? "Sim, ativar" : "Sim, inativar"
     );
 
-  } catch (error) {
-    console.error("Erro ao alterar status do funcionário:", error);
-    toast.error("Não foi possível conectar ao servidor.");
+    if (!confirmar) {
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `http://localhost:8080/funcionarios/${funcionario.id}/status?ativo=${novoStatus}&funcionarioId=${funcionarioIdLogado}`,
+        {
+          method: "PATCH",
+        }
+      );
+
+      if (!response.ok) {
+        const erro = await response.text();
+        toast.error("Erro ao alterar status do funcionário: " + erro);
+        return;
+      }
+
+      await carregarFuncionarios();
+      toast.success(
+        novoStatus
+          ? "Funcionário ativado com sucesso!"
+          : "Funcionário inativado com sucesso!"
+      );
+
+    } catch (error) {
+      console.error("Erro ao alterar status do funcionário:", error);
+      toastServidorOffline();
+    }
   }
-}
 
-function podeAlterarStatus(
-  statusAtual,
-  novoStatus,
-  formaRecebimento
-) {
-  return proximosStatus(
+  // verifica se a transição escolhida faz parte do fluxo permitido
+  function podeAlterarStatus(
     statusAtual,
+    novoStatus,
     formaRecebimento
-  ).includes(novoStatus);
-}
+  ) {
+    return proximosStatus(
+      statusAtual,
+      formaRecebimento
+    ).includes(novoStatus);
+  }
 
-function renderCardsPedidos(lista) {
-  return (
-    <div className="ad-pedido-cards">
-      {lista.map((pedido) => (
-        <div key={pedido.id} className="ad-pedido-card">
-          <div className="ad-pedido-card-top">
-            <strong>{pedido.id}</strong>
-            <span className={`ad-status ${STATUS_COLOR[pedido.status]}`}>
-              {pedido.status}
-            </span>
+  //RENDERIZAÇÃO RESPONSIVA DAS ABAS:
+  // Os cards são utilizados no mobile e as tabelas no desktop
+
+  function renderCardsPedidos(lista) {
+    return (
+      <div className="ad-pedido-cards">
+        {lista.map((pedido) => (
+          <div key={pedido.id} className="ad-pedido-card">
+            <div className="ad-pedido-card-top">
+              <strong>{pedido.id}</strong>
+              <span className={`ad-status ${STATUS_COLOR[pedido.status]}`}>
+                {pedido.status}
+              </span>
+            </div>
+
+            <p><strong>Cliente:</strong> {pedido.cliente}</p>
+            <p><strong>Produtos:</strong> {pedido.produtos}</p>
+            <p><strong>Tempo:</strong> {pedido.tempo}</p>
+            <p><strong>Valor:</strong> {pedido.total}</p>
+
+            <div className="ad-pedido-card-actions">
+              <button onClick={() => abrirModalPedido(pedido)}>
+                Ver / editar
+              </button>
+
+              <button onClick={() => cancelarPedido(pedido.idBackend)}>
+                Cancelar
+              </button>
+            </div>
           </div>
+        ))}
 
-          <p><strong>Cliente:</strong> {pedido.cliente}</p>
-          <p><strong>Produtos:</strong> {pedido.produtos}</p>
-          <p><strong>Tempo:</strong> {pedido.tempo}</p>
-          <p><strong>Valor:</strong> {pedido.total}</p>
-
-          <div className="ad-pedido-card-actions">
-            <button onClick={() => abrirModalPedido(pedido)}>
-              Ver / editar
-            </button>
-
-            <button onClick={() => cancelarPedido(pedido.idBackend)}>
-              Cancelar
-            </button>
+        {lista.length === 0 && (
+          <div className="ad-pedido-card">
+            <strong>Nenhum pedido encontrado.</strong>
           </div>
-        </div>
-      ))}
-
-      {lista.length === 0 && (
-        <div className="ad-pedido-card">
-          <strong>Nenhum pedido encontrado.</strong>
-        </div>
-      )}
-    </div>
-  );
-}
+        )}
+      </div>
+    );
+  }
 
   function renderTabelaPedidos(lista) {
     return (
@@ -1667,6 +1685,8 @@ function renderCardsPedidos(lista) {
         </>
       );
     }
+
+  //CONTEÚDO DAS ABAS:
 
   function DashboardContent() {
     return (
@@ -2249,7 +2269,7 @@ function renderCardsCategorias(lista) {
           <div key={categoria.id} className="ad-categoria-card">
             <div className="ad-categoria-card-top">
               <span>{categoria.icon}</span>
-              <strong>{categoria.nome}</strong>
+              <strong>{capitalizarTexto(categoria.nome)}</strong>
             </div>
 
             <p>
@@ -3178,16 +3198,16 @@ function AuditoriaContent() {
           </div>
         </div>
 
-        {activeNav === "Dashboard" && <DashboardContent />}
-        {activeNav === "Pedidos" && <PedidosContent />}
-        {activeNav === "Clientes" && <ClientesContent />}
-        {activeNav === "Cardápio" && <CardapioContent />}
-        {activeNav === "Categorias" && <CategoriasContent />}
-        {activeNav === "Promoções" && <PromocoesContent />}
-        {activeNav === "Relatórios" && <RelatoriosContent />}
-        {activeNav === "Funcionários" && <FuncionariosContent />}
-        {activeNav === "Auditoria" && <AuditoriaContent />}
-        {activeNav === "Configurações" && <ConfiguracoesContent />}
+        {activeNav === "Dashboard" && DashboardContent()}
+        {activeNav === "Pedidos" && PedidosContent()}
+        {activeNav === "Clientes" && ClientesContent()}
+        {activeNav === "Cardápio" && CardapioContent()}
+        {activeNav === "Categorias" && CategoriasContent()}
+        {activeNav === "Promoções" && PromocoesContent()}
+        {activeNav === "Relatórios" && RelatoriosContent()}
+        {activeNav === "Funcionários" && FuncionariosContent()}
+        {activeNav === "Auditoria" && AuditoriaContent()}
+        {activeNav === "Configurações" && ConfiguracoesContent()}
 
         {activeNav !== "Dashboard" &&
         activeNav !== "Pedidos" &&
@@ -3209,101 +3229,150 @@ function AuditoriaContent() {
 
         {pedidoEditando && (
           <div className="ad-modal-overlay">
-            <div className="ad-modal">
-              <h2>Pedido {pedidoEditando.id}</h2>
+            <div className="ad-modal ad-pedido-modal">
+              <div className="ad-pedido-modal-header">
+                <div className="ad-pedido-modal-icon">🧾</div>
 
-              <p>
-                <strong>Cliente:</strong> {pedidoEditando.cliente}
-              </p>
+                <div>
+                  <h2>Pedido {pedidoEditando.id}</h2>
+                  <p>{pedidoEditando.cliente}</p>
+                </div>
 
-              <p>
-                <strong>Data:</strong> {pedidoEditando.data}
-              </p>
+                <button
+                  className="ad-modal-close"
+                  onClick={() => setPedidoEditando(null)}
+                >
+                  ×
+                </button>
+              </div>
 
-              <p>
-                <strong>Entrega:</strong> {pedidoEditando.entrega}
-              </p>
+              <div className="ad-pedido-modal-resumo">
+                <div>
+                  <span>Status</span>
+                  <strong>
+                    <span
+                      className={`ad-status ${STATUS_COLOR[pedidoEditando.status]}`}
+                    >
+                      {pedidoEditando.status}
+                    </span>
+                  </strong>
+                </div>
 
-              <p>
-                <strong>Pagamento:</strong> {pedidoEditando.pagamento}
-              </p>
+                <div>
+                  <span>Data</span>
+                  <strong>{pedidoEditando.data}</strong>
+                </div>
 
-              {pedidoEditando.valorTroco && (
-                <p>
-                  <strong>Troco para:</strong> {pedidoEditando.valorTroco}
-                </p>
-              )}
+                <div>
+                  <span>Total</span>
+                  <strong>{pedidoEditando.total}</strong>
+                </div>
+              </div>
 
-              <div className="ad-modal-items">
-                <strong>Itens do pedido:</strong>
-                <ul>
+              <div className="ad-pedido-modal-info-grid">
+                <div className="ad-pedido-modal-info-item">
+                  <span>Entrega</span>
+                  <strong>{pedidoEditando.entrega}</strong>
+                </div>
+
+                <div className="ad-pedido-modal-info-item">
+                  <span>Pagamento</span>
+                  <strong>{pedidoEditando.pagamento}</strong>
+                </div>
+
+                {pedidoEditando.valorTroco && (
+                  <div className="ad-pedido-modal-info-item">
+                    <span>Troco para</span>
+                    <strong>{pedidoEditando.valorTroco}</strong>
+                  </div>
+                )}
+              </div>
+
+              <div className="ad-pedido-modal-section">
+                <div className="ad-pedido-modal-section-title">
+                  <span>📦</span>
+                  Itens do pedido
+                </div>
+
+                <ul className="ad-pedido-modal-itens">
                   {pedidoEditando.itens?.map((item, index) => (
                     <li key={index}>{item}</li>
                   ))}
                 </ul>
               </div>
 
-              {pedidoEditando.observacaoPedido && (
-                <p>
-                  <strong>Obs. pedido:</strong>{" "}
-                  {pedidoEditando.observacaoPedido}
-                </p>
+              {(pedidoEditando.observacaoPedido ||
+                pedidoEditando.observacaoEntrega) && (
+                <div className="ad-pedido-modal-section">
+                  {pedidoEditando.observacaoPedido && (
+                    <div className="ad-pedido-modal-obs">
+                      <strong>Obs. pedido</strong>
+                      <p>{pedidoEditando.observacaoPedido}</p>
+                    </div>
+                  )}
+
+                  {pedidoEditando.observacaoEntrega && (
+                    <div className="ad-pedido-modal-obs">
+                      <strong>Obs. entrega</strong>
+                      <p>{pedidoEditando.observacaoEntrega}</p>
+                    </div>
+                  )}
+                </div>
               )}
 
-              {pedidoEditando.observacaoEntrega && (
-                <p>
-                  <strong>Obs. entrega:</strong>{" "}
-                  {pedidoEditando.observacaoEntrega}
-                </p>
-              )}
+              <div className="ad-pedido-modal-section">
+                <label className="ad-pedido-modal-status-label">
+                  <strong>Atualizar status</strong>
+                  <select
+                    value={novoStatus}
+                    onChange={(e) => setNovoStatus(e.target.value)}
+                    disabled={
+                      proximosStatus(
+                        pedidoEditando.status,
+                        pedidoEditando.formaRecebimento
+                      ).length === 0
+                    }
+                  >
+                    <option value={pedidoEditando.status}>
+                      {pedidoEditando.status}
+                    </option>
 
-              <label>
-                <strong>Status:</strong>
-                <select
-                  value={novoStatus}
-                  onChange={(e) => setNovoStatus(e.target.value)}
-                  disabled={
-                    proximosStatus(
+                    {proximosStatus(
                       pedidoEditando.status,
                       pedidoEditando.formaRecebimento
-                    ).length === 0
-                  }
-                >
-                  <option value={pedidoEditando.status}>
-                    {pedidoEditando.status}
-                  </option>
+                    ).map((status) => (
+                      <option key={status} value={status}>
+                        {status}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
 
-                  {proximosStatus(
-                    pedidoEditando.status,
-                    pedidoEditando.formaRecebimento
-                  ).map((status) => (
-                    <option key={status} value={status}>
-                      {status}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <div className="ad-pedido-modal-financeiro">
+                <div className="ad-pedido-modal-financeiro-row">
+                  <span>Subtotal</span>
+                  <span>{pedidoEditando.subtotal || pedidoEditando.total}</span>
+                </div>
 
-              <p>
-                <strong>Subtotal:</strong>{" "}
-                {pedidoEditando.subtotal || pedidoEditando.total}
-              </p>
+                <div className="ad-pedido-modal-financeiro-row">
+                  <span>Taxa de entrega</span>
+                  <span>{pedidoEditando.taxaEntrega || "R$ 0,00"}</span>
+                </div>
 
-              <p>
-                <strong>Taxa de entrega:</strong>{" "}
-                {pedidoEditando.taxaEntrega || "R$ 0,00"}
-              </p>
+                {pedidoEditando.desconto &&
+                  pedidoEditando.desconto !== "R$ 0,00" && (
+                    <div className="ad-pedido-modal-financeiro-row ad-pedido-modal-financeiro-desconto">
+                      <span>Desconto</span>
+                      <span>{pedidoEditando.desconto}</span>
+                    </div>
+                  )}
 
-              {pedidoEditando.desconto &&
-                pedidoEditando.desconto !== "R$ 0,00" && (
-                  <p>
-                    <strong>Desconto:</strong> {pedidoEditando.desconto}
-                  </p>
-                )}
-
-              <p>
-                <strong>Total:</strong> {pedidoEditando.total}
-              </p>
+                <div className="ad-pedido-modal-financeiro-row ad-pedido-modal-financeiro-total">
+                  <span>Total</span>
+                  <span>{pedidoEditando.total}</span>
+                </div>
+              </div>
 
               <div className="ad-modal-actions">
                 <button onClick={() => setPedidoEditando(null)}>
@@ -3617,6 +3686,7 @@ function AuditoriaContent() {
 
       <label>
         <strong>Imagem:</strong>
+
         <select
           value={promocaoEditando.imagem || "comboFamilia"}
           onChange={(e) =>
@@ -3626,13 +3696,46 @@ function AuditoriaContent() {
             })
           }
         >
-          <option value="comboFamilia">Combo Família</option>
-          <option value="calabresa">Pizza Calabresa</option>
-          <option value="frango">Pizza Frango</option>
-          <option value="portuguesa">Pizza Portuguesa</option>
-          <option value="marguerita">Pizza Marguerita</option>
+          <option value="comboFamilia">
+            Combo Família
+          </option>
+
+          <option value="calabresa">
+            Pizza Calabresa
+          </option>
+
+          <option value="frango">
+            Pizza Frango
+          </option>
+
+          <option value="portuguesa">
+            Pizza Portuguesa
+          </option>
+
+          <option value="marguerita">
+            Pizza Marguerita
+          </option>
+
+          <option value="quatroQueijos">
+            Pizza Quatro Queijos
+          </option>
+
+          <option value="pizzaChocolate">
+            Pizza de Chocolate
+          </option>
         </select>
       </label>
+
+      {promocaoEditando.imagem && (
+        <img
+          src={
+            IMAGENS_PRODUTOS[promocaoEditando.imagem] ||
+            pizzaHero
+          }
+          alt="Prévia da promoção"
+          className="ad-promocao-preview"
+        />
+      )}
 
       <label>
         <strong>Preço antigo:</strong>

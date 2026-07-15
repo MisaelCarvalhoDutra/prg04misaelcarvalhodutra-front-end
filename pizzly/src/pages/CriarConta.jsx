@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import { toastServidorOffline } from "../utils/toastUtils";
 
 import "../assets/css/CriarConta.css";
 
@@ -117,7 +118,7 @@ const handleSubmit = async (e) => {
     setModalCodigoAberto(true);
   } catch (error) {
     console.error("Erro ao enviar código:", error);
-    toast.error("Não foi possível conectar ao servidor.");
+    toastServidorOffline();
   } finally {
     setEnviandoCodigo(false);
   }
@@ -152,7 +153,7 @@ async function reenviarCodigo() {
     setContador(60);
   } catch (error) {
     console.error("Erro ao reenviar código:", error);
-    toast.error("Não foi possível conectar ao servidor.");
+    toastServidorOffline();
   } finally {
     setEnviandoCodigo(false);
   }
@@ -203,7 +204,7 @@ async function validarCodigoECriarConta() {
     
   } catch (error) {
     console.error("Erro ao validar código:", error);
-    toast.error("Não foi possível conectar ao servidor.");
+    toastServidorOffline();
   } finally {
     setValidandoCodigo(false);
   }

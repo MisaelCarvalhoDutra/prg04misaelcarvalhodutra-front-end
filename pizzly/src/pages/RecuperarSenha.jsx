@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import "../assets/css/RecuperarSenha.css";
+import { toastServidorOffline } from "../utils/toastUtils";
 
 import logo from "../assets/images/logopizza.png";
 
@@ -49,7 +50,7 @@ export default function RecuperarSenha() {
       toast.success("Link de recuperação enviado!");
     } catch (error) {
       console.error("Erro ao enviar link:", error);
-      toast.error("Não foi possível conectar ao servidor.");
+      toastServidorOffline();
     } finally {
       setCarregando(false);
     }

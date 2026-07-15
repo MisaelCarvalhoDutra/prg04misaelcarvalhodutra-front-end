@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import "../assets/css/Pedido.css";
 import Navbar from "../components/Navbar";
+import { toastServidorOffline } from "../utils/toastUtils";
 
 import pizzaCalabresa from "../assets/images/pizzaCalabresa.jpg";
 import pizzaMarguerita from "../assets/images/pizzaMarguerita.png";
@@ -15,183 +16,108 @@ import guarana2l from "../assets/images/guarana.png";
 import pudim from "../assets/images/pudim.png";
 import pizzaChocolate from "../assets/images/pizzaChocolate.jpg";
 
-const IMAGENS_PRODUTOS = {
-  calabresa: pizzaCalabresa,
-  marguerita: pizzaMarguerita,
-  portuguesa: pizzaPortuguesa,
-  frango: pizzaFrango,
-  quatroQueijos: pizzaHero,
-  comboFamilia: comboFamilia,
-  cocaCola2l: cocaCola2l,
-  guarana2l: guarana2l,
-  pudim: pudim,
-  pizzaChocolate: pizzaChocolate,
-};
+  //CONSTANTES E MAPEAMENTOS:
 
-const TAMANHOS = [
-  { id: "p", label: "Pequena", fatias: "4 fatias", preco: 29.9 },
-  { id: "m", label: "Média", fatias: "6 fatias", preco: 39.9 },
-  { id: "g", label: "Grande", fatias: "8 fatias", preco: 49.9 },
-  { id: "f", label: "Família", fatias: "12 fatias", preco: 69.9 },
-];
-
-const PRODUTOS = {
-  Pizzas: [
-    {
-      id: 1,
-      nome: "Calabresa",
-      desc: "Mussarela, calabresa, cebola e orégano.",
-      preco: 39.9,
-      img: pizzaCalabresa,
-      tag: "Mais vendida",
-    },
-    {
-      id: 2,
-      nome: "Marguerita",
-      desc: "Mussarela, tomate fresco e manjericão.",
-      preco: 39.9,
-      img: pizzaMarguerita,
-      tag: "Clássica",
-    },
-    {
-      id: 3,
-      nome: "Portuguesa",
-      desc: "Presunto, ovos, cebola, pimentão e azeitonas.",
-      preco: 44.9,
-      img: pizzaPortuguesa,
-    },
-    {
-      id: 4,
-      nome: "Frango com Catupiry",
-      desc: "Frango desfiado, catupiry e mussarela.",
-      preco: 44.9,
-      img: pizzaFrango,
-    },
-    {
-      id: 5,
-      nome: "4 Queijos",
-      desc: "Mussarela, provolone, parmesão e gorgonzola.",
-      preco: 49.9,
-      img: pizzaHero,
-    },
-  ],
-
-  Combos: [
-    {
-      id: 6,
-      nome: "Combo Família",
-      desc: "2 pizzas grandes + refrigerante 2L.",
-      preco: 89.9,
-      img: comboFamilia,
-      tag: "Oferta",
-    },
-  ],
-
-  Bebidas: [
-    {
-      id: 7,
-      nome: "Coca-Cola 2L",
-      desc: "Refrigerante Coca-Cola gelado.",
-      preco: 12.9,
-      img: cocaCola2l,
-      tipoImagem: "contain",
-    },
-    {
-      id: 8,
-      nome: "Guaraná 2L",
-      desc: "Refrigerante Guaraná gelado.",
-      preco: 10.9,
-      img: guarana2l,
-      tipoImagem: "contain",
-    },
-  ],
-
-  Sobremesas: [
-    {
-      id: 9,
-      nome: "Pudim",
-      desc: "Pudim de leite condensado com calda de caramelo.",
-      preco: 8.9,
-      img: pudim,
-      tipoImagem: "contain",
-    },
-    {
-      id: 10,
-      nome: "Pizza Chocolate",
-      desc: "Chocolate, granulado e morango.",
-      preco: 34.9,
-      img: pizzaChocolate,
-    },
-  ],
-};
-
-const CATEGORIAS = [
-  { nome: "Pizzas", icon: "🍕", sub: "Sabores tradicionais" },
-  { nome: "Combos", icon: "🎁", sub: "Ofertas para dividir" },
-  { nome: "Bebidas", icon: "🥤", sub: "Refrigerantes gelados" },
-  { nome: "Sobremesas", icon: "🍰", sub: "Doces para finalizar" },
-];
-
-const TAXA_ENTREGA_PADRAO = 6;
-
-const fmt = (valor) => `R$ ${valor.toFixed(2).replace(".", ",")}`;
-
-function converterProdutoBackend(produto) {
-  return {
-    id: produto.id,
-    nome: produto.nome,
-    desc: produto.descricao,
-    preco: Number(produto.preco),
-    img: IMAGENS_PRODUTOS[produto.imagem] || pizzaHero,
-    tipoImagem: produto.categoriaNome === "Bebidas" ? "contain" : "cover",
-    categoria: normalizarTexto(produto.categoriaNome),
+  // Relaciona a chave de imagem salva no backend ao arquivo do front-end
+  const IMAGENS_PRODUTOS = {
+    calabresa: pizzaCalabresa,
+    marguerita: pizzaMarguerita,
+    portuguesa: pizzaPortuguesa,
+    frango: pizzaFrango,
+    quatroQueijos: pizzaHero,
+    comboFamilia: comboFamilia,
+    cocaCola2l: cocaCola2l,
+    guarana2l: guarana2l,
+    pudim: pudim,
+    pizzaChocolate: pizzaChocolate,
   };
-}
 
-function converterCategoriaBackend(categoria) {
-  return {
-    nome: normalizarTexto(categoria.nome),
-    icon:
-      categoria.nome === "Pizzas"
-        ? "🍕"
-        : categoria.nome === "Bebidas"
-        ? "🥤"
-        : categoria.nome === "Sobremesas"
-        ? "🍰"
-        : categoria.nome === "Combos"
-        ? "🎁"
-        : "🍽️",
-    sub: categoria.descricao || "Categoria cadastrada no sistema",
-  };
-}
+  const TAMANHOS = [
+    { id: "p", label: "Pequena", fatias: "4 fatias", preco: 29.9 },
+    { id: "m", label: "Média", fatias: "6 fatias", preco: 39.9 },
+    { id: "g", label: "Grande", fatias: "8 fatias", preco: 49.9 },
+    { id: "f", label: "Família", fatias: "12 fatias", preco: 69.9 },
+  ];
 
-function converterEnderecoBackend(endereco) {
-  return {
-    id: endereco.id,
-    tipo: endereco.tipo,
-    apelido:
-      endereco.tipo === "CASA"
-        ? "Casa"
-        : endereco.tipo === "TRABALHO"
-        ? "Trabalho"
-        : "Outro",
-    principal: endereco.principal,
-    logradouro: endereco.logradouro,
-    numero: endereco.numero,
-    complemento: endereco.complemento || "",
-    bairro: endereco.bairro,
-    cidade: endereco.cidade,
-    uf: endereco.uf,
-    cep: endereco.cep,
-  };
-}
+  const TAXA_ENTREGA_PADRAO = 6;
 
-function normalizarTexto(texto) {
-  return String(texto || "")
-    .trim()
-    .toLowerCase();
-}
+  const fmt = (valor) => `R$ ${valor.toFixed(2).replace(".", ",")}`;
 
+  //FUNÇÕES AUXILIARES DE CONVERSÃO E FORMATAÇÃO:
+
+  // Adapta o produto retornado pelo backend ao formato usado na tela
+  function converterProdutoBackend(produto) {
+    return {
+      id: produto.id,
+      nome: produto.nome,
+      desc: produto.descricao,
+      preco: Number(produto.preco),
+      img: IMAGENS_PRODUTOS[produto.imagem] || pizzaHero,
+      tipoImagem: produto.categoriaNome === "Bebidas" ? "contain" : "cover",
+      categoria: normalizarTexto(produto.categoriaNome),
+    };
+  }
+
+  // Adapta a categoria retornada pelo backend ao formato usado na tela
+  function converterCategoriaBackend(categoria) {
+    return {
+      nome: normalizarTexto(categoria.nome),
+      icon:
+        categoria.nome === "Pizzas"
+          ? "🍕"
+          : categoria.nome === "Bebidas"
+          ? "🥤"
+          : categoria.nome === "Sobremesas"
+          ? "🍰"
+          : categoria.nome === "Combos"
+          ? "🎁"
+          : "🍽️",
+      sub: categoria.descricao || "Categoria cadastrada no sistema",
+    };
+  }
+
+  // Adapta o endereço retornado pelo backend ao formato usado na entrega
+  function converterEnderecoBackend(endereco) {
+    return {
+      id: endereco.id,
+      tipo: endereco.tipo,
+      apelido:
+        endereco.tipo === "CASA"
+          ? "Casa"
+          : endereco.tipo === "TRABALHO"
+          ? "Trabalho"
+          : "Outro",
+      principal: endereco.principal,
+      logradouro: endereco.logradouro,
+      numero: endereco.numero,
+      complemento: endereco.complemento || "",
+      bairro: endereco.bairro,
+      cidade: endereco.cidade,
+      uf: endereco.uf,
+      cep: endereco.cep,
+    };
+  }
+
+  function normalizarTexto(texto) {
+    return String(texto || "")
+      .trim()
+      .toLowerCase();
+  }
+
+  function capitalizarTexto(texto) {
+    return String(texto || "")
+      .trim()
+      .toLowerCase()
+      .split(" ")
+      .map(
+        (palavra) =>
+          palavra.charAt(0).toUpperCase() +
+          palavra.slice(1)
+      )
+      .join(" ");
+  }
+
+//Componente principal
 export default function Pedido() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -235,10 +161,14 @@ export default function Pedido() {
     endereco: "Centro - Irecê/BA",
   });
 
+  //EFEITOS E SINCRONIZAÇÕES:
+
+  // Salva a etapa atual para manter o fluxo após atualizar a página
   useEffect(() => {
     localStorage.setItem("pizzly_etapa", etapa);
   }, [etapa]);
 
+  // Salva o carrinho e atualiza o contador exibido na Navbar
   useEffect(() => {
   localStorage.setItem("pizzly_carrinho", JSON.stringify(carrinho));
 
@@ -263,19 +193,21 @@ export default function Pedido() {
 
   }, [searchParams]);
 
+  // Permite que a Navbar envie o usuário diretamente para a revisão
   useEffect(() => {
-  function irParaRevisao() {
-    setEtapa(2);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
+    function irParaRevisao() {
+      setEtapa(2);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
 
-  window.addEventListener("pizzlyIrParaRevisao", irParaRevisao);
+    window.addEventListener("pizzlyIrParaRevisao", irParaRevisao);
 
-  return () => {
-    window.removeEventListener("pizzlyIrParaRevisao", irParaRevisao);
-  };
-}, []);
+    return () => {
+      window.removeEventListener("pizzlyIrParaRevisao", irParaRevisao);
+    };
+  }, []);
 
+  // Adiciona ao carrinho a promoção selecionada na tela de promoções
   useEffect(() => {
     const promocao = JSON.parse(
       localStorage.getItem("pizzly_promocao_selecionada")
@@ -366,50 +298,50 @@ export default function Pedido() {
   }, []);
 
   // adiciona automaticamente o combo vindo da Home
-useEffect(() => {
-  const adicionarCombo = searchParams.get("adicionarCombo");
+  useEffect(() => {
+    const adicionarCombo = searchParams.get("adicionarCombo");
 
-  if (adicionarCombo !== "true") return;
+    if (adicionarCombo !== "true") return;
 
-  const comboSalvo = JSON.parse(
-    localStorage.getItem("pizzly_combo_home")
-  );
-
-  if (!comboSalvo) return;
-
-  const itemExistente = carrinho.find(
-    (item) => item.produto.id === comboSalvo.id
-  );
-
-  if (itemExistente) {
-    setCarrinho((carrinhoAtual) =>
-      carrinhoAtual.map((item) =>
-        item.produto.id === comboSalvo.id
-          ? { ...item, quantidade: item.quantidade + 1 }
-          : item
-      )
+    const comboSalvo = JSON.parse(
+      localStorage.getItem("pizzly_combo_home")
     );
-  } else {
-    setCarrinho((carrinhoAtual) => [
-      ...carrinhoAtual,
-      {
-        uid: Date.now() + Math.random(),
-        produto: {
-          id: comboSalvo.id,
-          nome: comboSalvo.name,
-          desc: comboSalvo.desc,
-          preco: Number(comboSalvo.preco),
-        },
-        tamanho: "",
-        preco: Number(comboSalvo.preco),
-        img: comboSalvo.img,
-        quantidade: 1,
-      },
-    ]);
-  }
 
-  localStorage.removeItem("pizzly_combo_home");
-}, []);
+    if (!comboSalvo) return;
+
+    const itemExistente = carrinho.find(
+      (item) => item.produto.id === comboSalvo.id
+    );
+
+    if (itemExistente) {
+      setCarrinho((carrinhoAtual) =>
+        carrinhoAtual.map((item) =>
+          item.produto.id === comboSalvo.id
+            ? { ...item, quantidade: item.quantidade + 1 }
+            : item
+        )
+      );
+    } else {
+      setCarrinho((carrinhoAtual) => [
+        ...carrinhoAtual,
+        {
+          uid: Date.now() + Math.random(),
+          produto: {
+            id: comboSalvo.id,
+            nome: comboSalvo.name,
+            desc: comboSalvo.desc,
+            preco: Number(comboSalvo.preco),
+          },
+          tamanho: "",
+          preco: Number(comboSalvo.preco),
+          img: comboSalvo.img,
+          quantidade: 1,
+        },
+      ]);
+    }
+
+    localStorage.removeItem("pizzly_combo_home");
+  }, []);
 
   useEffect(() => {
     async function carregarConfiguracoes() {
@@ -434,6 +366,7 @@ useEffect(() => {
     carregarConfiguracoes();
   }, []);
 
+  // Carrega os endereços cadastrados pelo cliente autenticado
   useEffect(() => {
     const usuarioLogado = JSON.parse(localStorage.getItem("pizzly_usuario"));
 
@@ -465,6 +398,8 @@ useEffect(() => {
       });
   }, []);
 
+  //DADOS CALCULADOS DO PEDIDO:
+
   const produtos = produtosSistema[categoriaAtiva] || [];
 
   // endereço selecionado atualmente pelo cliente
@@ -487,6 +422,8 @@ useEffect(() => {
   );
 
   const total = Math.max(subtotal + taxaEntregaAtual - desconto, 0);
+
+  //Operações do carrinho:
 
   async function verificarPizzariaAberta() {
     const response = await fetch("http://localhost:8080/configuracoes");
@@ -575,6 +512,8 @@ useEffect(() => {
     setCarrinho((prev) => prev.filter((item) => item.uid !== uid));
   }
 
+  //informações de entrega e pagamento:
+
   function nomePagamento() {
     if (pagamento === "pix") return "Pix";
     if (pagamento === "credito") return "Cartão de crédito";
@@ -643,6 +582,10 @@ useEffect(() => {
     setCupomAplicado("");
   }
 
+  //Navegação entre etapas e finalização:
+
+
+  //Valida a etapa atual e, na última etapa, registra o pedido, seus itens e o pagamento no backend
   async function proximaEtapa() {
 
     if (!configuracoes.aberta) {
@@ -799,7 +742,7 @@ useEffect(() => {
     navigate("/pedido-confirmado");
   } catch (error) {
     console.error("Erro ao finalizar pedido:", error);
-    toast.error("Não foi possível conectar ao servidor.");
+    toastServidorOffline();
   }
 
   }
@@ -873,7 +816,7 @@ useEffect(() => {
                     >
                       <span>{categoria.icon}</span>
                       <div>
-                        <strong>{categoria.nome}</strong>
+                        <strong>{capitalizarTexto(categoria.nome)}</strong>
                         <small>{categoria.sub}</small>
                       </div>
                     </button>
@@ -908,7 +851,7 @@ useEffect(() => {
                 )}
 
                 <div className="pd-section-head">
-                  <h2>{categoriaAtiva}</h2>
+                  <h2>{capitalizarTexto(categoriaAtiva)}</h2>
                   <p>Escolha uma opção abaixo para adicionar ao pedido.</p>
                 </div>
 
@@ -1234,53 +1177,56 @@ useEffect(() => {
   );
 }
 
-function ProdutoCard({ produto, precoAtual, onAdd, pizzariaAberta }) {
-  const classeImagem =
-    produto.tipoImagem === "contain" ? "pd-img-contain" : "pd-img-cover";
+  //Componentes Auxiliares:
 
-  return (
-    <article className={`pd-product-card ${produto.tag ? "featured" : ""}`}>
-      {produto.tag && <span className="pd-product-badge">{produto.tag}</span>}
+  function ProdutoCard({ produto, precoAtual, onAdd, pizzariaAberta }) {
+    const classeImagem =
+      produto.tipoImagem === "contain" ? "pd-img-contain" : "pd-img-cover";
 
-      <div className="pd-product-img-wrap">
-        <img src={produto.img} alt={produto.nome} className={classeImagem} />
-      </div>
+    return (
+      <article className={`pd-product-card ${produto.tag ? "featured" : ""}`}>
+        {produto.tag && <span className="pd-product-badge">{produto.tag}</span>}
 
-      <div className="pd-product-body">
-        <h3>{produto.nome}</h3>
-        <p>{produto.desc}</p>
-
-        <div className="pd-product-bottom">
-          <strong>{fmt(precoAtual)}</strong>
-          <button onClick={onAdd} disabled={!pizzariaAberta}>
-            Adicionar
-          </button>
+        <div className="pd-product-img-wrap">
+          <img src={produto.img} alt={produto.nome} className={classeImagem} />
         </div>
-      </div>
-    </article>
-  );
-}
 
-function ResumoPedido({
-  carrinho,
-  subtotal,
-  total,
-  taxaEntregaAtual,
-  cupomAberto,
-  setCupomAberto,
-  cupom,
-  setCupom,
-  aplicarCupom,
-  removerCupom,
-  desconto,
-  cupomAplicado,
-  removerItem,
-  setCarrinho,
-  etapa,
-  entrega,
-  pagamento,
-  proximaEtapa,
-}) {
+        <div className="pd-product-body">
+          <h3>{produto.nome}</h3>
+          <p>{produto.desc}</p>
+
+          <div className="pd-product-bottom">
+            <strong>{fmt(precoAtual)}</strong>
+            <button onClick={onAdd} disabled={!pizzariaAberta}>
+              Adicionar
+            </button>
+          </div>
+        </div>
+      </article>
+    );
+  }
+
+  //Exibe o resumo lateral do pedido, cupom e valores calculados.
+  function ResumoPedido({
+    carrinho,
+    subtotal,
+    total,
+    taxaEntregaAtual,
+    cupomAberto,
+    setCupomAberto,
+    cupom,
+    setCupom,
+    aplicarCupom,
+    removerCupom,
+    desconto,
+    cupomAplicado,
+    removerItem,
+    setCarrinho,
+    etapa,
+    entrega,
+    pagamento,
+    proximaEtapa,
+  }) {
 
   const quantidadeItens = carrinho.reduce(
     (total, item) => total + item.quantidade,

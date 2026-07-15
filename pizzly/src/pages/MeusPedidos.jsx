@@ -13,6 +13,7 @@ const statusClass = {
   Cancelado: "mp-cancelado",
 };
 
+/*Funcções auxiliares: */
 function formatarMoeda(valor) {
   return `R$ ${Number(valor).toFixed(2).replace(".", ",")}`;
 }
@@ -33,6 +34,7 @@ function converterStatus(status) {
   return "Confirmado";
 }
 
+/*componente principal */
 export default function MeusPedidos() {
   const navigate = useNavigate();
   const [pedidos, setPedidos] = useState([]);
@@ -44,7 +46,8 @@ export default function MeusPedidos() {
   const [notaAvaliacao, setNotaAvaliacao] = useState(5);
   const [comentarioAvaliacao, setComentarioAvaliacao] = useState("");
 
-useEffect(() => {
+  /*Carregamento dos pedidos: */
+  useEffect(() => {
     const usuarioLogado = JSON.parse(localStorage.getItem("pizzly_usuario"));
 
     if (!usuarioLogado?.id || usuarioLogado.tipo !== "CLIENTE") {
@@ -73,16 +76,16 @@ useEffect(() => {
               `http://localhost:8080/itens-pedido/pedido/${pedido.id}`
             );
 
-            const itensBackend = itensResponse.ok
-              ? await itensResponse.json()
-              : [];
+        const itensBackend = itensResponse.ok
+          ? await itensResponse.json()
+          : [];
 
-              // verifica se o pedido já possui avaliação cadastrada
-              const avaliacaoResponse = await fetch(
-                `http://localhost:8080/avaliacoes/pedido/${pedido.id}`
-              );
+        // verifica se o pedido já possui avaliação cadastrada
+        const avaliacaoResponse = await fetch(
+          `http://localhost:8080/avaliacoes/pedido/${pedido.id}`
+        );
 
-              const jaAvaliado = avaliacaoResponse.ok;
+        const jaAvaliado = avaliacaoResponse.ok;
 
             return {
               id: pedido.id,
@@ -125,59 +128,60 @@ useEffect(() => {
     carregarPedidos();
   }, [navigate]);
 
-  /**
- * Envia a avaliação do pedido para o backend.
- */
-async function enviarAvaliacao() {
-  if (!pedidoSelecionado) return;
+  //Avaliação do pedido:
 
-  const usuarioLogado = JSON.parse(localStorage.getItem("pizzly_usuario"));
+  //envia a avaliação do pedido para o backend.
+  async function enviarAvaliacao() {
+    if (!pedidoSelecionado) return;
 
-  if (!usuarioLogado?.id) {
-    alert("Faça login para avaliar o pedido.");
-    navigate("/login");
-    return;
-  }
+    const usuarioLogado = JSON.parse(localStorage.getItem("pizzly_usuario"));
 
-  try {
-    const response = await fetch("http://localhost:8080/avaliacoes", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        nota: notaAvaliacao,
-        comentario: comentarioAvaliacao,
-        clienteId: usuarioLogado.id,
-        pedidoId: pedidoSelecionado.id,
-      }),
-    });
-
-    if (!response.ok) {
-      const erro = await response.text();
-      alert("Erro ao enviar avaliação: " + erro);
+    if (!usuarioLogado?.id) {
+      alert("Faça login para avaliar o pedido.");
+      navigate("/login");
       return;
     }
 
-    alert("Avaliação enviada com sucesso!");
+    try {
+      const response = await fetch("http://localhost:8080/avaliacoes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          nota: notaAvaliacao,
+          comentario: comentarioAvaliacao,
+          clienteId: usuarioLogado.id,
+          pedidoId: pedidoSelecionado.id,
+        }),
+      });
 
-    setPedidos((pedidosAtuais) =>
-      pedidosAtuais.map((pedido) =>
-        pedido.id === pedidoSelecionado.id
-          ? { ...pedido, jaAvaliado: true }
-          : pedido
-      )
-    );
+      if (!response.ok) {
+        const erro = await response.text();
+        alert("Erro ao enviar avaliação: " + erro);
+        return;
+      }
 
-    setPedidoSelecionado(null);
-    setComentarioAvaliacao("");
-    setNotaAvaliacao(5);
-  } catch (error) {
-    console.error("Erro ao enviar avaliação:", error);
-    alert("Erro ao conectar com o servidor.");
+      alert("Avaliação enviada com sucesso!");
+
+      setPedidos((pedidosAtuais) =>
+        pedidosAtuais.map((pedido) =>
+          pedido.id === pedidoSelecionado.id
+            ? { ...pedido, jaAvaliado: true }
+            : pedido
+        )
+      );
+
+      setPedidoSelecionado(null);
+      setComentarioAvaliacao("");
+      setNotaAvaliacao(5);
+    } catch (error) {
+      console.error("Erro ao enviar avaliação:", error);
+      alert("Erro ao conectar com o servidor.");
+    }
   }
-}
 
+  //renderização
   return (
     <div className="mp-root">
       <Navbar />
@@ -273,6 +277,7 @@ async function enviarAvaliacao() {
             </div>
           ))}
 
+          {/* Modal de avaliação do pedido */}
           {pedidoSelecionado && (
           <div className="mp-modal-overlay">
             <div className="mp-modal">
