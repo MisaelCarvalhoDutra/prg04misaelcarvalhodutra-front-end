@@ -11,7 +11,9 @@ export default function NovaSenha() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const token = searchParams.get("token");
+  const tokenUrl = searchParams.get("token");
+
+  const [token, setToken] = useState(tokenUrl || "");
 
   const [novaSenha, setNovaSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
@@ -25,8 +27,8 @@ export default function NovaSenha() {
   async function redefinirSenha(e) {
     e.preventDefault();
 
-    if (!token) {
-      toast.error("Link de recuperação inválido.");
+    if (!token.trim()) {
+      toast.warning("Informe o token recebido por e-mail.");
       return;
     }
 
@@ -133,20 +135,23 @@ export default function NovaSenha() {
                 Digite e confirme a nova senha da sua conta.
               </p>
 
-              {!token ? (
-                <div className="rp-success-box">
-                  <p>
-                    Este link de recuperação é inválido ou está incompleto.
-                  </p>
+              <div className="rp-field">
+                <label>Token de recuperação</label>
 
-                  <Link
-                    to="/recuperar-senha"
-                    className="rp-back-link"
-                  >
-                    Solicitar novo link
-                  </Link>
+                <div className="rp-input-box">
+                  <input
+                    type="text"
+                    placeholder="Cole aqui o token recebido por e-mail"
+                    value={token}
+                    onChange={(e) => setToken(e.target.value)}
+                  />
                 </div>
-              ) : (
+
+                <small>
+                  Informe o token enviado para o seu e-mail.
+                </small>
+              </div>
+
                 <form onSubmit={redefinirSenha} className="rp-form">
                   <div className="rp-field">
                     <label>Nova senha</label>
