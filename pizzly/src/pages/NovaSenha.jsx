@@ -221,7 +221,7 @@ export default function NovaSenha() {
                       : "Redefinir senha"}
                   </button>
                 </form>
-              )}
+              
 
               <Link to="/login" className="rp-back-link">
                 ← Voltar para o login
