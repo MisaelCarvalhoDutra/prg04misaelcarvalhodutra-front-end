@@ -135,23 +135,6 @@ export default function NovaSenha() {
                 Digite e confirme a nova senha da sua conta.
               </p>
 
-              <div className="rp-field">
-                <label>Token de recuperação</label>
-
-                <div className="rp-input-box">
-                  <input
-                    type="text"
-                    placeholder="Cole aqui o token recebido por e-mail"
-                    value={token}
-                    onChange={(e) => setToken(e.target.value)}
-                  />
-                </div>
-
-                <small>
-                  Informe o token enviado para o seu e-mail.
-                </small>
-              </div>
-
                 <form onSubmit={redefinirSenha} className="rp-form">
                   <div className="rp-field">
                     <label>Token de recuperação</label>
