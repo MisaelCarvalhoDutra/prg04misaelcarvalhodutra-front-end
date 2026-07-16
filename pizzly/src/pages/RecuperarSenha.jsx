@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "../assets/css/RecuperarSenha.css";
 import { toastServidorOffline } from "../utils/toastUtils";
@@ -8,6 +8,7 @@ import API_URL from "../utils/api";
 import logo from "../assets/images/logopizza.png";
 
 export default function RecuperarSenha() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [carregando, setCarregando] = useState(false);
   const [linkEnviado, setLinkEnviado] = useState(false);
@@ -48,7 +49,7 @@ export default function RecuperarSenha() {
 
       setLinkEnviado(true);
 
-      toast.success("Link de recuperação enviado!");
+      toast.success("Token de recuperação enviado!");
     } catch (error) {
       console.error("Erro ao enviar link:", error);
       toastServidorOffline();
@@ -161,15 +162,23 @@ export default function RecuperarSenha() {
                   >
                     {carregando
                       ? "Enviando..."
-                      : "Enviar link de recuperação"}
+                      : "Enviar token de recuperação"}
                   </button>
                 </form>
               ) : (
                 <div className="rp-success-box">
                   <p>
-                    Abra sua caixa de entrada e clique no link enviado para
-                    criar uma nova senha.
+                    Abra sua caixa de entrada, copie o token recebido e use-o
+                    para criar uma nova senha.
                   </p>
+
+                  <button
+                    type="button"
+                    className="rp-btn-submit"
+                    onClick={() => navigate("/nova-senha")}
+                  >
+                    Informar token
+                  </button>
 
                   <button
                     type="button"
@@ -177,7 +186,7 @@ export default function RecuperarSenha() {
                     onClick={enviarLink}
                     disabled={carregando}
                   >
-                    {carregando ? "Enviando..." : "Reenviar link"}
+                    {carregando ? "Enviando..." : "Reenviar token"}
                   </button>
 
                   <button
