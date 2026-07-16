@@ -121,9 +121,7 @@ export default function RecuperarSenha() {
               </h2>
 
               <p className="rp-card-sub">
-                {linkEnviado
-                  ? `Enviamos um link de recuperação para ${email}.`
-                  : "Informe seu e-mail cadastrado para receber o link de recuperação."}
+                Informe o token recebido por e-mail e crie sua nova senha.
               </p>
 
               {!linkEnviado ? (

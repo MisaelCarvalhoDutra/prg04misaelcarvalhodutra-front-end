@@ -65,7 +65,7 @@ export default function NovaSenha() {
         const erro = await response.text();
 
         toast.error(
-          erro || "Link inválido ou expirado."
+          erro || "Token inválido ou expirado."
         );
 
         return;
@@ -154,6 +154,24 @@ export default function NovaSenha() {
 
                 <form onSubmit={redefinirSenha} className="rp-form">
                   <div className="rp-field">
+                    <label>Token de recuperação</label>
+
+                    <div className="rp-input-box">
+                      <input
+                        type="text"
+                        placeholder="Cole aqui o token recebido por e-mail"
+                        value={token}
+                        onChange={(e) => setToken(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <small>
+                      Informe o token enviado para o seu e-mail.
+                    </small>
+                  </div>
+
+                  <div className="rp-field">
                     <label>Nova senha</label>
 
                     <div
@@ -169,9 +187,8 @@ export default function NovaSenha() {
                         type="password"
                         placeholder="Nova senha"
                         value={novaSenha}
-                        onChange={(e) =>
-                          setNovaSenha(e.target.value)
-                        }
+                        onChange={(e) => setNovaSenha(e.target.value)}
+                        required
                       />
                     </div>
 
@@ -198,9 +215,8 @@ export default function NovaSenha() {
                         type="password"
                         placeholder="Confirme sua nova senha"
                         value={confirmarSenha}
-                        onChange={(e) =>
-                          setConfirmarSenha(e.target.value)
-                        }
+                        onChange={(e) => setConfirmarSenha(e.target.value)}
+                        required
                       />
                     </div>
 
