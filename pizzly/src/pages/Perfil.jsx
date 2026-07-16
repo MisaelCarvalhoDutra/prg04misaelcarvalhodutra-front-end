@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import Navbar from "../components/Navbar";
 import "../assets/css/Perfil.css";
 import { toastServidorOffline } from "../utils/toastUtils";
+import API_URL from "../utils/api";
 
 const USUARIO_PADRAO = {
   nome: "Misael Dutra",
@@ -84,7 +85,7 @@ export default function Perfil() {
 
       // carrega os endereços reais do cliente no backend
       if (usuarioSalvo.tipo === "CLIENTE") {
-        fetch(`http://localhost:8080/enderecos/cliente/${usuarioSalvo.id}`)
+        fetch(`${API_URL}/enderecos/cliente/${usuarioSalvo.id}`)
           .then((response) => response.json())
           .then((dados) => {
             const enderecosConvertidos = dados.map(converterEnderecoBackend);
@@ -97,7 +98,7 @@ export default function Perfil() {
     }
 
     if (usuarioSalvo?.tipo === "CLIENTE") {
-      fetch(`http://localhost:8080/pedidos/cliente/${usuarioSalvo.id}`)
+      fetch(`${API_URL}/pedidos/cliente/${usuarioSalvo.id}`)
         .then((response) => response.json())
         .then((dados) => {
           setTotalPedidos(dados.length);
@@ -137,8 +138,8 @@ export default function Perfil() {
 
   const endpoint =
     usuario.tipo === "FUNCIONARIO"
-      ? `http://localhost:8080/funcionarios/${usuario.id}`
-      : `http://localhost:8080/clientes/${usuario.id}`;
+      ? `${API_URL}/funcionarios/${usuario.id}`
+      : `${API_URL}/clientes/${usuario.id}`;
 
   const dadosAtualizados =
     usuario.tipo === "FUNCIONARIO"
@@ -213,7 +214,7 @@ export default function Perfil() {
 
     try {
       // envia o novo endereço para o backend
-      const response = await fetch("http://localhost:8080/enderecos", {
+      const response = await fetch(`${API_URL}/enderecos`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -270,7 +271,7 @@ export default function Perfil() {
   async function excluirEndereco(id) {
     try {
       // remove o endereço no backend
-      const response = await fetch(`http://localhost:8080/enderecos/${id}`, {
+      const response = await fetch(`${API_URL}/enderecos/${id}`, {
         method: "DELETE",
       });
 
@@ -298,7 +299,7 @@ export default function Perfil() {
     try {
       // solicita ao backend para marcar este endereço como principal
       const response = await fetch(
-        `http://localhost:8080/enderecos/${id}/principal`,
+        `${API_URL}/enderecos/${id}/principal`,
         {
           method: "PATCH",
         }

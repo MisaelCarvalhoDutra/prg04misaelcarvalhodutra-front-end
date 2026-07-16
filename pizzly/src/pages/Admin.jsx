@@ -4,7 +4,7 @@ import { toast } from "react-toastify"; //substitui alerts()
 import Swal from "sweetalert2"; //import para modal moderno
 import "../assets/css/Admin.css";
 import { toastServidorOffline } from "../utils/toastUtils";
-
+import API_URL from "../utils/api";
 
 // Imagens utilizadas nos produtos e promoções
 import pizzaCalabresa from "../assets/images/pizzaCalabresa.jpg";
@@ -411,7 +411,7 @@ export default function Admin() {
   // busca os clientes reais cadastrados no backend
   async function carregarClientes() {
     try {
-      const response = await fetch("http://localhost:8080/clientes?size=100");
+      const response = await fetch(`${API_URL}/clientes?size=100`)
 
       if (!response.ok) {
         toast.error("Não foi possível carregar os clientes.");
@@ -431,7 +431,7 @@ export default function Admin() {
   async function carregarPedidos() {
     try {
       // busca todos os pedidos reais cadastrados no backend
-      const pedidosResponse = await fetch("http://localhost:8080/pedidos?size=100");
+      const pedidosResponse = await fetch(`${API_URL}/pedidos?size=100`)
 
       if (!pedidosResponse.ok) {
         const erro = await pedidosResponse.text();
@@ -447,11 +447,11 @@ export default function Admin() {
       const pedidosFormatados = await Promise.all(
         pedidosBackend.map(async (pedido) => {
           const itensResponse = await fetch(
-            `http://localhost:8080/itens-pedido/pedido/${pedido.id}`
+            `${API_URL}/itens-pedido/pedido/${pedido.id}`
           );
 
           const pagamentoResponse = await fetch(
-            `http://localhost:8080/pagamentos/pedido/${pedido.id}`
+            `${API_URL}/pagamentos/pedido/${pedido.id}`
           );
 
           const itensBackend = itensResponse.ok
@@ -522,7 +522,7 @@ export default function Admin() {
   async function carregarProdutos() {
     try {
       // busca os produtos reais cadastrados no backend
-      const response = await fetch("http://localhost:8080/produtos?size=100");
+      const response = await fetch(`${API_URL}/produtos?size=100`)
 
       if (!response.ok) {
         toast.error("Não foi possível carregar os produtos.");
@@ -542,7 +542,7 @@ export default function Admin() {
   async function carregarCategorias() {
     try {
       // busca as categorias reais cadastradas no backend
-      const response = await fetch("http://localhost:8080/categorias?size=100");
+      const response = await fetch(`${API_URL}/categorias?size=100`)
 
       if (!response.ok) {
         toast.error("Não foi possível carregar as categorias.");
@@ -569,7 +569,7 @@ export default function Admin() {
   //busca as promoções reais no backend
   async function carregarPromocoes() {
     try {
-      const response = await fetch("http://localhost:8080/promocoes?size=100");
+      const response = await fetch(`${API_URL}/promocoes?size=100`)
 
       if (!response.ok) {
         toast.error("Não foi possível carregar as promoções.");
@@ -589,7 +589,7 @@ export default function Admin() {
   // busca funcionários cadastrados no backend
   async function carregarFuncionarios() {
     try {
-      const response = await fetch("http://localhost:8080/funcionarios?size=100");
+      const response = await fetch(`${API_URL}/funcionarios?size=100`)
 
       if (!response.ok) {
         toast.error("Não foi possível carregar os funcionários.");
@@ -607,9 +607,7 @@ export default function Admin() {
   //busca as avaliações feitas pelos clientes
   async function carregarAvaliacoes() {
     try {
-      const response = await fetch(
-        "http://localhost:8080/avaliacoes?size=100&sort=dataAvaliacao,desc"
-      );
+      const response = await fetch(`${API_URL}/avaliacoes?size=100&sort=dataAvaliacao,desc`);
 
       if (!response.ok) {
         toast.error("Não foi possível carregar as avaliações.");
@@ -627,7 +625,7 @@ export default function Admin() {
   // busca os logs de auditoria registrados no backend
   async function carregarLogsAuditoria() {
     try {
-      const response = await fetch("http://localhost:8080/logs?size=100&sort=dataHora,desc");
+      const response = await fetch(`${API_URL}/logs?size=100&sort=dataHora,desc`)
 
       if (!response.ok) {
         toast.error("Não foi possível carregar os logs de auditoria.");
@@ -669,8 +667,8 @@ export default function Admin() {
 
     try {
       const url = funcionarioEditando.id
-        ? `http://localhost:8080/funcionarios/${funcionarioEditando.id}?funcionarioId=${funcionarioIdLogado}`
-        : `http://localhost:8080/funcionarios?funcionarioId=${funcionarioIdLogado}`;
+        ? `${API_URL}/funcionarios/${funcionarioEditando.id}?funcionarioId=${funcionarioIdLogado}`
+        : `${API_URL}/funcionarios?funcionarioId=${funcionarioIdLogado}`;
 
       const metodo = funcionarioEditando.id ? "PUT" : "POST";
 
@@ -699,7 +697,7 @@ export default function Admin() {
   //carrega as configurações da pizzaria
   async function carregarConfiguracoes() {
     try {
-      const response = await fetch("http://localhost:8080/configuracoes");
+      const response = await fetch(`${API_URL}/configuracoes`);
 
       if (!response.ok) {
         toast.error("Não foi possível carregar as configurações.");
@@ -739,7 +737,7 @@ export default function Admin() {
       };
 
     const response = await fetch(
-  `http://localhost:8080/configuracoes?funcionarioId=${funcionarioIdLogado}`,
+      `${API_URL}/configuracoes?funcionarioId=${funcionarioIdLogado}`,
     {
       method: "PUT",
       headers: {
@@ -1151,7 +1149,7 @@ export default function Admin() {
       const statusBackend = converterStatusBackend(novoStatus);
 
       const response = await fetch(
-        `http://localhost:8080/pedidos/${pedidoEditando.idBackend}/status?status=${statusBackend}&funcionarioId=${funcionarioIdLogado}`,
+        `${API_URL}/pedidos/${pedidoEditando.idBackend}/status?status=${statusBackend}&funcionarioId=${funcionarioIdLogado}`,
         {
           method: "PATCH",
         }
@@ -1182,7 +1180,7 @@ export default function Admin() {
   async function cancelarPedido(pedidoIdBackend) {
     try {
       const response = await fetch(
-        `http://localhost:8080/pedidos/${pedidoIdBackend}/status?status=CANCELADO&funcionarioId=${funcionarioIdLogado}`,
+        `${API_URL}/pedidos/${pedidoIdBackend}/status?status=CANCELADO&funcionarioId=${funcionarioIdLogado}`,
         {
           method: "PATCH",
         }
@@ -1236,8 +1234,8 @@ export default function Admin() {
       };
 
       const url = produtoEditando.id
-      ? `http://localhost:8080/produtos/${produtoEditando.id}?funcionarioId=${funcionarioIdLogado}`
-      : `http://localhost:8080/produtos?funcionarioId=${funcionarioIdLogado}`;
+        ? `${API_URL}/produtos/${produtoEditando.id}?funcionarioId=${funcionarioIdLogado}`
+        : `${API_URL}/produtos?funcionarioId=${funcionarioIdLogado}`;
 
       const metodo = produtoEditando.id ? "PUT" : "POST";
 
@@ -1280,7 +1278,7 @@ export default function Admin() {
 
     try {
       const response = await fetch(
-        `http://localhost:8080/produtos/${id}?funcionarioId=${funcionarioIdLogado}`,
+        `${API_URL}/produtos/${id}?funcionarioId=${funcionarioIdLogado}`,
         {
           method: "DELETE",
         }
@@ -1326,8 +1324,8 @@ export default function Admin() {
       };
 
       const url = categoriaEditando.id
-        ? `http://localhost:8080/categorias/${categoriaEditando.id}?funcionarioId=${funcionarioIdLogado}`
-        : `http://localhost:8080/categorias?funcionarioId=${funcionarioIdLogado}`;
+        ? `${API_URL}/categorias/${categoriaEditando.id}?funcionarioId=${funcionarioIdLogado}`
+        : `${API_URL}/categorias?funcionarioId=${funcionarioIdLogado}`;
 
       const metodo = categoriaEditando.id ? "PUT" : "POST";
 
@@ -1378,7 +1376,7 @@ export default function Admin() {
 
     try {
       const response = await fetch(
-        `http://localhost:8080/categorias/${id}?funcionarioId=${funcionarioIdLogado}`,
+        `${API_URL}/categorias/${id}?funcionarioId=${funcionarioIdLogado}`,
         {
           method: "DELETE",
         }
@@ -1445,8 +1443,8 @@ export default function Admin() {
       };
 
       const url = promocaoEditando.id
-        ? `http://localhost:8080/promocoes/${promocaoEditando.id}?funcionarioId=${funcionarioIdLogado}`
-        : `http://localhost:8080/promocoes?funcionarioId=${funcionarioIdLogado}`;
+        ? `${API_URL}/promocoes/${promocaoEditando.id}?funcionarioId=${funcionarioIdLogado}`
+        : `${API_URL}/promocoes?funcionarioId=${funcionarioIdLogado}`;
 
       const metodo = promocaoEditando.id ? "PUT" : "POST";
 
@@ -1494,7 +1492,7 @@ export default function Admin() {
 
     try {
       const response = await fetch(
-        `http://localhost:8080/promocoes/${id}?funcionarioId=${funcionarioIdLogado}`,
+        `${API_URL}/promocoes/${id}?funcionarioId=${funcionarioIdLogado}`,
         {
           method: "DELETE",
         }
@@ -1535,7 +1533,7 @@ export default function Admin() {
 
     try {
       const response = await fetch(
-        `http://localhost:8080/funcionarios/${funcionario.id}/status?ativo=${novoStatus}&funcionarioId=${funcionarioIdLogado}`,
+        `${API_URL}/funcionarios/${funcionario.id}/status?ativo=${novoStatus}&funcionarioId=${funcionarioIdLogado}`,
         {
           method: "PATCH",
         }

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "../assets/css/Login.css";
 import { toastServidorOffline } from "../utils/toastUtils";
+import API_URL from "../utils/api";
 
 
 import logo from "../assets/images/logopizza.png";
@@ -42,7 +43,7 @@ export default function Login() {
 
     try {
       // envia email e senha para o backend autenticar o usuário
-      const response = await fetch("http://localhost:8080/auth/login", {
+      const response = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -99,7 +100,7 @@ export default function Login() {
   // envia o token do Google para o backend autenticar/criar o cliente
   async function loginComGoogle(credential) {
     try {
-      const response = await fetch("http://localhost:8080/auth/google", {
+      const response = await fetch(`${API_URL}/auth/google`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

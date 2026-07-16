@@ -2,6 +2,7 @@ import "../assets/css/AcompanharPedido.css";
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import API_URL from "../utils/api";
 
 // dados padrão utilizados caso não exista pedido vindo da navegação ou do localStorage
 const PEDIDO_PADRAO = {
@@ -137,7 +138,7 @@ export default function AcompanharPedido() {
     async function carregarPedidoAtualizado() {
       try {
         const response = await fetch(
-          `http://localhost:8080/pedidos/${pedidoInicial.id}`
+          `${API_URL}/pedidos/${pedidoInicial.id}`
         );
 
         if (!response.ok) {

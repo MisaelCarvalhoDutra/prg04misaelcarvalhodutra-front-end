@@ -2,6 +2,7 @@ import "../assets/css/MeusPedidos.css";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import API_URL from "../utils/api";
 
 const statusClass = {
   Confirmado: "mp-confirmado",
@@ -59,7 +60,7 @@ export default function MeusPedidos() {
       try {
         // busca os pedidos reais do cliente logado
         const pedidosResponse = await fetch(
-          `http://localhost:8080/pedidos/cliente/${usuarioLogado.id}`
+          `${API_URL}/pedidos/cliente/${usuarioLogado.id}`
         );
 
         if (!pedidosResponse.ok) {
@@ -73,7 +74,7 @@ export default function MeusPedidos() {
         const pedidosComItens = await Promise.all(
           pedidosBackend.map(async (pedido) => {
             const itensResponse = await fetch(
-              `http://localhost:8080/itens-pedido/pedido/${pedido.id}`
+              `${API_URL}/itens-pedido/pedido/${pedido.id}`
             );
 
         const itensBackend = itensResponse.ok
@@ -82,7 +83,7 @@ export default function MeusPedidos() {
 
         // verifica se o pedido já possui avaliação cadastrada
         const avaliacaoResponse = await fetch(
-          `http://localhost:8080/avaliacoes/pedido/${pedido.id}`
+          `${API_URL}/avaliacoes/pedido/${pedido.id}`
         );
 
         const jaAvaliado = avaliacaoResponse.ok;
@@ -143,7 +144,7 @@ export default function MeusPedidos() {
     }
 
     try {
-      const response = await fetch("http://localhost:8080/avaliacoes", {
+      const response = await fetch(`${API_URL}/avaliacoes`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

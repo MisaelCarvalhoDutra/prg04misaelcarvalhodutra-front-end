@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import "../assets/css/RecuperarSenha.css";
 import { toastServidorOffline } from "../utils/toastUtils";
+import API_URL from "../utils/api";
 
 import logo from "../assets/images/logopizza.png";
 
@@ -25,7 +26,7 @@ export default function RecuperarSenha() {
       setCarregando(true);
 
       const response = await fetch(
-        "http://localhost:8080/verificacao-email/senha/enviar",
+        `${API_URL}/verificacao-email/senha/enviar`,
         {
           method: "POST",
           headers: {

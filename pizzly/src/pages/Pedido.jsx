@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import "../assets/css/Pedido.css";
 import Navbar from "../components/Navbar";
 import { toastServidorOffline } from "../utils/toastUtils";
+import API_URL from "../utils/api";
 
 import pizzaCalabresa from "../assets/images/pizzaCalabresa.jpg";
 import pizzaMarguerita from "../assets/images/pizzaMarguerita.png";
@@ -245,8 +246,8 @@ export default function Pedido() {
     async function carregarCardapio() {
       try {
         const [categoriasResponse, produtosResponse] = await Promise.all([
-          fetch("http://localhost:8080/categorias?size=100"),
-          fetch("http://localhost:8080/produtos?size=100"),
+          fetch(`${API_URL}/categorias?size=100`),
+          fetch(`${API_URL}/produtos?size=100`),
         ]);
 
         if (!categoriasResponse.ok || !produtosResponse.ok) {
@@ -346,7 +347,7 @@ export default function Pedido() {
   useEffect(() => {
     async function carregarConfiguracoes() {
       try {
-        const response = await fetch("http://localhost:8080/configuracoes");
+        const response = await fetch(`${API_URL}/configuracoes`);
 
         if (!response.ok) return;
 
@@ -375,7 +376,7 @@ export default function Pedido() {
     }
 
     // busca os endereços reais do cliente para a etapa de entrega
-    fetch(`http://localhost:8080/enderecos/cliente/${usuarioLogado.id}`)
+    fetch(`${API_URL}/enderecos/cliente/${usuarioLogado.id}`)
       .then((response) => response.json())
       .then((dados) => {
         const enderecosConvertidos = dados.map(converterEnderecoBackend);
@@ -426,7 +427,7 @@ export default function Pedido() {
   //Operações do carrinho:
 
   async function verificarPizzariaAberta() {
-    const response = await fetch("http://localhost:8080/configuracoes");
+    const response = await fetch(`${API_URL}/configuracoes`);
     const dados = await response.json();
 
     return dados.aberta === true || dados.aberta === "true";
@@ -644,7 +645,7 @@ export default function Pedido() {
         : "DINHEIRO";
 
     // cria o pedido principal no backend
-    const pedidoResponse = await fetch("http://localhost:8080/pedidos", {
+    const pedidoResponse = await fetch(`${API_URL}/pedidos`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -673,7 +674,7 @@ export default function Pedido() {
     // cadastra todos os itens do carrinho vinculados ao pedido criado
     await Promise.all(
       carrinho.map((item) =>
-        fetch("http://localhost:8080/itens-pedido", {
+        fetch(`${API_URL}/itens-pedido`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -692,7 +693,7 @@ export default function Pedido() {
     );
 
     // cadastra a forma de pagamento vinculada ao pedido
-    const pagamentoResponse = await fetch("http://localhost:8080/pagamentos", {
+    const pagamentoResponse = await fetch(`${API_URL}/pagamentos`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

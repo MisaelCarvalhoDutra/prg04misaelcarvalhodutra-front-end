@@ -2,6 +2,7 @@ import "../assets/css/Promocoes.css";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import API_URL from "../utils/api";
 
 import pizzaHero from "../assets/images/pizzaHero.png";
 import pizzaCalabresa from "../assets/images/pizzaCalabresa.jpg";
@@ -35,7 +36,7 @@ export default function Promocoes() {
     async function carregarPromocoes() {
       try {
         const response = await fetch(
-          "http://localhost:8080/promocoes?size=100"
+          `${API_URL}/promocoes?size=100`
         );
 
         if (!response.ok) {
@@ -80,7 +81,7 @@ export default function Promocoes() {
     async function carregarConfiguracoes() {
       try {
         const response = await fetch(
-          "http://localhost:8080/configuracoes"
+          `${API_URL}/configuracoes`
         );
 
         if (!response.ok) {

@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import "../assets/css/NavBar.css";
+import API_URL from "../utils/api";
 
 // componente responsável pela barra de navegação da aplicação,
 // incluindo menu, carrinho, notificações e acesso ao perfil
@@ -94,7 +95,7 @@ export default function Navbar() {
     // requisição para a API retornar apenas as notificações ainda não lidas
     try {
       const response = await fetch(
-        `http://localhost:8080/notificacoes/cliente/${usuarioAtual.id}/nao-lidas`
+        `${API_URL}/notificacoes/cliente/${usuarioAtual.id}/nao-lidas`
       );
 
       if (!response.ok) return;
@@ -111,8 +112,8 @@ export default function Navbar() {
   async function marcarNotificacaoComoLida(id) {
     try {
       const response = await fetch(
-        `http://localhost:8080/notificacoes/${id}/lida`,
-        {
+          `${API_URL}/notificacoes/${id}/lida`,
+      {
           method: "PATCH", //pra atualizar, ou seja, mudar para "lida"
         }
       );
@@ -134,8 +135,8 @@ export default function Navbar() {
   async function marcarTodasComoLidas() {
     try {
       const response = await fetch(
-        `http://localhost:8080/notificacoes/cliente/${usuario.id}/lidas`,
-        {
+          `${API_URL}/notificacoes/cliente/${usuario.id}/lidas`,
+      {
           method: "PATCH", //pra atualizar e mudar todas para lidas
         }
       );
@@ -172,7 +173,7 @@ export default function Navbar() {
     try {
       // consulta o backend para saber se o cliente possui endereço cadastrado
       const response = await fetch(
-        `http://localhost:8080/enderecos/cliente/${usuarioAtual.id}`
+        `${API_URL}/enderecos/cliente/${usuarioAtual.id}`
       );
 
       const enderecos = response.ok ? await response.json() : [];

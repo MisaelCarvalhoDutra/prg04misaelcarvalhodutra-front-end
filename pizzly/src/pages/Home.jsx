@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import API_URL from "../utils/api";
+
 import pizzaHero from "../assets/images/pizzaHero.png";
 import pizzaCalabresa from "../assets/images/pizzaCalabresa.jpg";
 import pizzaFrango from "../assets/images/pizzaFrango.jpg"
@@ -142,8 +144,8 @@ export default function Home() {
     async function carregarHome() {
       try {
         const [categoriasResponse, produtosResponse] = await Promise.all([
-          fetch("http://localhost:8080/categorias?size=100"),
-          fetch("http://localhost:8080/produtos?size=100"),
+          fetch(`${API_URL}/categorias?size=100`),
+          fetch(`${API_URL}/produtos?size=100`),
         ]);
 
         const categoriasDados = await categoriasResponse.json();

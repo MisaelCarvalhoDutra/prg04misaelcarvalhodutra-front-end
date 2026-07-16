@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import "../assets/css/RecuperarSenha.css";
+import { toastServidorOffline } from "../utils/toastUtils";
+import API_URL from "../utils/api";
 
 import logo from "../assets/images/logopizza.png";
 
@@ -44,7 +46,7 @@ export default function NovaSenha() {
       setCarregando(true);
 
       const response = await fetch(
-        "http://localhost:8080/verificacao-email/senha/redefinir",
+        `${API_URL}/verificacao-email/senha/redefinir`,
         {
           method: "POST",
           headers: {

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { toastServidorOffline } from "../utils/toastUtils";
+import API_URL from "../utils/api";
 
 import "../assets/css/CriarConta.css";
 
@@ -94,7 +95,7 @@ const handleSubmit = async (e) => {
 
     // primeiro envia o código para o e-mail informado
     const response = await fetch(
-      "http://localhost:8080/verificacao-email/cadastro/enviar",
+      `${API_URL}/verificacao-email/cadastro/enviar`,
       {
         method: "POST",
         headers: {
@@ -132,7 +133,7 @@ async function reenviarCodigo() {
 
     // solicita um novo código para o mesmo e-mail
     const response = await fetch(
-      "http://localhost:8080/verificacao-email/cadastro/enviar",
+      `${API_URL}/verificacao-email/cadastro/enviar`,
       {
         method: "POST",
         headers: {
@@ -170,7 +171,7 @@ async function validarCodigoECriarConta() {
 
     // valida o código e só então cria a conta no backend
     const response = await fetch(
-      "http://localhost:8080/verificacao-email/cadastro/validar",
+      `${API_URL}/verificacao-email/cadastro/validar`,
       {
         method: "POST",
         headers: {
