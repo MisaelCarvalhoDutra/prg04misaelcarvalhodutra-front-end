@@ -53,7 +53,9 @@ function converterProdutoBackend(produto) {
     nome: produto.nome,
     desc: produto.descricao,
     preco: Number(produto.preco),
-    img: IMAGENS_PRODUTOS[produto.imagem] || pizzaHero,
+    img: produto.imagem?.startsWith("http")
+      ? produto.imagem
+      : IMAGENS_PRODUTOS[produto.imagem] || pizzaHero,
     tipoImagem: produto.categoriaNome === "Bebidas" ? "contain" : "cover",
     categoria: normalizarTexto(produto.categoriaNome),
   };
@@ -63,16 +65,7 @@ function converterProdutoBackend(produto) {
 function converterCategoriaBackend(categoria) {
   return {
     nome: normalizarTexto(categoria.nome),
-    icon:
-      categoria.nome === "Pizzas"
-        ? "🍕"
-        : categoria.nome === "Bebidas"
-          ? "🥤"
-          : categoria.nome === "Sobremesas"
-            ? "🍰"
-            : categoria.nome === "Combos"
-              ? "🎁"
-              : "🍽️",
+    icon: categoria.icon || "🍽️",
     sub: categoria.descricao || "Categoria cadastrada no sistema",
   };
 }
@@ -526,7 +519,7 @@ export default function Pedido() {
 
   function enderecoEscolhido() {
     if (entrega.formaRecebimento === "retirada") {
-      return "Retirada na Pizzly - Unidade Centro";
+      return `Retirada na Pizzly - ${configuracoes.endereco}`;
     }
 
     if (enderecoSelecionado) {
@@ -1029,9 +1022,10 @@ export default function Pedido() {
                         <span>Unidade Centro</span>
                       </div>
 
-                      <p>Rua Principal, 100</p>
                       <p>{configuracoes.endereco}</p>
-                      <p>Tempo estimado para retirada: 25 min</p>
+                      <p>
+                        Tempo estimado para retirada: {configuracoes.tempoEntrega}
+                      </p>
                     </div>
                   )}
 

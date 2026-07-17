@@ -6,6 +6,8 @@ import "../assets/css/Admin.css";
 import { toastServidorOffline } from "../utils/toastUtils";
 import API_URL from "../utils/api";
 
+import { uploadImagem } from "../services/storageService";
+
 // Imagens utilizadas nos produtos e promoções
 import pizzaCalabresa from "../assets/images/pizzaCalabresa.jpg";
 import pizzaFrango from "../assets/images/pizzaFrango.jpg";
@@ -52,6 +54,18 @@ const IMAGENS_PROMOCOES = {
   quatroQueijos: pizzaHero,
   pizzaChocolate,
 };
+
+function obterImagemPromocao(imagem) {
+  if (!imagem) {
+    return comboFamilia;
+  }
+
+  if (imagem.startsWith("http")) {
+    return imagem;
+  }
+
+  return IMAGENS_PROMOCOES[imagem] || comboFamilia;
+}
 
 // relaciona cada status de pedido à sua classe visual no CSS
 const STATUS_COLOR = {
@@ -150,7 +164,7 @@ function converterPromocaoBackend(promocao) {
     titulo: promocao.titulo,
     desc: promocao.descricao || "",
     tag: promocao.tag || "OFERTA",
-    imagem: promocao.imagem || "comboFamilia",
+    imagem: promocao.imagem || "",
     precoAntigo: Number(promocao.precoAntigo || 0)
       .toFixed(2)
       .replace(".", ","),
@@ -268,6 +282,8 @@ export default function Admin() {
   const [buscaProduto, setBuscaProduto] = useState("");
   const [produtoEditando, setProdutoEditando] = useState(null);
 
+  const [arquivoImagemProduto, setArquivoImagemProduto] = useState(null);
+
   const [periodoResumo, setPeriodoResumo] = useState("todos");
 
   const [sidebarAberta, setSidebarAberta] = useState(false);
@@ -279,51 +295,51 @@ export default function Admin() {
 
   //AUTENTICAÇÃO E CONTROLE DE PERMISSÕES:
 
-    // usuário autenticado
-    const usuarioLogado = JSON.parse(localStorage.getItem("pizzly_usuario"));
+  // usuário autenticado
+  const usuarioLogado = JSON.parse(localStorage.getItem("pizzly_usuario"));
 
-    // perfil do funcionário logado
-    const perfilFuncionario = usuarioLogado?.perfil || "ATENDENTE";
+  // perfil do funcionário logado
+  const perfilFuncionario = usuarioLogado?.perfil || "ATENDENTE";
 
-    // id usado para registrar logs de auditoria no backend
-    const funcionarioIdLogado = usuarioLogado?.id;
+  // id usado para registrar logs de auditoria no backend
+  const funcionarioIdLogado = usuarioLogado?.id;
 
-    // permissões de acesso por perfil
-    const permissoesPorPerfil = {
-      ADMINISTRADOR: [
-        "Dashboard",
-        "Pedidos",
-        "Clientes",
-        "Cardápio",
-        "Categorias",
-        "Promoções",
-        "Relatórios",
-        "Funcionários",
-        "Auditoria",
-        "Configurações",
-      ],
+  // permissões de acesso por perfil
+  const permissoesPorPerfil = {
+    ADMINISTRADOR: [
+      "Dashboard",
+      "Pedidos",
+      "Clientes",
+      "Cardápio",
+      "Categorias",
+      "Promoções",
+      "Relatórios",
+      "Funcionários",
+      "Auditoria",
+      "Configurações",
+    ],
 
-      GERENTE: [
-        "Dashboard",
-        "Pedidos",
-        "Clientes",
-        "Cardápio",
-        "Categorias",
-        "Promoções",
-        "Relatórios",
-      ],
+    GERENTE: [
+      "Dashboard",
+      "Pedidos",
+      "Clientes",
+      "Cardápio",
+      "Categorias",
+      "Promoções",
+      "Relatórios",
+    ],
 
-      ATENDENTE: [
-        "Dashboard",
-        "Pedidos",
-        "Clientes",
-      ],
+    ATENDENTE: [
+      "Dashboard",
+      "Pedidos",
+      "Clientes",
+    ],
 
-      ENTREGADOR: [
-        "Dashboard",
-        "Pedidos",
-      ],
-    };
+    ENTREGADOR: [
+      "Dashboard",
+      "Pedidos",
+    ],
+  };
 
   // impede acesso a abas sem permissão
   useEffect(() => {
@@ -345,6 +361,11 @@ export default function Admin() {
 
 
   const [promocaoEditando, setPromocaoEditando] = useState(null);
+
+  const [
+    arquivoImagemPromocao,
+    setArquivoImagemPromocao,
+  ] = useState(null);
 
   const [configuracoes, setConfiguracoes] = useState({
     nomePizzaria: "Pizzly",
@@ -479,20 +500,20 @@ export default function Admin() {
               pedido.status === "ENTREGUE"
                 ? "Entregue"
                 : pedido.status === "RETIRADO"
-                ? "Retirado"
-                : pedido.status === "PRONTO_PARA_RETIRADA"
-                ? "Aguardando retirada"
-                : pedido.formaRecebimento === "retirada"
-                ? "25 min"
-                : "30 - 45 min",
+                  ? "Retirado"
+                  : pedido.status === "PRONTO_PARA_RETIRADA"
+                    ? "Aguardando retirada"
+                    : pedido.formaRecebimento === "retirada"
+                      ? "25 min"
+                      : "30 - 45 min",
             total: formatarMoeda(pedido.total),
             valor: formatarMoeda(pedido.total),
             entrega:
               pedido.formaRecebimento === "retirada"
                 ? "Retirada na Pizzly - Unidade Centro"
                 : pedido.enderecoId
-                ? `Endereço ID ${pedido.enderecoId}`
-                : "Endereço não informado",
+                  ? `Endereço ID ${pedido.enderecoId}`
+                  : "Endereço não informado",
             pagamento: converterFormaPagamento(
               pagamentoBackend?.formaPagamento
             ),
@@ -736,16 +757,16 @@ export default function Admin() {
         aberta: configuracoes.aberta,
       };
 
-    const response = await fetch(
-      `${API_URL}/configuracoes?funcionarioId=${funcionarioIdLogado}`,
-    {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(configuracaoDTO),
-    }
-  );
+      const response = await fetch(
+        `${API_URL}/configuracoes?funcionarioId=${funcionarioIdLogado}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(configuracaoDTO),
+        }
+      );
 
       if (!response.ok) {
         const erro = await response.text();
@@ -763,7 +784,7 @@ export default function Admin() {
 
   /*Efeitos e Sincronizações: */
 
-    // aqui aplica o tema escolhido no body e salva a preferência localmente
+  // aqui aplica o tema escolhido no body e salva a preferência localmente
   useEffect(() => {
     if (configuracoes.temaEscuro) {
       document.body.classList.add("dark-admin");
@@ -794,7 +815,7 @@ export default function Admin() {
     carregarLogsAuditoria();
   }, []);
 
-    // Atualiza os pedidos do Dashboard a cada 30 segundos
+  // Atualiza os pedidos do Dashboard a cada 30 segundos
   useEffect(() => {
     if (activeNav !== "Dashboard") return;
 
@@ -889,11 +910,11 @@ export default function Admin() {
     return pedidos.slice(0, 4).map((pedido) => ({
       icon:
         pedido.status === "Entregue" ||
-        pedido.status === "Retirado"
+          pedido.status === "Retirado"
           ? "✅"
           : pedido.status === "Cancelado"
-          ? "❌"
-          : "📦",
+            ? "❌"
+            : "📦",
       texto: `Pedido ${pedido.id} - ${pedido.status}`,
       tempo: pedido.data,
     }));
@@ -947,7 +968,7 @@ export default function Admin() {
   }, [pedidos, clientesBackend]);
 
   const clientesFiltrados = useMemo(() => {
-  const busca = buscaCliente.toLowerCase();
+    const busca = buscaCliente.toLowerCase();
 
     return clientes.filter((cliente) =>
       cliente.nome.toLowerCase().includes(busca)
@@ -1156,17 +1177,17 @@ export default function Admin() {
       );
 
       if (!response.ok) {
-          const erro = await response.text();
+        const erro = await response.text();
 
-          console.error(
-            "Erro ao atualizar status do pedido:",
-            response.status,
-            erro
-          );
+        console.error(
+          "Erro ao atualizar status do pedido:",
+          response.status,
+          erro
+        );
 
-          toast.error("Não foi possível atualizar o status do pedido.");
-          return;
-        }
+        toast.error("Não foi possível atualizar o status do pedido.");
+        return;
+      }
 
       await carregarPedidos();
       setPedidoEditando(null);
@@ -1204,14 +1225,16 @@ export default function Admin() {
   //OPERAÇÕES DE PRODUTOS:
 
   function abrirNovoProduto() {
+    setArquivoImagemProduto(null);
+
     setProdutoEditando({
       id: null,
       nome: "",
       descricao: "",
       preco: "",
-      categoriaId: categorias[0]?.id || "",
-      categoria: categorias[0]?.nome || "",
-      imagem: "calabresa",
+      categoriaId: "",
+      categoria: "",
+      imagem: "",
       disponivel: true,
     });
   }
@@ -1224,11 +1247,25 @@ export default function Admin() {
     }
 
     try {
+      let urlImagem = produtoEditando.imagem || "";
+
+      if (arquivoImagemProduto) {
+        urlImagem = await uploadImagem(
+          arquivoImagemProduto,
+          "produtos"
+        );
+      }
+
+      if (!urlImagem) {
+        toast.warning("Selecione uma imagem para o produto.");
+        return;
+      }
+
       const produtoDTO = {
         nome: produtoEditando.nome,
         descricao: produtoEditando.descricao || "",
         preco: moedaInputParaNumero(produtoEditando.preco),
-        imagem: produtoEditando.imagem || "calabresa",
+        imagem: urlImagem,
         disponivel: produtoEditando.disponivel !== false,
         categoriaId: Number(produtoEditando.categoriaId),
       };
@@ -1255,11 +1292,12 @@ export default function Admin() {
 
       await carregarProdutos();
       setProdutoEditando(null);
+      setArquivoImagemProduto(null);
       toast.success("Produto salvo com sucesso!");
 
     } catch (error) {
       console.error("Erro ao salvar produto:", error);
-      toastServidorOffline();
+      toast.error(error.message || "Erro ao salvar produto.");
     }
   }
 
@@ -1267,13 +1305,13 @@ export default function Admin() {
   async function excluirProduto(id) {
 
     const confirmar = await confirmarAcao(
-        "Excluir produto?",
-        "Esta ação não poderá ser desfeita.",
-        "Sim, excluir"
+      "Excluir produto?",
+      "Esta ação não poderá ser desfeita.",
+      "Sim, excluir"
     );
 
     if (!confirmar) {
-        return;
+      return;
     }
 
     try {
@@ -1397,15 +1435,28 @@ export default function Admin() {
     }
   }
 
+
   //OPERAÇÕES DE PROMOÇÕES:
 
+  function fecharModalPromocao() {
+    setPromocaoEditando(null);
+    setArquivoImagemPromocao(null);
+  }
+
+  function abrirEdicaoPromocao(promocao) {
+    setArquivoImagemPromocao(null);
+    setPromocaoEditando(promocao);
+  }
+
   function abrirNovaPromocao() {
+    setArquivoImagemPromocao(null);
+
     setPromocaoEditando({
       id: null,
       titulo: "",
       desc: "",
       tag: "OFERTA",
-      imagem: "comboFamilia",
+      imagem: "",
       precoAntigo: "",
       precoNovo: "",
       dataInicio: "",
@@ -1429,11 +1480,25 @@ export default function Admin() {
     }
 
     try {
+      let urlImagem = promocaoEditando.imagem || "";
+
+      if (arquivoImagemPromocao) {
+        urlImagem = await uploadImagem(
+          arquivoImagemPromocao,
+          "promocoes"
+        );
+      }
+
+      if (!urlImagem) {
+        toast.warning("Selecione uma imagem para a promoção.");
+        return;
+      }
+
       const promocaoDTO = {
         titulo: promocaoEditando.titulo,
         descricao: promocaoEditando.desc || "",
         tag: promocaoEditando.tag || "OFERTA",
-        imagem: promocaoEditando.imagem || "comboFamilia",
+        imagem: urlImagem,
         precoAntigo: moedaInputParaNumero(promocaoEditando.precoAntigo),
         precoPromocional: moedaInputParaNumero(promocaoEditando.precoNovo),
         dataInicio: promocaoEditando.dataInicio,
@@ -1464,11 +1529,14 @@ export default function Admin() {
 
       await carregarPromocoes();
       setPromocaoEditando(null);
+      setArquivoImagemPromocao(null);
       toast.success("Promoção salva com sucesso!");
 
     } catch (error) {
       console.error("Erro ao salvar promoção:", error);
-      toastServidorOffline();
+      toast.error(
+        error.message || "Erro ao salvar promoção."
+      );
     }
   }
 
@@ -1513,7 +1581,7 @@ export default function Admin() {
     }
   }
 
-   //OPERAÇÕES DE FUNCIONÁRIOS:
+  //OPERAÇÕES DE FUNCIONÁRIOS:
 
   // ativa ou inativa funcionário sem apagar o histórico
   async function alterarStatusFuncionario(funcionario) {
@@ -1613,76 +1681,76 @@ export default function Admin() {
 
   function renderTabelaPedidos(lista) {
     return (
-        <>
-          {renderCardsPedidos(lista)}
+      <>
+        {renderCardsPedidos(lista)}
 
-    <div className="ad-table-wrap ad-pedidos-table">
-        <table className="ad-table">
-          <thead>
-            <tr>
-              <th>Pedido</th>
-              <th>Cliente</th>
-              <th>Produtos</th>
-              <th>Status</th>
-              <th>Tempo</th>
-              <th>Valor</th>
-              <th></th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {lista.map((pedido) => (
-              <tr key={pedido.id}>
-                <td>
-                  <strong>{pedido.id}</strong>
-                </td>
-                <td>{pedido.cliente}</td>
-                <td>{pedido.produtos}</td>
-                <td>
-                  <span className={`ad-status ${STATUS_COLOR[pedido.status]}`}>
-                    {pedido.status}
-                  </span>
-                </td>
-                <td>{pedido.tempo}</td>
-                <td>{pedido.total}</td>
-                <td className="ad-actions">
-                  <button
-                    className="ad-dots"
-                    onClick={() =>
-                      setMenuAberto(
-                        menuAberto === pedido.id ? null : pedido.id
-                      )
-                    }
-                  >
-                    ⋮
-                  </button>
-
-                  {menuAberto === pedido.id && (
-                    <div className="ad-dropdown">
-                      <button onClick={() => abrirModalPedido(pedido)}>
-                        👁️ Ver / editar
-                      </button>
-
-                      <button onClick={() => cancelarPedido(pedido.idBackend)}>
-                        ❌ Cancelar
-                      </button>
-                    </div>
-                  )}
-                </td>
-              </tr>
-            ))}
-
-            {lista.length === 0 && (
+        <div className="ad-table-wrap ad-pedidos-table">
+          <table className="ad-table">
+            <thead>
               <tr>
-                <td colSpan="7">Nenhum pedido encontrado.</td>
+                <th>Pedido</th>
+                <th>Cliente</th>
+                <th>Produtos</th>
+                <th>Status</th>
+                <th>Tempo</th>
+                <th>Valor</th>
+                <th></th>
               </tr>
-            )}
-          </tbody>
-        </table>
-            </div>
-        </>
-      );
-    }
+            </thead>
+
+            <tbody>
+              {lista.map((pedido) => (
+                <tr key={pedido.id}>
+                  <td>
+                    <strong>{pedido.id}</strong>
+                  </td>
+                  <td>{pedido.cliente}</td>
+                  <td>{pedido.produtos}</td>
+                  <td>
+                    <span className={`ad-status ${STATUS_COLOR[pedido.status]}`}>
+                      {pedido.status}
+                    </span>
+                  </td>
+                  <td>{pedido.tempo}</td>
+                  <td>{pedido.total}</td>
+                  <td className="ad-actions">
+                    <button
+                      className="ad-dots"
+                      onClick={() =>
+                        setMenuAberto(
+                          menuAberto === pedido.id ? null : pedido.id
+                        )
+                      }
+                    >
+                      ⋮
+                    </button>
+
+                    {menuAberto === pedido.id && (
+                      <div className="ad-dropdown">
+                        <button onClick={() => abrirModalPedido(pedido)}>
+                          👁️ Ver / editar
+                        </button>
+
+                        <button onClick={() => cancelarPedido(pedido.idBackend)}>
+                          ❌ Cancelar
+                        </button>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+
+              {lista.length === 0 && (
+                <tr>
+                  <td colSpan="7">Nenhum pedido encontrado.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </>
+    );
+  }
 
   //CONTEÚDO DAS ABAS:
 
@@ -1857,7 +1925,7 @@ export default function Admin() {
                 <LineChart dados={dadosGraficoVendas} />
               </div>
 
-             {/*mudando labels fixas para atuais*/}
+              {/*mudando labels fixas para atuais*/}
               <div className="ad-chart-labels">
                 {dadosGraficoVendas.map((item) => (
                   <span key={item.data}>{item.data}</span>
@@ -1976,450 +2044,463 @@ export default function Admin() {
   }
 
   function renderCardsClientes(lista) {
-  return (
-    <div className="ad-cliente-cards">
-      {lista.map((cliente) => (
-        <div key={cliente.id || cliente.nome} className="ad-cliente-card">
-          <div className="ad-cliente-card-top">
-            <strong>{cliente.nome}</strong>
-            <span>{cliente.pedidos.length} pedido(s)</span>
+    return (
+      <div className="ad-cliente-cards">
+        {lista.map((cliente) => (
+          <div key={cliente.id || cliente.nome} className="ad-cliente-card">
+            <div className="ad-cliente-card-top">
+              <strong>{cliente.nome}</strong>
+              <span>{cliente.pedidos.length} pedido(s)</span>
+            </div>
+
+            <p><strong>Email:</strong> {cliente.email}</p>
+            <p><strong>Telefone:</strong> {cliente.telefone}</p>
+            <p>
+              <strong>Total gasto:</strong> R$ {cliente.totalGasto.toFixed(2).replace(".", ",")}
+            </p>
+            <p><strong>Último pedido:</strong> {cliente.ultimoPedido}</p>
+
+            <button
+              className="ad-cliente-card-btn"
+              onClick={() => setClienteSelecionado(cliente)}
+            >
+              Ver detalhes
+            </button>
           </div>
+        ))}
 
-          <p><strong>Email:</strong> {cliente.email}</p>
-          <p><strong>Telefone:</strong> {cliente.telefone}</p>
-          <p>
-            <strong>Total gasto:</strong> R$ {cliente.totalGasto.toFixed(2).replace(".", ",")}
-          </p>
-          <p><strong>Último pedido:</strong> {cliente.ultimoPedido}</p>
-
-          <button
-            className="ad-cliente-card-btn"
-            onClick={() => setClienteSelecionado(cliente)}
-          >
-            Ver detalhes
-          </button>
-        </div>
-      ))}
-
-      {lista.length === 0 && (
-        <div className="ad-cliente-card">
-          <strong>Nenhum cliente encontrado.</strong>
-        </div>
-      )}
-    </div>
-  );
-}
+        {lista.length === 0 && (
+          <div className="ad-cliente-card">
+            <strong>Nenhum cliente encontrado.</strong>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   function ClientesContent() {
-  const melhorCliente =
-  clientes.length > 0
-    ? clientes.reduce((maior, cliente) =>
-        cliente.totalGasto > maior.totalGasto ? cliente : maior
-      )
-    : { nome: "Nenhum", totalGasto: 0 };
+    const melhorCliente =
+      clientes.length > 0
+        ? clientes.reduce((maior, cliente) =>
+          cliente.totalGasto > maior.totalGasto ? cliente : maior
+        )
+        : { nome: "Nenhum", totalGasto: 0 };
 
-  return (
-    <>
-      <div className="ad-kpis">
-        <div className="ad-kpi-card">
-          <div className="ad-kpi-icon" style={{ background: "#f0fdf4", color: "#2e7d32" }}>
-            👥
+    return (
+      <>
+        <div className="ad-kpis">
+          <div className="ad-kpi-card">
+            <div className="ad-kpi-icon" style={{ background: "#f0fdf4", color: "#2e7d32" }}>
+              👥
+            </div>
+            <div>
+              <p className="ad-kpi-label">Clientes</p>
+              <strong className="ad-kpi-val">{clientes.length}</strong>
+              <p className="ad-kpi-delta">Clientes únicos</p>
+            </div>
           </div>
-          <div>
-            <p className="ad-kpi-label">Clientes</p>
-            <strong className="ad-kpi-val">{clientes.length}</strong>
-            <p className="ad-kpi-delta">Clientes únicos</p>
+
+          <div className="ad-kpi-card">
+            <div className="ad-kpi-icon" style={{ background: "#fff5f5", color: "#c62828" }}>
+              🛍️
+            </div>
+            <div>
+              <p className="ad-kpi-label">Pedidos vinculados</p>
+              <strong className="ad-kpi-val">{pedidos.length}</strong>
+              <p className="ad-kpi-delta">Total de pedidos</p>
+            </div>
+          </div>
+
+          <div className="ad-kpi-card">
+            <div className="ad-kpi-icon" style={{ background: "#fffbeb", color: "#b8860b" }}>
+              ⭐
+            </div>
+            <div>
+              <p className="ad-kpi-label">Melhor cliente</p>
+              <strong className="ad-kpi-val">{melhorCliente.nome}</strong>
+              <p className="ad-kpi-delta">
+                R$ {melhorCliente.totalGasto.toFixed(2).replace(".", ",")}
+              </p>
+            </div>
           </div>
         </div>
 
-        <div className="ad-kpi-card">
-          <div className="ad-kpi-icon" style={{ background: "#fff5f5", color: "#c62828" }}>
-            🛍️
+        <div className="ad-card">
+          <div className="ad-card-hdr">
+            <div>
+              <strong>Gerenciar clientes</strong>
+              <p className="ad-greeting-sub">
+                Visualize clientes, total gasto e histórico de pedidos.
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="ad-kpi-label">Pedidos vinculados</p>
-            <strong className="ad-kpi-val">{pedidos.length}</strong>
-            <p className="ad-kpi-delta">Total de pedidos</p>
+
+          <div className="ad-filters">
+            <input
+              type="text"
+              value={buscaCliente}
+              onChange={(e) => setBuscaCliente(e.target.value)}
+              placeholder="Buscar cliente pelo nome..."
+            />
+          </div>
+
+          {renderCardsClientes(clientesFiltrados)}
+
+          <div className="ad-table-wrap ad-clientes-table">
+            <table className="ad-table">
+              <thead>
+                <tr>
+                  <th>Cliente</th>
+                  <th>Email</th>
+                  <th>Telefone</th>
+                  <th>Pedidos</th>
+                  <th>Total gasto</th>
+                  <th>Último pedido</th>
+                  <th></th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {clientesFiltrados.map((cliente) => (
+                  <tr key={cliente.id || cliente.nome}>
+                    <td>
+                      <strong>{cliente.nome}</strong>
+                    </td>
+                    <td>{cliente.email}</td>
+                    <td>{cliente.telefone}</td>
+                    <td>{cliente.pedidos.length}</td>
+                    <td>
+                      R$ {cliente.totalGasto.toFixed(2).replace(".", ",")}
+                    </td>
+                    <td>{cliente.ultimoPedido}</td>
+                    <td>
+                      <button
+                        className="ad-link-btn"
+                        onClick={() => setClienteSelecionado(cliente)}
+                      >
+                        Ver detalhes
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+
+                {clientesFiltrados.length === 0 && (
+                  <tr>
+                    <td colSpan="7">Nenhum cliente encontrado.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
+      </>
+    );
+  }
 
-        <div className="ad-kpi-card">
-          <div className="ad-kpi-icon" style={{ background: "#fffbeb", color: "#b8860b" }}>
-            ⭐
-          </div>
-          <div>
-            <p className="ad-kpi-label">Melhor cliente</p>
-            <strong className="ad-kpi-val">{melhorCliente.nome}</strong>
-            <p className="ad-kpi-delta">
-              R$ {melhorCliente.totalGasto.toFixed(2).replace(".", ",")}
+  function renderCardsProdutos(lista) {
+    return (
+      <div className="ad-produto-cards">
+        {lista.map((produto) => (
+          <div key={produto.id} className="ad-produto-card">
+            <img
+              src={
+                produto.imagem?.startsWith("http")
+                  ? produto.imagem
+                  : IMAGENS_PRODUTOS[produto.imagem] || pizzaHero
+              }
+              alt={produto.nome}
+              className="ad-produto-card-img"
+            />
+            <div className="ad-produto-card-top">
+              <strong>{produto.nome}</strong>
+              <span>{produto.categoria}</span>
+            </div>
+
+            <p>
+              <strong>Preço:</strong> R$ {produto.preco}
             </p>
-          </div>
-        </div>
-      </div>
 
+            <div className="ad-produto-card-actions">
+              <button onClick={() => setProdutoEditando(produto)}>
+                Editar
+              </button>
+
+              <button onClick={() => excluirProduto(produto.id)}>
+                Excluir
+              </button>
+            </div>
+          </div>
+        ))}
+
+        {lista.length === 0 && (
+          <div className="ad-produto-card">
+            <strong>Nenhum produto encontrado.</strong>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  function CardapioContent() {
+    return (
       <div className="ad-card">
         <div className="ad-card-hdr">
           <div>
-            <strong>Gerenciar clientes</strong>
+            <strong>Gerenciar cardápio</strong>
             <p className="ad-greeting-sub">
-              Visualize clientes, total gasto e histórico de pedidos.
+              Cadastre, edite e remova produtos disponíveis no cardápio.
             </p>
           </div>
+
+          <button className="ad-save-btn" onClick={abrirNovoProduto}>
+            + Novo produto
+          </button>
         </div>
 
         <div className="ad-filters">
+
           <input
             type="text"
-            value={buscaCliente}
-            onChange={(e) => setBuscaCliente(e.target.value)}
-            placeholder="Buscar cliente pelo nome..."
+            value={buscaProduto}
+            onChange={(e) => setBuscaProduto(e.target.value)}
+            placeholder="Buscar produto ou categoria..."
           />
         </div>
 
-        {renderCardsClientes(clientesFiltrados)}
+        {renderCardsProdutos(produtosFiltrados)}
 
-      <div className="ad-table-wrap ad-clientes-table">
+        <div className="ad-table-wrap ad-produtos-table">
           <table className="ad-table">
             <thead>
               <tr>
-                <th>Cliente</th>
-                <th>Email</th>
-                <th>Telefone</th>
-                <th>Pedidos</th>
-                <th>Total gasto</th>
-                <th>Último pedido</th>
+                <th>Imagem</th>
+                <th>Produto</th>
+                <th>Categoria</th>
+                <th>Preço</th>
                 <th></th>
               </tr>
             </thead>
 
             <tbody>
-              {clientesFiltrados.map((cliente) => (
-                <tr key={cliente.id || cliente.nome}>
+              {produtosFiltrados.map((produto) => (
+                <tr key={produto.id}>
                   <td>
-                    <strong>{cliente.nome}</strong>
+                    <img
+                      src={
+                        produto.imagem?.startsWith("http")
+                          ? produto.imagem
+                          : IMAGENS_PRODUTOS[produto.imagem] || pizzaHero
+                      }
+                      alt={produto.nome}
+                      className="ad-produto-thumb"
+                    />
                   </td>
-                  <td>{cliente.email}</td>
-                  <td>{cliente.telefone}</td>
-                  <td>{cliente.pedidos.length}</td>
+
                   <td>
-                    R$ {cliente.totalGasto.toFixed(2).replace(".", ",")}
+                    <strong>{produto.nome}</strong>
                   </td>
-                  <td>{cliente.ultimoPedido}</td>
+                  <td>{produto.categoria}</td>
+                  <td>R$ {produto.preco}</td>
                   <td>
                     <button
                       className="ad-link-btn"
-                      onClick={() => setClienteSelecionado(cliente)}
-                    >
-                      Ver detalhes
-                    </button>
-                  </td>
-                </tr>
-              ))}
-
-              {clientesFiltrados.length === 0 && (
-                <tr>
-                  <td colSpan="7">Nenhum cliente encontrado.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </>
-  );
-}
-
-function renderCardsProdutos(lista) {
-  return (
-    <div className="ad-produto-cards">
-      {lista.map((produto) => (
-        <div key={produto.id} className="ad-produto-card">
-          <img
-            src={IMAGENS_PRODUTOS[produto.imagem] || pizzaHero}
-            alt={produto.nome}
-            className="ad-produto-card-img"
-          />
-          <div className="ad-produto-card-top">
-            <strong>{produto.nome}</strong>
-            <span>{produto.categoria}</span>
-          </div>
-
-          <p>
-            <strong>Preço:</strong> R$ {produto.preco}
-          </p>
-
-          <div className="ad-produto-card-actions">
-            <button onClick={() => setProdutoEditando(produto)}>
-              Editar
-            </button>
-
-            <button onClick={() => excluirProduto(produto.id)}>
-              Excluir
-            </button>
-          </div>
-        </div>
-      ))}
-
-      {lista.length === 0 && (
-        <div className="ad-produto-card">
-          <strong>Nenhum produto encontrado.</strong>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function CardapioContent() {
-  return (
-    <div className="ad-card">
-      <div className="ad-card-hdr">
-        <div>
-          <strong>Gerenciar cardápio</strong>
-          <p className="ad-greeting-sub">
-            Cadastre, edite e remova produtos disponíveis no cardápio.
-          </p>
-        </div>
-
-        <button className="ad-save-btn" onClick={abrirNovoProduto}>
-          + Novo produto
-        </button>
-      </div>
-
-      <div className="ad-filters">
-        
-        <input
-          type="text"
-          value={buscaProduto}
-          onChange={(e) => setBuscaProduto(e.target.value)}
-          placeholder="Buscar produto ou categoria..."
-        />
-      </div>
-
-      {renderCardsProdutos(produtosFiltrados)}
-
-      <div className="ad-table-wrap ad-produtos-table">
-        <table className="ad-table">
-          <thead>
-            <tr>
-              <th>Imagem</th>
-              <th>Produto</th>
-              <th>Categoria</th>
-              <th>Preço</th>
-              <th></th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {produtosFiltrados.map((produto) => (
-              <tr key={produto.id}>
-                <td>
-                  <img
-                    src={IMAGENS_PRODUTOS[produto.imagem] || pizzaHero}
-                    alt={produto.nome}
-                    className="ad-produto-thumb"
-                  />
-                </td>
-
-                <td>
-                  <strong>{produto.nome}</strong>
-                </td>
-                <td>{produto.categoria}</td>
-                <td>R$ {produto.preco}</td>
-                <td>
-                  <button
-                    className="ad-link-btn"
-                    onClick={() => setProdutoEditando(produto)}
-                  >
-                    Editar
-                  </button>
-
-                  <button
-                    className="ad-link-btn"
-                    onClick={() => excluirProduto(produto.id)}
-                  >
-                    Excluir
-                  </button>
-                </td>
-              </tr>
-            ))}
-
-            {produtosFiltrados.length === 0 && (
-              <tr>
-                <td colSpan="5">Nenhum produto encontrado.</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
-function renderCardsCategorias(lista) {
-  return (
-    <div className="ad-categoria-cards">
-      {lista.map((categoria) => {
-        const totalProdutos = produtos.filter(
-          (produto) => produto.categoria === categoria.nome
-        ).length;
-
-        return (
-          <div key={categoria.id} className="ad-categoria-card">
-            <div className="ad-categoria-card-top">
-              <span>{categoria.icon}</span>
-              <strong>{capitalizarTexto(categoria.nome)}</strong>
-            </div>
-
-            <p>
-              <strong>Produtos vinculados:</strong> {totalProdutos}
-            </p>
-
-            <div className="ad-categoria-card-actions">
-              <button onClick={() => setCategoriaEditando(categoria)}>
-                Editar
-              </button>
-
-              <button
-                onClick={() => excluirCategoria(categoria.id, categoria.nome)}
-              >
-                Excluir
-              </button>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-function CategoriasContent() {
-  return (
-    <div className="ad-card">
-      <div className="ad-card-hdr">
-        <div>
-          <strong>Gerenciar categorias</strong>
-          <p className="ad-greeting-sub">
-            Crie, edite e organize as categorias do cardápio.
-          </p>
-        </div>
-
-        <button className="ad-save-btn" onClick={abrirNovaCategoria}>
-          + Nova categoria
-        </button>
-      </div>
-
-    {renderCardsCategorias(categorias)}
-      <div className="ad-table-wrap ad-categorias-table">
-        <table className="ad-table">
-          <thead>
-            <tr>
-              <th>Ícone</th>
-              <th>Categoria</th>
-              <th>Produtos vinculados</th>
-              <th></th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {categorias.map((categoria) => {
-              const totalProdutos = produtos.filter(
-                (produto) => produto.categoria === categoria.nome
-              ).length;
-
-              return (
-                <tr key={categoria.id}>
-                  <td>{categoria.icon}</td>
-                  <td>
-                    <strong>{categoria.nome}</strong>
-                  </td>
-                  <td>{totalProdutos}</td>
-                  <td>
-                    <button
-                      className="ad-link-btn"
-                      onClick={() => setCategoriaEditando(categoria)}
+                      onClick={() => setProdutoEditando(produto)}
                     >
                       Editar
                     </button>
 
                     <button
                       className="ad-link-btn"
-                      onClick={() =>
-                        excluirCategoria(categoria.id, categoria.nome)
-                      }
+                      onClick={() => excluirProduto(produto.id)}
                     >
                       Excluir
                     </button>
                   </td>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
+              ))}
 
-function renderCardsPromocoes(lista) {
-  return (
-    <div className="ad-promocao-cards">
-      {lista.map((promo) => (
-        <div key={promo.id} className="ad-promocao-card">
-          <div className="ad-promocao-card-top">
-            <strong>{promo.titulo}</strong>
-            <span>{promo.ativa ? "Ativa" : "Inativa"}</span>
+              {produtosFiltrados.length === 0 && (
+                <tr>
+                  <td colSpan="5">Nenhum produto encontrado.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  }
+
+  function renderCardsCategorias(lista) {
+    return (
+      <div className="ad-categoria-cards">
+        {lista.map((categoria) => {
+          const totalProdutos = produtos.filter(
+            (produto) => produto.categoria === categoria.nome
+          ).length;
+
+          return (
+            <div key={categoria.id} className="ad-categoria-card">
+              <div className="ad-categoria-card-top">
+                <span>{categoria.icon}</span>
+                <strong>{capitalizarTexto(categoria.nome)}</strong>
+              </div>
+
+              <p>
+                <strong>Produtos vinculados:</strong> {totalProdutos}
+              </p>
+
+              <div className="ad-categoria-card-actions">
+                <button onClick={() => setCategoriaEditando(categoria)}>
+                  Editar
+                </button>
+
+                <button
+                  onClick={() => excluirCategoria(categoria.id, categoria.nome)}
+                >
+                  Excluir
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  function CategoriasContent() {
+    return (
+      <div className="ad-card">
+        <div className="ad-card-hdr">
+          <div>
+            <strong>Gerenciar categorias</strong>
+            <p className="ad-greeting-sub">
+              Crie, edite e organize as categorias do cardápio.
+            </p>
           </div>
 
-          <p>{promo.desc}</p>
-
-          <p>
-            <strong>Preço promocional:</strong> R$ {promo.precoNovo}
-          </p>
-
-          <p>
-            <strong>Período:</strong> {promo.dataInicio} até {promo.dataFim}
-          </p>
-
-          <p>
-            <strong>Produtos:</strong>{" "}
-            {promo.produtosNomes?.join(", ") || "Nenhum produto"}
-          </p>
-
-          <div className="ad-promocao-card-actions">
-            <button onClick={() => setPromocaoEditando(promo)}>
-              Editar
-            </button>
-
-            <button onClick={() => excluirPromocao(promo.id)}>
-              Excluir
-            </button>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function PromocoesContent() {
-  return (
-    <div className="ad-card">
-      <div className="ad-card-hdr">
-        <div>
-          <strong>Gerenciar promoções</strong>
-          <p className="ad-greeting-sub">
-            Crie, edite e remova ofertas especiais da Pizzly.
-          </p>
+          <button className="ad-save-btn" onClick={abrirNovaCategoria}>
+            + Nova categoria
+          </button>
         </div>
 
-        <button className="ad-save-btn" onClick={abrirNovaPromocao}>
-          + Nova promoção
-        </button>
+        {renderCardsCategorias(categorias)}
+        <div className="ad-table-wrap ad-categorias-table">
+          <table className="ad-table">
+            <thead>
+              <tr>
+                <th>Ícone</th>
+                <th>Categoria</th>
+                <th>Produtos vinculados</th>
+                <th></th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {categorias.map((categoria) => {
+                const totalProdutos = produtos.filter(
+                  (produto) => produto.categoria === categoria.nome
+                ).length;
+
+                return (
+                  <tr key={categoria.id}>
+                    <td>{categoria.icon}</td>
+                    <td>
+                      <strong>{categoria.nome}</strong>
+                    </td>
+                    <td>{totalProdutos}</td>
+                    <td>
+                      <button
+                        className="ad-link-btn"
+                        onClick={() => setCategoriaEditando(categoria)}
+                      >
+                        Editar
+                      </button>
+
+                      <button
+                        className="ad-link-btn"
+                        onClick={() =>
+                          excluirCategoria(categoria.id, categoria.nome)
+                        }
+                      >
+                        Excluir
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
+    );
+  }
 
-      {renderCardsPromocoes(promocoes)}
-      <div className="ad-table-wrap ad-promocoes-table">
-        <table className="ad-table">
-          <thead>
+  function renderCardsPromocoes(lista) {
+    return (
+      <div className="ad-promocao-cards">
+        {lista.map((promo) => (
+          <div key={promo.id} className="ad-promocao-card">
+            <img
+  src={obterImagemPromocao(promo.imagem)}
+  alt={promo.titulo}
+  className="ad-promocao-card-img"
+/>
+            <div className="ad-promocao-card-top">
+              <strong>{promo.titulo}</strong>
+              <span>{promo.ativa ? "Ativa" : "Inativa"}</span>
+            </div>
+
+            <p>{promo.desc}</p>
+
+            <p>
+              <strong>Preço promocional:</strong> R$ {promo.precoNovo}
+            </p>
+
+            <p>
+              <strong>Período:</strong> {promo.dataInicio} até {promo.dataFim}
+            </p>
+
+            <p>
+              <strong>Produtos:</strong>{" "}
+              {promo.produtosNomes?.join(", ") || "Nenhum produto"}
+            </p>
+
+            <div className="ad-promocao-card-actions">
+              <button onClick={() => abrirEdicaoPromocao(promo)}>
+                Editar
+              </button>
+
+              <button onClick={() => excluirPromocao(promo.id)}>
+                Excluir
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  function PromocoesContent() {
+    return (
+      <div className="ad-card">
+        <div className="ad-card-hdr">
+          <div>
+            <strong>Gerenciar promoções</strong>
+            <p className="ad-greeting-sub">
+              Crie, edite e remova ofertas especiais da Pizzly.
+            </p>
+          </div>
+
+          <button className="ad-save-btn" onClick={abrirNovaPromocao}>
+            + Nova promoção
+          </button>
+        </div>
+
+        {renderCardsPromocoes(promocoes)}
+        <div className="ad-table-wrap ad-promocoes-table">
+          <table className="ad-table">
+            <thead>
               <tr>
                 <th>Promoção</th>
                 <th>Preço</th>
@@ -2430,706 +2511,715 @@ function PromocoesContent() {
               </tr>
             </thead>
 
-          <tbody>
-            {promocoes.map((promo) => (
-              <tr key={promo.id}>
-                <td>
-                  <strong>{promo.titulo}</strong>
-                  <br />
-                  <small>{promo.desc}</small>
-                </td>
+            <tbody>
+              {promocoes.map((promo) => (
+                <tr key={promo.id}>
+                  <td>
+  <div className="ad-promocao-info">
+    <img
+      src={obterImagemPromocao(promo.imagem)}
+      alt={promo.titulo}
+      className="ad-promocao-thumb"
+    />
 
-                <td>R$ {promo.precoNovo}</td>
-
-                <td>
-                  {promo.dataInicio} até {promo.dataFim}
-                </td>
-
-                <td>{promo.ativa ? "Ativa" : "Inativa"}</td>
-
-                <td>{promo.produtosNomes?.join(", ") || "Nenhum produto"}</td>
-
-                <td>
-                  <button
-                    className="ad-link-btn"
-                    onClick={() => setPromocaoEditando(promo)}
-                  >
-                    Editar
-                  </button>
-
-                  <button
-                    className="ad-link-btn"
-                    onClick={() => excluirPromocao(promo.id)}
-                  >
-                    Excluir
-                  </button>
-                </td>
-              </tr>
-            ))}
-
-            {promocoes.length === 0 && (
-              <tr>
-                <td colSpan="6">Nenhuma promoção cadastrada.</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+    <div className="ad-promocao-info-texto">
+      <strong>{promo.titulo}</strong>
+      <small>{promo.desc}</small>
     </div>
-  );
-}
-
-function RelatoriosContent() {
-  const ticketMedio =
-    estatisticas.totalPedidos > 0
-      ? estatisticas.faturamento / estatisticas.totalPedidos
-      : 0;
-
-  const totalDescontos = pedidos.reduce(
-    (soma, pedido) => soma + moedaParaNumero(pedido.desconto),
-    0
-  );
-
-  const totalTaxasEntrega = pedidos.reduce(
-    (soma, pedido) => soma + moedaParaNumero(pedido.taxaEntrega),
-    0
-  );
-
-  const produtosVendidos = {};
-  const pagamentos = {};
-
-  pedidos.forEach((pedido) => {
-    pagamentos[pedido.pagamento] = (pagamentos[pedido.pagamento] || 0) + 1;
-
-    pedido.itens?.forEach((item) => {
-      const quantidade = Number(item.match(/^(\d+)x/i)?.[1]) || 1;
-      const nome = item.replace(/^(\d+)x\s*/i, "").replace(/\s*\(.*?\)/g, "");
-
-      produtosVendidos[nome] = (produtosVendidos[nome] || 0) + quantidade;
-    });
-  });
-
-  const rankingProdutos = Object.entries(produtosVendidos)
-    .map(([nome, quantidade]) => ({ nome, quantidade }))
-    .sort((a, b) => b.quantidade - a.quantidade)
-    .slice(0, 5);
-
-  const rankingClientes = [...clientes]
-    .sort((a, b) => b.totalGasto - a.totalGasto)
-    .slice(0, 5);
-
-  const rankingPagamentos = Object.entries(pagamentos)
-    .map(([nome, quantidade]) => ({ nome, quantidade }))
-    .sort((a, b) => b.quantidade - a.quantidade);
-
-  const melhorCliente = rankingClientes[0];
-  const pagamentoMaisUsado = rankingPagamentos[0];
-
-  return (
-    <>
-      <div className="ad-kpis">
-        <div className="ad-kpi-card">
-          <div className="ad-kpi-icon" style={{ background: "#fffbeb", color: "#b8860b" }}>
-            💰
-          </div>
-          <div>
-            <p className="ad-kpi-label">Faturamento</p>
-            <strong className="ad-kpi-val">
-              R$ {estatisticas.faturamento.toFixed(2).replace(".", ",")}
-            </strong>
-            <p className="ad-kpi-delta">Total vendido</p>
-          </div>
-        </div>
-
-        <div className="ad-kpi-card">
-          <div className="ad-kpi-icon" style={{ background: "#fff5f5", color: "#c62828" }}>
-            🛍️
-          </div>
-          <div>
-            <p className="ad-kpi-label">Pedidos</p>
-            <strong className="ad-kpi-val">{estatisticas.totalPedidos}</strong>
-            <p className="ad-kpi-delta">Pedidos registrados</p>
-          </div>
-        </div>
-
-        <div className="ad-kpi-card">
-          <div className="ad-kpi-icon" style={{ background: "#f0fdf4", color: "#2e7d32" }}>
-            📊
-          </div>
-          <div>
-            <p className="ad-kpi-label">Ticket médio</p>
-            <strong className="ad-kpi-val">
-              R$ {ticketMedio.toFixed(2).replace(".", ",")}
-            </strong>
-            <p className="ad-kpi-delta">Média por pedido</p>
-          </div>
-        </div>
-
-        <div className="ad-kpi-card">
-          <div className="ad-kpi-icon" style={{ background: "#f5f0ff", color: "#7b1fa2" }}>
-            ⭐
-          </div>
-          <div>
-            <p className="ad-kpi-label">Cliente destaque</p>
-            <strong className="ad-kpi-val">
-              {melhorCliente?.nome || "Nenhum"}
-            </strong>
-            <p className="ad-kpi-delta">
-              R$ {(melhorCliente?.totalGasto || 0).toFixed(2).replace(".", ",")}
-            </p>
-          </div>
-        </div>
-
-        <div className="ad-kpi-card">
-          <div className="ad-kpi-icon" style={{ background: "#fff5f5", color: "#c62828" }}>
-            🍕
-          </div>
-          <div>
-            <p className="ad-kpi-label">Pizzas vendidas</p>
-            <strong className="ad-kpi-val">{estatisticas.pizzasVendidas}</strong>
-            <p className="ad-kpi-delta">Itens de pizza</p>
-          </div>
-        </div>
-
-        <div className="ad-kpi-card">
-          <div
-            className="ad-kpi-icon"
-            style={{ background: "#f0fdf4", color: "#2e7d32" }}
-          >
-            🏆
-          </div>
-
-          <div>
-            <p className="ad-kpi-label">Produto campeão</p>
-
-            <strong className="ad-kpi-val">
-              {rankingProdutos[0]?.nome || "Nenhum"}
-            </strong>
-
-            <p className="ad-kpi-delta">
-              {rankingProdutos[0]?.quantidade || 0} vendas
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div className="ad-main-grid">
-        <div className="ad-card">
-          <div className="ad-card-hdr">
-            <strong>Produtos mais vendidos</strong>
-          </div>
-
-          <ul className="ad-atividade">
-            {rankingProdutos.map((produto, index) => (
-              <li key={produto.nome} className="ad-ativ-item">
-                <span className="ad-ativ-icon">#{index + 1}</span>
-                <span className="ad-ativ-texto">{produto.nome}</span>
-                <span className="ad-ativ-tempo">{produto.quantidade}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="ad-card">
-          <div className="ad-card-hdr">
-            <strong>Clientes que mais compraram</strong>
-          </div>
-
-          <ul className="ad-atividade">
-            {rankingClientes.map((cliente, index) => (
-              <li key={cliente.nome} className="ad-ativ-item">
-                <span className="ad-ativ-icon">#{index + 1}</span>
-                <span className="ad-ativ-texto">{cliente.nome}</span>
-                <span className="ad-ativ-tempo">
-                  R$ {cliente.totalGasto.toFixed(2).replace(".", ",")}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="ad-card">
-          <div className="ad-card-hdr">
-            <strong>Pedidos por status</strong>
-          </div>
-
-          <ul className="ad-atividade">
-            {Object.entries(estatisticas.porStatus).map(([status, qtd]) => (
-              <li key={status} className="ad-ativ-item">
-                <span className="ad-ativ-icon">📌</span>
-                <span className="ad-ativ-texto">{status}</span>
-                <span className="ad-ativ-tempo">{qtd}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="ad-card">
-          <div className="ad-card-hdr">
-            <strong>Resumo financeiro</strong>
-          </div>
-
-          <ul className="ad-atividade">
-            <li className="ad-ativ-item">
-              <span className="ad-ativ-icon">💰</span>
-              <span className="ad-ativ-texto">Faturamento bruto</span>
-              <span className="ad-ativ-tempo">
-                R$ {estatisticas.faturamento.toFixed(2).replace(".", ",")}
-              </span>
-            </li>
-
-            <li className="ad-ativ-item">
-              <span className="ad-ativ-icon">🚚</span>
-              <span className="ad-ativ-texto">Taxas de entrega</span>
-              <span className="ad-ativ-tempo">
-                R$ {totalTaxasEntrega.toFixed(2).replace(".", ",")}
-              </span>
-            </li>
-
-            <li className="ad-ativ-item">
-              <span className="ad-ativ-icon">🏷️</span>
-              <span className="ad-ativ-texto">Descontos aplicados</span>
-              <span className="ad-ativ-tempo">
-                R$ {totalDescontos.toFixed(2).replace(".", ",")}
-              </span>
-            </li>
-          </ul>
-        </div>
-
-        <div className="ad-card">
-          <div className="ad-card-hdr">
-            <strong>Formas de pagamento</strong>
-          </div>
-
-          <ul className="ad-atividade">
-            {rankingPagamentos.map((pagamento) => (
-              <li key={pagamento.nome} className="ad-ativ-item">
-                <span className="ad-ativ-icon">💳</span>
-                <span className="ad-ativ-texto">{pagamento.nome}</span>
-                <span className="ad-ativ-tempo">
-                  {pagamento.quantidade}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-
-      <div className="ad-card">
-  <div className="ad-card-hdr">
-    <div>
-      <strong>Avaliações dos clientes</strong>
-      <p className="ad-greeting-sub">
-        Acompanhe as notas e comentários enviados após os pedidos.
-      </p>
-    </div>
-
-    <button className="ad-save-btn" onClick={carregarAvaliacoes}>
-      Atualizar
-    </button>
   </div>
+</td>
 
-  <div className="ad-table-wrap">
-    <table className="ad-table">
-      <thead>
-        <tr>
-          <th>Cliente</th>
-          <th>Pedido</th>
-          <th>Nota</th>
-          <th>Comentário</th>
-          <th>Data</th>
-        </tr>
-      </thead>
+                  <td>R$ {promo.precoNovo}</td>
 
-      <tbody>
-        {avaliacoes.map((avaliacao) => (
-          <tr key={avaliacao.id}>
-            <td>{avaliacao.clienteNome}</td>
-            <td>#{avaliacao.pedidoId}</td>
-            <td>{"⭐".repeat(avaliacao.nota)}</td>
-            <td>{avaliacao.comentario || "Sem comentário"}</td>
-            <td>
-              {new Date(avaliacao.dataAvaliacao).toLocaleString("pt-BR")}
-            </td>
-          </tr>
+                  <td>
+                    {promo.dataInicio} até {promo.dataFim}
+                  </td>
+
+                  <td>{promo.ativa ? "Ativa" : "Inativa"}</td>
+
+                  <td>{promo.produtosNomes?.join(", ") || "Nenhum produto"}</td>
+
+                  <td>
+                    <button
+                      className="ad-link-btn"
+                      onClick={() => abrirEdicaoPromocao(promo)}
+                    >
+                      Editar
+                    </button>
+
+                    <button
+                      className="ad-link-btn"
+                      onClick={() => excluirPromocao(promo.id)}
+                    >
+                      Excluir
+                    </button>
+                  </td>
+                </tr>
+              ))}
+
+              {promocoes.length === 0 && (
+                <tr>
+                  <td colSpan="6">Nenhuma promoção cadastrada.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  }
+
+  function RelatoriosContent() {
+    const ticketMedio =
+      estatisticas.totalPedidos > 0
+        ? estatisticas.faturamento / estatisticas.totalPedidos
+        : 0;
+
+    const totalDescontos = pedidos.reduce(
+      (soma, pedido) => soma + moedaParaNumero(pedido.desconto),
+      0
+    );
+
+    const totalTaxasEntrega = pedidos.reduce(
+      (soma, pedido) => soma + moedaParaNumero(pedido.taxaEntrega),
+      0
+    );
+
+    const produtosVendidos = {};
+    const pagamentos = {};
+
+    pedidos.forEach((pedido) => {
+      pagamentos[pedido.pagamento] = (pagamentos[pedido.pagamento] || 0) + 1;
+
+      pedido.itens?.forEach((item) => {
+        const quantidade = Number(item.match(/^(\d+)x/i)?.[1]) || 1;
+        const nome = item.replace(/^(\d+)x\s*/i, "").replace(/\s*\(.*?\)/g, "");
+
+        produtosVendidos[nome] = (produtosVendidos[nome] || 0) + quantidade;
+      });
+    });
+
+    const rankingProdutos = Object.entries(produtosVendidos)
+      .map(([nome, quantidade]) => ({ nome, quantidade }))
+      .sort((a, b) => b.quantidade - a.quantidade)
+      .slice(0, 5);
+
+    const rankingClientes = [...clientes]
+      .sort((a, b) => b.totalGasto - a.totalGasto)
+      .slice(0, 5);
+
+    const rankingPagamentos = Object.entries(pagamentos)
+      .map(([nome, quantidade]) => ({ nome, quantidade }))
+      .sort((a, b) => b.quantidade - a.quantidade);
+
+    const melhorCliente = rankingClientes[0];
+    const pagamentoMaisUsado = rankingPagamentos[0];
+
+    return (
+      <>
+        <div className="ad-kpis">
+          <div className="ad-kpi-card">
+            <div className="ad-kpi-icon" style={{ background: "#fffbeb", color: "#b8860b" }}>
+              💰
+            </div>
+            <div>
+              <p className="ad-kpi-label">Faturamento</p>
+              <strong className="ad-kpi-val">
+                R$ {estatisticas.faturamento.toFixed(2).replace(".", ",")}
+              </strong>
+              <p className="ad-kpi-delta">Total vendido</p>
+            </div>
+          </div>
+
+          <div className="ad-kpi-card">
+            <div className="ad-kpi-icon" style={{ background: "#fff5f5", color: "#c62828" }}>
+              🛍️
+            </div>
+            <div>
+              <p className="ad-kpi-label">Pedidos</p>
+              <strong className="ad-kpi-val">{estatisticas.totalPedidos}</strong>
+              <p className="ad-kpi-delta">Pedidos registrados</p>
+            </div>
+          </div>
+
+          <div className="ad-kpi-card">
+            <div className="ad-kpi-icon" style={{ background: "#f0fdf4", color: "#2e7d32" }}>
+              📊
+            </div>
+            <div>
+              <p className="ad-kpi-label">Ticket médio</p>
+              <strong className="ad-kpi-val">
+                R$ {ticketMedio.toFixed(2).replace(".", ",")}
+              </strong>
+              <p className="ad-kpi-delta">Média por pedido</p>
+            </div>
+          </div>
+
+          <div className="ad-kpi-card">
+            <div className="ad-kpi-icon" style={{ background: "#f5f0ff", color: "#7b1fa2" }}>
+              ⭐
+            </div>
+            <div>
+              <p className="ad-kpi-label">Cliente destaque</p>
+              <strong className="ad-kpi-val">
+                {melhorCliente?.nome || "Nenhum"}
+              </strong>
+              <p className="ad-kpi-delta">
+                R$ {(melhorCliente?.totalGasto || 0).toFixed(2).replace(".", ",")}
+              </p>
+            </div>
+          </div>
+
+          <div className="ad-kpi-card">
+            <div className="ad-kpi-icon" style={{ background: "#fff5f5", color: "#c62828" }}>
+              🍕
+            </div>
+            <div>
+              <p className="ad-kpi-label">Pizzas vendidas</p>
+              <strong className="ad-kpi-val">{estatisticas.pizzasVendidas}</strong>
+              <p className="ad-kpi-delta">Itens de pizza</p>
+            </div>
+          </div>
+
+          <div className="ad-kpi-card">
+            <div
+              className="ad-kpi-icon"
+              style={{ background: "#f0fdf4", color: "#2e7d32" }}
+            >
+              🏆
+            </div>
+
+            <div>
+              <p className="ad-kpi-label">Produto campeão</p>
+
+              <strong className="ad-kpi-val">
+                {rankingProdutos[0]?.nome || "Nenhum"}
+              </strong>
+
+              <p className="ad-kpi-delta">
+                {rankingProdutos[0]?.quantidade || 0} vendas
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="ad-main-grid">
+          <div className="ad-card">
+            <div className="ad-card-hdr">
+              <strong>Produtos mais vendidos</strong>
+            </div>
+
+            <ul className="ad-atividade">
+              {rankingProdutos.map((produto, index) => (
+                <li key={produto.nome} className="ad-ativ-item">
+                  <span className="ad-ativ-icon">#{index + 1}</span>
+                  <span className="ad-ativ-texto">{produto.nome}</span>
+                  <span className="ad-ativ-tempo">{produto.quantidade}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="ad-card">
+            <div className="ad-card-hdr">
+              <strong>Clientes que mais compraram</strong>
+            </div>
+
+            <ul className="ad-atividade">
+              {rankingClientes.map((cliente, index) => (
+                <li key={cliente.nome} className="ad-ativ-item">
+                  <span className="ad-ativ-icon">#{index + 1}</span>
+                  <span className="ad-ativ-texto">{cliente.nome}</span>
+                  <span className="ad-ativ-tempo">
+                    R$ {cliente.totalGasto.toFixed(2).replace(".", ",")}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="ad-card">
+            <div className="ad-card-hdr">
+              <strong>Pedidos por status</strong>
+            </div>
+
+            <ul className="ad-atividade">
+              {Object.entries(estatisticas.porStatus).map(([status, qtd]) => (
+                <li key={status} className="ad-ativ-item">
+                  <span className="ad-ativ-icon">📌</span>
+                  <span className="ad-ativ-texto">{status}</span>
+                  <span className="ad-ativ-tempo">{qtd}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="ad-card">
+            <div className="ad-card-hdr">
+              <strong>Resumo financeiro</strong>
+            </div>
+
+            <ul className="ad-atividade">
+              <li className="ad-ativ-item">
+                <span className="ad-ativ-icon">💰</span>
+                <span className="ad-ativ-texto">Faturamento bruto</span>
+                <span className="ad-ativ-tempo">
+                  R$ {estatisticas.faturamento.toFixed(2).replace(".", ",")}
+                </span>
+              </li>
+
+              <li className="ad-ativ-item">
+                <span className="ad-ativ-icon">🚚</span>
+                <span className="ad-ativ-texto">Taxas de entrega</span>
+                <span className="ad-ativ-tempo">
+                  R$ {totalTaxasEntrega.toFixed(2).replace(".", ",")}
+                </span>
+              </li>
+
+              <li className="ad-ativ-item">
+                <span className="ad-ativ-icon">🏷️</span>
+                <span className="ad-ativ-texto">Descontos aplicados</span>
+                <span className="ad-ativ-tempo">
+                  R$ {totalDescontos.toFixed(2).replace(".", ",")}
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="ad-card">
+            <div className="ad-card-hdr">
+              <strong>Formas de pagamento</strong>
+            </div>
+
+            <ul className="ad-atividade">
+              {rankingPagamentos.map((pagamento) => (
+                <li key={pagamento.nome} className="ad-ativ-item">
+                  <span className="ad-ativ-icon">💳</span>
+                  <span className="ad-ativ-texto">{pagamento.nome}</span>
+                  <span className="ad-ativ-tempo">
+                    {pagamento.quantidade}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        <div className="ad-card">
+          <div className="ad-card-hdr">
+            <div>
+              <strong>Avaliações dos clientes</strong>
+              <p className="ad-greeting-sub">
+                Acompanhe as notas e comentários enviados após os pedidos.
+              </p>
+            </div>
+
+            <button className="ad-save-btn" onClick={carregarAvaliacoes}>
+              Atualizar
+            </button>
+          </div>
+
+          <div className="ad-table-wrap">
+            <table className="ad-table">
+              <thead>
+                <tr>
+                  <th>Cliente</th>
+                  <th>Pedido</th>
+                  <th>Nota</th>
+                  <th>Comentário</th>
+                  <th>Data</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {avaliacoes.map((avaliacao) => (
+                  <tr key={avaliacao.id}>
+                    <td>{avaliacao.clienteNome}</td>
+                    <td>#{avaliacao.pedidoId}</td>
+                    <td>{"⭐".repeat(avaliacao.nota)}</td>
+                    <td>{avaliacao.comentario || "Sem comentário"}</td>
+                    <td>
+                      {new Date(avaliacao.dataAvaliacao).toLocaleString("pt-BR")}
+                    </td>
+                  </tr>
+                ))}
+
+                {avaliacoes.length === 0 && (
+                  <tr>
+                    <td colSpan="5">Nenhuma avaliação registrada.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  function renderCardsFuncionarios(lista) {
+    return (
+      <div className="ad-funcionario-cards">
+        {lista.map((funcionario) => (
+          <div key={funcionario.id} className="ad-funcionario-card">
+            <div className="ad-funcionario-card-top">
+              <strong>{funcionario.nome}</strong>
+
+              <span
+                className={
+                  funcionario.ativo
+                    ? "ad-status-funcionario ativo"
+                    : "ad-status-funcionario inativo"
+                }
+              >
+                {funcionario.ativo ? "🟢 Ativo" : "🔴 Inativo"}
+              </span>
+            </div>
+
+            <p><strong>Email:</strong> {funcionario.email}</p>
+            <p><strong>Telefone:</strong> {funcionario.telefone}</p>
+            <p><strong>Matrícula:</strong> {funcionario.matricula}</p>
+            <p><strong>Perfil:</strong> {funcionario.perfil}</p>
+
+            <div className="ad-funcionario-card-actions">
+              <button onClick={() => setFuncionarioEditando(funcionario)}>
+                Editar
+              </button>
+
+              <button
+                className={
+                  funcionario.ativo
+                    ? "ad-btn-inativar"
+                    : "ad-btn-ativar"
+                }
+                onClick={() => alterarStatusFuncionario(funcionario)}
+              >
+                {funcionario.ativo ? "Inativar" : "Ativar"}
+              </button>
+            </div>
+          </div>
         ))}
 
-          {avaliacoes.length === 0 && (
-            <tr>
-              <td colSpan="5">Nenhuma avaliação registrada.</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-    </div>
-  </div>
-    </>
-  );
-}
-
-function renderCardsFuncionarios(lista) {
-  return (
-    <div className="ad-funcionario-cards">
-      {lista.map((funcionario) => (
-        <div key={funcionario.id} className="ad-funcionario-card">
-          <div className="ad-funcionario-card-top">
-            <strong>{funcionario.nome}</strong>
-
-            <span
-              className={
-                funcionario.ativo
-                  ? "ad-status-funcionario ativo"
-                  : "ad-status-funcionario inativo"
-              }
-            >
-              {funcionario.ativo ? "🟢 Ativo" : "🔴 Inativo"}
-            </span>
+        {lista.length === 0 && (
+          <div className="ad-funcionario-card">
+            <strong>Nenhum funcionário cadastrado.</strong>
           </div>
-
-          <p><strong>Email:</strong> {funcionario.email}</p>
-          <p><strong>Telefone:</strong> {funcionario.telefone}</p>
-          <p><strong>Matrícula:</strong> {funcionario.matricula}</p>
-          <p><strong>Perfil:</strong> {funcionario.perfil}</p>
-
-          <div className="ad-funcionario-card-actions">
-            <button onClick={() => setFuncionarioEditando(funcionario)}>
-              Editar
-            </button>
-
-            <button
-              className={
-                funcionario.ativo
-                  ? "ad-btn-inativar"
-                  : "ad-btn-ativar"
-              }
-              onClick={() => alterarStatusFuncionario(funcionario)}
-            >
-              {funcionario.ativo ? "Inativar" : "Ativar"}
-            </button>
-          </div>
-        </div>
-      ))}
-
-      {lista.length === 0 && (
-        <div className="ad-funcionario-card">
-          <strong>Nenhum funcionário cadastrado.</strong>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function FuncionariosContent() {
-  return (
-    <div className="ad-card">
-      <div className="ad-card-hdr">
-        <div>
-          <strong>Gerenciar funcionários</strong>
-          <p className="ad-greeting-sub">
-            Cadastre funcionários e defina o perfil de acesso ao painel.
-          </p>
-        </div>
-
-        <button className="ad-save-btn" onClick={abrirNovoFuncionario}>
-          + Novo funcionário
-        </button>
+        )}
       </div>
+    );
+  }
 
-      {renderCardsFuncionarios(funcionarios)}
-      <div className="ad-table-wrap ad-funcionarios-table">
-        <table className="ad-table">
-          <thead>
-            <tr>
-              <th>Nome</th>
-              <th>Email</th>
-              <th>Telefone</th>
-              <th>Matrícula</th>
-              <th>Perfil</th>
-              <th>Status</th>
-              <th>Ações</th>
-              <th></th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {funcionarios.map((funcionario) => (
-              <tr key={funcionario.id}>
-                <td>
-                  <strong>{funcionario.nome}</strong>
-                </td>
-                <td>{funcionario.email}</td>
-                <td>{funcionario.telefone}</td>
-                <td>{funcionario.matricula}</td>
-                <td>{funcionario.perfil}</td>
-
-                <td>
-                  <span
-                    className={
-                      funcionario.ativo
-                        ? "ad-status-funcionario ativo"
-                        : "ad-status-funcionario inativo"
-                    }
-                  >
-                    {funcionario.ativo ? "🟢 Ativo" : "🔴 Inativo"}
-                  </span>
-                </td>
-
-                <td>
-                  <button
-                    className="ad-link-btn"
-                    onClick={() => setFuncionarioEditando(funcionario)}
-                  >
-                    Editar
-                  </button>
-
-                  <button
-                    className={
-                      funcionario.ativo
-                        ? "ad-btn-inativar"
-                        : "ad-btn-ativar"
-                    }
-                    onClick={() => alterarStatusFuncionario(funcionario)}
-                  >
-                    {funcionario.ativo ? "Inativar" : "Ativar"}
-                  </button>
-                </td>
-              </tr>
-            ))}
-
-            {funcionarios.length === 0 && (
-              <tr>
-                <td colSpan="7">Nenhum funcionário cadastrado.</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
-function ConfiguracoesContent() {
-  return (
-    <>
+  function FuncionariosContent() {
+    return (
       <div className="ad-card">
         <div className="ad-card-hdr">
           <div>
-            <strong>Configurações da pizzaria</strong>
+            <strong>Gerenciar funcionários</strong>
             <p className="ad-greeting-sub">
-              Gerencie informações gerais, entrega e funcionamento.
+              Cadastre funcionários e defina o perfil de acesso ao painel.
             </p>
           </div>
+
+          <button className="ad-save-btn" onClick={abrirNovoFuncionario}>
+            + Novo funcionário
+          </button>
         </div>
 
-        <div className="ad-config-grid">
-          <label>
-            Nome da pizzaria
-            <input
-              value={configuracoes.nomePizzaria}
-              onChange={(e) =>
-                setConfiguracoes({
-                  ...configuracoes,
-                  nomePizzaria: e.target.value,
-                })
-              }
-            />
-          </label>
+        {renderCardsFuncionarios(funcionarios)}
+        <div className="ad-table-wrap ad-funcionarios-table">
+          <table className="ad-table">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Telefone</th>
+                <th>Matrícula</th>
+                <th>Perfil</th>
+                <th>Status</th>
+                <th>Ações</th>
+                <th></th>
+              </tr>
+            </thead>
 
-          <label>
-            WhatsApp
-            <input
-              value={configuracoes.whatsapp}
-              onChange={(e) =>
-                setConfiguracoes({
-                  ...configuracoes,
-                  whatsapp: e.target.value,
-                })
-              }
-            />
-          </label>
+            <tbody>
+              {funcionarios.map((funcionario) => (
+                <tr key={funcionario.id}>
+                  <td>
+                    <strong>{funcionario.nome}</strong>
+                  </td>
+                  <td>{funcionario.email}</td>
+                  <td>{funcionario.telefone}</td>
+                  <td>{funcionario.matricula}</td>
+                  <td>{funcionario.perfil}</td>
 
-          <label>
-            Endereço
-            <input
-              value={configuracoes.endereco}
-              onChange={(e) =>
-                setConfiguracoes({
-                  ...configuracoes,
-                  endereco: e.target.value,
-                })
-              }
-            />
-          </label>
+                  <td>
+                    <span
+                      className={
+                        funcionario.ativo
+                          ? "ad-status-funcionario ativo"
+                          : "ad-status-funcionario inativo"
+                      }
+                    >
+                      {funcionario.ativo ? "🟢 Ativo" : "🔴 Inativo"}
+                    </span>
+                  </td>
 
-          <label>
-            Taxa de entrega
-            <input
-              value={configuracoes.taxaEntrega}
-              onChange={(e) =>
-                setConfiguracoes({
-                  ...configuracoes,
-                  taxaEntrega: e.target.value,
-                })
-              }
-            />
-          </label>
+                  <td>
+                    <button
+                      className="ad-link-btn"
+                      onClick={() => setFuncionarioEditando(funcionario)}
+                    >
+                      Editar
+                    </button>
 
-          <label>
-            Tempo estimado de entrega
-            <input
-              value={configuracoes.tempoEntrega}
-              onChange={(e) =>
-                setConfiguracoes({
-                  ...configuracoes,
-                  tempoEntrega: e.target.value,
-                })
-              }
-            />
-          </label>
+                    <button
+                      className={
+                        funcionario.ativo
+                          ? "ad-btn-inativar"
+                          : "ad-btn-ativar"
+                      }
+                      onClick={() => alterarStatusFuncionario(funcionario)}
+                    >
+                      {funcionario.ativo ? "Inativar" : "Ativar"}
+                    </button>
+                  </td>
+                </tr>
+              ))}
 
-          <label>
-            Status da pizzaria
-            <select
-              value={configuracoes.aberta ? "aberta" : "fechada"}
-              onChange={(e) =>
-                setConfiguracoes({
-                  ...configuracoes,
-                  aberta: e.target.value === "aberta",
-                })
-              }
-            >
-              <option value="aberta">Aberta</option>
-              <option value="fechada">Fechada</option>
-            </select>
-          </label>
-
-          <label>
-            Tema do painel
-
-            <select
-              value={configuracoes.temaEscuro ? "escuro" : "claro"}
-              onChange={(e) =>
-                setConfiguracoes({
-                  ...configuracoes,
-                  temaEscuro: e.target.value === "escuro",
-                })
-              }
-            >
-              <option value="claro">☀️ Claro</option>
-              <option value="escuro">🌙 Escuro</option>
-            </select>
-          </label>
+              {funcionarios.length === 0 && (
+                <tr>
+                  <td colSpan="7">Nenhum funcionário cadastrado.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
-
-        <button
-          type="button"
-          className="ad-save-btn"
-          onClick={salvarConfiguracoes}
-        >
-          Salvar configurações
-        </button>
-
       </div>
-    </>
-  );
-}
+    );
+  }
 
-function renderCardsAuditoria(lista) {
-  return (
-    <div className="ad-auditoria-cards">
-      {lista.map((log) => (
-        <div key={log.id} className="ad-auditoria-card">
-          <div className="ad-auditoria-card-top">
-            <strong>{log.acao}</strong>
-            <span>{log.entidade}</span>
+  function ConfiguracoesContent() {
+    return (
+      <>
+        <div className="ad-card">
+          <div className="ad-card-hdr">
+            <div>
+              <strong>Configurações da pizzaria</strong>
+              <p className="ad-greeting-sub">
+                Gerencie informações gerais, entrega e funcionamento.
+              </p>
+            </div>
           </div>
 
-          <p><strong>Data:</strong> {new Date(log.dataHora).toLocaleString("pt-BR")}</p>
-          <p><strong>Funcionário:</strong> {log.funcionarioNome || "Não informado"}</p>
-          <p><strong>Descrição:</strong> {log.descricao}</p>
-        </div>
-      ))}
+          <div className="ad-config-grid">
+            <label>
+              Nome da pizzaria
+              <input
+                value={configuracoes.nomePizzaria}
+                onChange={(e) =>
+                  setConfiguracoes({
+                    ...configuracoes,
+                    nomePizzaria: e.target.value,
+                  })
+                }
+              />
+            </label>
 
-      {lista.length === 0 && (
-        <div className="ad-auditoria-card">
-          <strong>Nenhum log registrado.</strong>
-        </div>
-      )}
-    </div>
-  );
-}
+            <label>
+              WhatsApp
+              <input
+                value={configuracoes.whatsapp}
+                onChange={(e) =>
+                  setConfiguracoes({
+                    ...configuracoes,
+                    whatsapp: e.target.value,
+                  })
+                }
+              />
+            </label>
 
-function AuditoriaContent() {
-  
-  return (
-    <div className="ad-card">
-      <div className="ad-card-hdr">
-        <div>
-          <strong>Logs de auditoria</strong>
-          <p className="ad-greeting-sub">
-            Acompanhe as ações administrativas realizadas no sistema.
-          </p>
-        </div>
+            <label>
+              Endereço
+              <input
+                value={configuracoes.endereco}
+                onChange={(e) =>
+                  setConfiguracoes({
+                    ...configuracoes,
+                    endereco: e.target.value,
+                  })
+                }
+              />
+            </label>
 
-        <button className="ad-save-btn" onClick={carregarLogsAuditoria}>
-          Atualizar
-        </button>
+            <label>
+              Taxa de entrega
+              <input
+                value={configuracoes.taxaEntrega}
+                onChange={(e) =>
+                  setConfiguracoes({
+                    ...configuracoes,
+                    taxaEntrega: e.target.value,
+                  })
+                }
+              />
+            </label>
+
+            <label>
+              Tempo estimado de entrega
+              <input
+                value={configuracoes.tempoEntrega}
+                onChange={(e) =>
+                  setConfiguracoes({
+                    ...configuracoes,
+                    tempoEntrega: e.target.value,
+                  })
+                }
+              />
+            </label>
+
+            <label>
+              Status da pizzaria
+              <select
+                value={configuracoes.aberta ? "aberta" : "fechada"}
+                onChange={(e) =>
+                  setConfiguracoes({
+                    ...configuracoes,
+                    aberta: e.target.value === "aberta",
+                  })
+                }
+              >
+                <option value="aberta">Aberta</option>
+                <option value="fechada">Fechada</option>
+              </select>
+            </label>
+
+            <label>
+              Tema do painel
+
+              <select
+                value={configuracoes.temaEscuro ? "escuro" : "claro"}
+                onChange={(e) =>
+                  setConfiguracoes({
+                    ...configuracoes,
+                    temaEscuro: e.target.value === "escuro",
+                  })
+                }
+              >
+                <option value="claro">☀️ Claro</option>
+                <option value="escuro">🌙 Escuro</option>
+              </select>
+            </label>
+          </div>
+
+          <button
+            type="button"
+            className="ad-save-btn"
+            onClick={salvarConfiguracoes}
+          >
+            Salvar configurações
+          </button>
+
+        </div>
+      </>
+    );
+  }
+
+  function renderCardsAuditoria(lista) {
+    return (
+      <div className="ad-auditoria-cards">
+        {lista.map((log) => (
+          <div key={log.id} className="ad-auditoria-card">
+            <div className="ad-auditoria-card-top">
+              <strong>{log.acao}</strong>
+              <span>{log.entidade}</span>
+            </div>
+
+            <p><strong>Data:</strong> {new Date(log.dataHora).toLocaleString("pt-BR")}</p>
+            <p><strong>Funcionário:</strong> {log.funcionarioNome || "Não informado"}</p>
+            <p><strong>Descrição:</strong> {log.descricao}</p>
+          </div>
+        ))}
+
+        {lista.length === 0 && (
+          <div className="ad-auditoria-card">
+            <strong>Nenhum log registrado.</strong>
+          </div>
+        )}
       </div>
+    );
+  }
 
-      {renderCardsAuditoria(logsAuditoria)}
-      <div className="ad-table-wrap ad-auditoria-table">
-        <table className="ad-table">
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Funcionário</th>
-              <th>Ação</th>
-              <th>Entidade</th>
-              <th>Descrição</th>
-            </tr>
-          </thead>
+  function AuditoriaContent() {
 
-          <tbody>
-            {logsAuditoria.map((log) => (
-              <tr key={log.id}>
-                <td>{new Date(log.dataHora).toLocaleString("pt-BR")}</td>
-                <td>{log.funcionarioNome || "Não informado"}</td>
-                <td>{log.acao}</td>
-                <td>{log.entidade}</td>
-                <td>{log.descricao}</td>
-              </tr>
-            ))}
+    return (
+      <div className="ad-card">
+        <div className="ad-card-hdr">
+          <div>
+            <strong>Logs de auditoria</strong>
+            <p className="ad-greeting-sub">
+              Acompanhe as ações administrativas realizadas no sistema.
+            </p>
+          </div>
 
-            {logsAuditoria.length === 0 && (
+          <button className="ad-save-btn" onClick={carregarLogsAuditoria}>
+            Atualizar
+          </button>
+        </div>
+
+        {renderCardsAuditoria(logsAuditoria)}
+        <div className="ad-table-wrap ad-auditoria-table">
+          <table className="ad-table">
+            <thead>
               <tr>
-                <td colSpan="5">Nenhum log registrado.</td>
+                <th>Data</th>
+                <th>Funcionário</th>
+                <th>Ação</th>
+                <th>Entidade</th>
+                <th>Descrição</th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody>
+              {logsAuditoria.map((log) => (
+                <tr key={log.id}>
+                  <td>{new Date(log.dataHora).toLocaleString("pt-BR")}</td>
+                  <td>{log.funcionarioNome || "Não informado"}</td>
+                  <td>{log.acao}</td>
+                  <td>{log.entidade}</td>
+                  <td>{log.descricao}</td>
+                </tr>
+              ))}
+
+              {logsAuditoria.length === 0 && (
+                <tr>
+                  <td colSpan="5">Nenhum log registrado.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
   return (
-  <div className="ad-root">
+    <div className="ad-root">
 
-    <button
-      className="ad-mobile-menu-btn"
-      onClick={() => setSidebarAberta(true)}
-    >
-      ☰
-    </button>
+      <button
+        className="ad-mobile-menu-btn"
+        onClick={() => setSidebarAberta(true)}
+      >
+        ☰
+      </button>
 
-    {sidebarAberta && (
-      <div
-        className="ad-sidebar-overlay"
-        onClick={() => setSidebarAberta(false)}
-      />
-    )}
+      {sidebarAberta && (
+        <div
+          className="ad-sidebar-overlay"
+          onClick={() => setSidebarAberta(false)}
+        />
+      )}
 
-    <aside className={`ad-sidebar ${sidebarAberta ? "open" : ""}`}>
+      <aside className={`ad-sidebar ${sidebarAberta ? "open" : ""}`}>
         <div className="ad-sidebar-logo">
           <svg width="36" height="36" viewBox="0 0 44 44" fill="none">
             <path d="M22 4 L40 38 H4 Z" fill="#FDD835" />
@@ -3144,9 +3234,8 @@ function AuditoriaContent() {
           {navItemsPermitidos.map((item) => (
             <button
               key={item.label}
-              className={`ad-nav-item ${
-                activeNav === item.label ? "active" : ""
-              }`}
+              className={`ad-nav-item ${activeNav === item.label ? "active" : ""
+                }`}
               onClick={() => {
                 setActiveNav(item.label);
                 setSidebarAberta(false);
@@ -3208,22 +3297,22 @@ function AuditoriaContent() {
         {activeNav === "Configurações" && ConfiguracoesContent()}
 
         {activeNav !== "Dashboard" &&
-        activeNav !== "Pedidos" &&
-        activeNav !== "Clientes" &&
-        activeNav !== "Cardápio" &&
-        activeNav !== "Categorias" &&
-        activeNav !== "Promoções" &&
-        activeNav !== "Relatórios" &&
-        activeNav !== "Funcionários" &&
-        activeNav !== "Auditoria" &&
-        activeNav !== "Configurações" && (
-          <div className="ad-card">
-            <h2>{activeNav}</h2>
-            <p className="ad-greeting-sub">
-              Essa área será implementada nas próximas etapas do projeto.
-            </p>
-          </div>
-        )}
+          activeNav !== "Pedidos" &&
+          activeNav !== "Clientes" &&
+          activeNav !== "Cardápio" &&
+          activeNav !== "Categorias" &&
+          activeNav !== "Promoções" &&
+          activeNav !== "Relatórios" &&
+          activeNav !== "Funcionários" &&
+          activeNav !== "Auditoria" &&
+          activeNav !== "Configurações" && (
+            <div className="ad-card">
+              <h2>{activeNav}</h2>
+              <p className="ad-greeting-sub">
+                Essa área será implementada nas próximas etapas do projeto.
+              </p>
+            </div>
+          )}
 
         {pedidoEditando && (
           <div className="ad-modal-overlay">
@@ -3301,22 +3390,22 @@ function AuditoriaContent() {
 
               {(pedidoEditando.observacaoPedido ||
                 pedidoEditando.observacaoEntrega) && (
-                <div className="ad-pedido-modal-section">
-                  {pedidoEditando.observacaoPedido && (
-                    <div className="ad-pedido-modal-obs">
-                      <strong>Obs. pedido</strong>
-                      <p>{pedidoEditando.observacaoPedido}</p>
-                    </div>
-                  )}
+                  <div className="ad-pedido-modal-section">
+                    {pedidoEditando.observacaoPedido && (
+                      <div className="ad-pedido-modal-obs">
+                        <strong>Obs. pedido</strong>
+                        <p>{pedidoEditando.observacaoPedido}</p>
+                      </div>
+                    )}
 
-                  {pedidoEditando.observacaoEntrega && (
-                    <div className="ad-pedido-modal-obs">
-                      <strong>Obs. entrega</strong>
-                      <p>{pedidoEditando.observacaoEntrega}</p>
-                    </div>
-                  )}
-                </div>
-              )}
+                    {pedidoEditando.observacaoEntrega && (
+                      <div className="ad-pedido-modal-obs">
+                        <strong>Obs. entrega</strong>
+                        <p>{pedidoEditando.observacaoEntrega}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
 
               <div className="ad-pedido-modal-section">
                 <label className="ad-pedido-modal-status-label">
@@ -3473,510 +3562,512 @@ function AuditoriaContent() {
         )}
 
         {produtoEditando && (
-  <div className="ad-modal-overlay">
-    <div className="ad-modal">
-      <div className="ad-modal-header">
-        <h2>{produtoEditando.id ? "Editar produto" : "Novo produto"}</h2>
+          <div className="ad-modal-overlay">
+            <div className="ad-modal">
+              <div className="ad-modal-header">
+                <h2>{produtoEditando.id ? "Editar produto" : "Novo produto"}</h2>
 
-        <button
-          className="ad-modal-close"
-          onClick={() => setProdutoEditando(null)}
-        >
-          ×
-        </button>
-      </div>
+                <button
+                  className="ad-modal-close"
+                  onClick={() => setProdutoEditando(null)}
+                >
+                  ×
+                </button>
+              </div>
 
-      <label>
-        <strong>Nome:</strong>
-        <input
-          value={produtoEditando.nome}
-          onChange={(e) =>
-            setProdutoEditando({
-              ...produtoEditando,
-              nome: e.target.value,
-            })
-          }
-        />
-      </label>
-
-      <label>
-        Descrição
-        <textarea
-          value={produtoEditando.descricao || ""}
-          onChange={(e) =>
-            setProdutoEditando({
-              ...produtoEditando,
-              descricao: e.target.value,
-            })
-          }
-          placeholder="Ex: Pizza com calabresa, cebola e queijo"
-        />
-      </label>
-
-      <label>
-        <strong>Categoria:</strong>
-        <select
-          value={produtoEditando.categoriaId}
-          onChange={(e) => {
-            const categoriaSelecionada = categorias.find(
-              (cat) => cat.id === Number(e.target.value)
-            );
-
-            setProdutoEditando({
-              ...produtoEditando,
-              categoriaId: Number(e.target.value),
-              categoria: categoriaSelecionada?.nome || "",
-            });
-          }}
-        >
-          {categorias.map((categoria) => (
-            <option key={categoria.id} value={categoria.id}>
-              {categoria.nome}
-            </option>
-          ))}
-        </select>
-      </label>
-
-      <label>
-        <strong>Imagem:</strong>
-        <select
-          value={produtoEditando.imagem || "calabresa"}
-          onChange={(e) =>
-            setProdutoEditando({
-              ...produtoEditando,
-              imagem: e.target.value,
-            })
-          }
-        >
-          <option value="calabresa">Pizza Calabresa</option>
-          <option value="frango">Pizza Frango</option>
-          <option value="portuguesa">Pizza Portuguesa</option>
-          <option value="marguerita">Pizza Marguerita</option>
-          <option value="quatroQueijos">Pizza 4 Queijos</option>
-          <option value="comboFamilia">Combo Família</option>
-          <option value="cocaCola2l">Coca-Cola 2L</option>
-          <option value="guarana2l">Guaraná 2L</option>
-          <option value="pudim">Pudim</option>
-          <option value="pizzaChocolate">Pizza Chocolate</option>
-        </select>
-      </label>
-
-      <label>
-        <strong>Preço:</strong>
-        <input
-          value={produtoEditando.preco}
-          onChange={(e) =>
-            setProdutoEditando({
-              ...produtoEditando,
-              preco: e.target.value,
-            })
-          }
-          placeholder="Ex: 49,90"
-        />
-      </label>
-
-      <div className="ad-modal-actions">
-        <button onClick={() => setProdutoEditando(null)}>Cancelar</button>
-        <button className="ad-save-btn" onClick={salvarProduto}>
-          Salvar
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
-{categoriaEditando && (
-  <div className="ad-modal-overlay">
-    <div className="ad-modal">
-      <h2>{categoriaEditando.id ? "Editar categoria" : "Nova categoria"}</h2>
-
-      <label>
-        <strong>Nome:</strong>
-        <input
-          value={categoriaEditando.nome}
-          onChange={(e) =>
-            setCategoriaEditando({
-              ...categoriaEditando,
-              nome: e.target.value,
-            })
-          }
-          placeholder="Ex: Massas"
-        />
-      </label>
-
-      <label>
-        <strong>Ícone:</strong>
-        <input
-          value={categoriaEditando.icon}
-          onChange={(e) =>
-            setCategoriaEditando({
-              ...categoriaEditando,
-              icon: e.target.value,
-            })
-          }
-          placeholder="Ex: 🍝"
-        />
-      </label>
-
-      <div className="ad-modal-actions">
-        <button onClick={() => setCategoriaEditando(null)}>Cancelar</button>
-        <button className="ad-save-btn" onClick={salvarCategoria}>
-          Salvar
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
-{promocaoEditando && (
-  <div className="ad-modal-overlay">
-    <div className="ad-modal">
-      <div className="ad-modal-header">
-        <h2>{promocaoEditando.id ? "Editar promoção" : "Nova promoção"}</h2>
-
-        <button
-          className="ad-modal-close"
-          onClick={() => setPromocaoEditando(null)}
-        >
-          ×
-        </button>
-      </div>
-
-      <label>
-        <strong>Título:</strong>
-        <input
-          value={promocaoEditando.titulo}
-          onChange={(e) =>
-            setPromocaoEditando({
-              ...promocaoEditando,
-              titulo: e.target.value,
-            })
-          }
-        />
-      </label>
-
-      <label>
-        <strong>Descrição:</strong>
-        <textarea
-          value={promocaoEditando.desc}
-          onChange={(e) =>
-            setPromocaoEditando({
-              ...promocaoEditando,
-              desc: e.target.value,
-            })
-          }
-        />
-      </label>
-
-      <label>
-        <strong>Tag:</strong>
-        <input
-          value={promocaoEditando.tag}
-          onChange={(e) =>
-            setPromocaoEditando({
-              ...promocaoEditando,
-              tag: e.target.value,
-            })
-          }
-          placeholder="Ex: OFERTA"
-        />
-      </label>
-
-      <label>
-        <strong>Imagem:</strong>
-
-        <select
-          value={promocaoEditando.imagem || "comboFamilia"}
-          onChange={(e) =>
-            setPromocaoEditando({
-              ...promocaoEditando,
-              imagem: e.target.value,
-            })
-          }
-        >
-          <option value="comboFamilia">
-            Combo Família
-          </option>
-
-          <option value="calabresa">
-            Pizza Calabresa
-          </option>
-
-          <option value="frango">
-            Pizza Frango
-          </option>
-
-          <option value="portuguesa">
-            Pizza Portuguesa
-          </option>
-
-          <option value="marguerita">
-            Pizza Marguerita
-          </option>
-
-          <option value="quatroQueijos">
-            Pizza Quatro Queijos
-          </option>
-
-          <option value="pizzaChocolate">
-            Pizza de Chocolate
-          </option>
-        </select>
-      </label>
-
-      {promocaoEditando.imagem && (
-        <img
-          src={
-            IMAGENS_PRODUTOS[promocaoEditando.imagem] ||
-            pizzaHero
-          }
-          alt="Prévia da promoção"
-          className="ad-promocao-preview"
-        />
-      )}
-
-      <label>
-        <strong>Preço antigo:</strong>
-        <input
-          value={promocaoEditando.precoAntigo}
-          onChange={(e) =>
-            setPromocaoEditando({
-              ...promocaoEditando,
-              precoAntigo: e.target.value,
-            })
-          }
-          placeholder="Ex: 109,90"
-        />
-      </label>
-
-      <label>
-        <strong>Preço novo:</strong>
-        <input
-          value={promocaoEditando.precoNovo}
-          onChange={(e) =>
-            setPromocaoEditando({
-              ...promocaoEditando,
-              precoNovo: e.target.value,
-            })
-          }
-          placeholder="Ex: 89,90"
-        />
-      </label>
-
-      <div className="ad-promo-products-section">
-        <div className="ad-promo-products-header">
-          <strong>Produtos da promoção</strong>
-          <span>Selecione um ou mais produtos</span>
-        </div>
-
-        <div className="ad-promo-products-grid">
-          {produtos.map((produto) => {
-            const selecionado = promocaoEditando.produtosIds.includes(produto.id);
-
-            return (
-              <label
-                key={produto.id}
-                className={`ad-promo-product-option ${
-                  selecionado ? "selected" : ""
-                }`}
-              >
+              <label>
+                <strong>Nome:</strong>
                 <input
-                  type="checkbox"
-                  checked={selecionado}
-                  onChange={(e) => {
-                    const produtoId = produto.id;
+                  value={produtoEditando.nome}
+                  onChange={(e) =>
+                    setProdutoEditando({
+                      ...produtoEditando,
+                      nome: e.target.value,
+                    })
+                  }
+                />
+              </label>
 
-                    setPromocaoEditando({
-                      ...promocaoEditando,
-                      produtosIds: e.target.checked
-                        ? [...promocaoEditando.produtosIds, produtoId]
-                        : promocaoEditando.produtosIds.filter(
-                            (id) => id !== produtoId
-                          ),
+              <label>
+                Descrição
+                <textarea
+                  value={produtoEditando.descricao || ""}
+                  onChange={(e) =>
+                    setProdutoEditando({
+                      ...produtoEditando,
+                      descricao: e.target.value,
+                    })
+                  }
+                  placeholder="Ex: Pizza com calabresa, cebola e queijo"
+                />
+              </label>
+
+              <label>
+                <strong>Categoria:</strong>
+
+                <select
+                  value={produtoEditando.categoriaId || ""}
+                  onChange={(e) => {
+                    const categoriaId = Number(e.target.value);
+
+                    const categoriaSelecionada = categorias.find(
+                      (categoria) => categoria.id === categoriaId
+                    );
+
+                    setProdutoEditando({
+                      ...produtoEditando,
+                      categoriaId,
+                      categoria: categoriaSelecionada?.nome || "",
                     });
                   }}
-                />
+                >
+                  <option value="" disabled hidden>
+                    Selecione uma categoria
+                  </option>
 
-                <span className="ad-promo-product-check">
-                  {selecionado ? "✓" : ""}
-                </span>
+                  {categorias.map((categoria) => (
+                    <option key={categoria.id} value={categoria.id}>
+                      {categoria.nome}
+                    </option>
+                  ))}
+                </select>
+              </label>
 
-                <div>
-                  <strong>{produto.nome}</strong>
-                  <small>{produto.categoria}</small>
+              <label>
+                <strong>Imagem:</strong>
+
+                <div className="ad-file-upload">
+                  <input
+                    id="imagem-produto"
+                    type="file"
+                    accept="image/png, image/jpeg, image/webp"
+                    onChange={(e) => {
+                      const arquivoSelecionado =
+                        e.target.files?.[0] || null;
+
+                      setArquivoImagemProduto(arquivoSelecionado);
+                    }}
+                  />
+
+                  <label
+                    htmlFor="imagem-produto"
+                    className="ad-file-upload-button"
+                  >
+                    <span className="ad-file-upload-icon">📁</span>
+
+                    <span>
+                      {arquivoImagemProduto
+                        ? arquivoImagemProduto.name
+                        : "Escolher imagem"}
+                    </span>
+                  </label>
+
+                  <small>
+                    PNG, JPG ou WebP
+                  </small>
                 </div>
               </label>
-            );
-          })}
-        </div>
-      </div>
 
-      <label>
-        Data de início
-        <input
-          type="date"
-          value={promocaoEditando.dataInicio}
-          onChange={(e) =>
-            setPromocaoEditando({
-              ...promocaoEditando,
-              dataInicio: e.target.value,
-            })
-          }
-        />
-      </label>
+              <label>
+                <strong>Preço:</strong>
+                <input
+                  value={produtoEditando.preco}
+                  onChange={(e) =>
+                    setProdutoEditando({
+                      ...produtoEditando,
+                      preco: e.target.value,
+                    })
+                  }
+                  placeholder="Ex: 49,90"
+                />
+              </label>
 
-      <label>
-        Data de fim
-        <input
-          type="date"
-          value={promocaoEditando.dataFim}
-          onChange={(e) =>
-            setPromocaoEditando({
-              ...promocaoEditando,
-              dataFim: e.target.value,
-            })
-          }
-        />
-      </label>
+              <div className="ad-modal-actions">
+                <button onClick={() => setProdutoEditando(null)}>Cancelar</button>
+                <button className="ad-save-btn" onClick={salvarProduto}>
+                  Salvar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
-      <label>
-        Status
-        <select
-          value={promocaoEditando.ativa ? "ativa" : "inativa"}
-          onChange={(e) =>
-            setPromocaoEditando({
-              ...promocaoEditando,
-              ativa: e.target.value === "ativa",
-            })
-          }
-        >
-          <option value="ativa">Ativa</option>
-          <option value="inativa">Inativa</option>
-        </select>
-      </label>
+        {categoriaEditando && (
+          <div className="ad-modal-overlay">
+            <div className="ad-modal">
+              <h2>{categoriaEditando.id ? "Editar categoria" : "Nova categoria"}</h2>
 
-      <div className="ad-modal-actions">
-        <button onClick={() => setPromocaoEditando(null)}>Cancelar</button>
-        <button className="ad-save-btn" onClick={salvarPromocao}>
-          Salvar
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+              <label>
+                <strong>Nome:</strong>
+                <input
+                  value={categoriaEditando.nome}
+                  onChange={(e) =>
+                    setCategoriaEditando({
+                      ...categoriaEditando,
+                      nome: e.target.value,
+                    })
+                  }
+                  placeholder="Ex: Massas"
+                />
+              </label>
 
-{funcionarioEditando && (
-  <div className="ad-modal-overlay">
-    <div className="ad-modal">
-      <div className="ad-modal-header">
-        <h2>
-          {funcionarioEditando.id ? "Editar funcionário" : "Novo funcionário"}
-        </h2>
+              <label>
+                <strong>Ícone:</strong>
+                <input
+                  value={categoriaEditando.icon}
+                  onChange={(e) =>
+                    setCategoriaEditando({
+                      ...categoriaEditando,
+                      icon: e.target.value,
+                    })
+                  }
+                  placeholder="Ex: 🍝"
+                />
+              </label>
 
-        <button
-          className="ad-modal-close"
-          onClick={() => setFuncionarioEditando(null)}
-        >
-          ×
-        </button>
-      </div>
+              <div className="ad-modal-actions">
+                <button onClick={() => setCategoriaEditando(null)}>Cancelar</button>
+                <button className="ad-save-btn" onClick={salvarCategoria}>
+                  Salvar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
-      <label>
-        Nome
-        <input
-          value={funcionarioEditando.nome}
-          onChange={(e) =>
-            setFuncionarioEditando({
-              ...funcionarioEditando,
-              nome: e.target.value,
-            })
-          }
-        />
-      </label>
+        {promocaoEditando && (
+          <div className="ad-modal-overlay">
+            <div className="ad-modal">
+              <div className="ad-modal-header">
+                <h2>{promocaoEditando.id ? "Editar promoção" : "Nova promoção"}</h2>
 
-      <label>
-        Email
-        <input
-          value={funcionarioEditando.email}
-          onChange={(e) =>
-            setFuncionarioEditando({
-              ...funcionarioEditando,
-              email: e.target.value,
-            })
-          }
-        />
-      </label>
+                <button
+                  className="ad-modal-close"
+                  onClick={fecharModalPromocao}
+                >
+                  ×
+                </button>
+              </div>
 
-      <label>
-        Telefone
-        <input
-          value={funcionarioEditando.telefone}
-          onChange={(e) =>
-            setFuncionarioEditando({
-              ...funcionarioEditando,
-              telefone: e.target.value,
-            })
-          }
-        />
-      </label>
+              <label>
+                <strong>Título:</strong>
+                <input
+                  value={promocaoEditando.titulo}
+                  onChange={(e) =>
+                    setPromocaoEditando({
+                      ...promocaoEditando,
+                      titulo: e.target.value,
+                    })
+                  }
+                />
+              </label>
 
-      <label>
-        Senha
-        <input
-          type="password"
-          value={funcionarioEditando.senha || ""}
-          onChange={(e) =>
-            setFuncionarioEditando({
-              ...funcionarioEditando,
-              senha: e.target.value,
-            })
-          }
-        />
-      </label>
+              <label>
+                <strong>Descrição:</strong>
+                <textarea
+                  value={promocaoEditando.desc}
+                  onChange={(e) =>
+                    setPromocaoEditando({
+                      ...promocaoEditando,
+                      desc: e.target.value,
+                    })
+                  }
+                />
+              </label>
 
-      <label>
-        Matrícula
-        <input
-          value={funcionarioEditando.matricula}
-          onChange={(e) =>
-            setFuncionarioEditando({
-              ...funcionarioEditando,
-              matricula: e.target.value,
-            })
-          }
-        />
-      </label>
+              <label>
+                <strong>Tag:</strong>
+                <input
+                  value={promocaoEditando.tag}
+                  onChange={(e) =>
+                    setPromocaoEditando({
+                      ...promocaoEditando,
+                      tag: e.target.value,
+                    })
+                  }
+                  placeholder="Ex: OFERTA"
+                />
+              </label>
 
-      <label>
-        Perfil
-        <select
-          value={funcionarioEditando.perfil}
-          onChange={(e) =>
-            setFuncionarioEditando({
-              ...funcionarioEditando,
-              perfil: e.target.value,
-            })
-          }
-        >
-          <option value="ADMINISTRADOR">Administrador</option>
-          <option value="GERENTE">Gerente</option>
-          <option value="ATENDENTE">Atendente</option>
-          <option value="ENTREGADOR">Entregador</option>
-        </select>
-      </label>
 
-      <div className="ad-modal-actions">
-        <button onClick={() => setFuncionarioEditando(null)}>
-          Cancelar
-        </button>
+              <label>
+                <strong>Imagem:</strong>
 
-        <button className="ad-save-btn" onClick={salvarFuncionario}>
-          Salvar
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+                <div className="ad-file-upload">
+                  <input
+                    id="imagem-promocao"
+                    type="file"
+                    accept="image/png, image/jpeg, image/webp"
+                    onChange={(e) => {
+                      const arquivoSelecionado =
+                        e.target.files?.[0] || null;
+
+                      setArquivoImagemPromocao(arquivoSelecionado);
+                    }}
+                  />
+
+                  <label
+                    htmlFor="imagem-promocao"
+                    className="ad-file-upload-button"
+                  >
+                    <span className="ad-file-upload-icon">📁</span>
+
+                    <span>
+                      {arquivoImagemPromocao
+                        ? arquivoImagemPromocao.name
+                        : promocaoEditando.imagem
+                          ? "Trocar imagem"
+                          : "Escolher imagem"}
+                    </span>
+                  </label>
+
+                  <small>PNG, JPG ou WebP</small>
+                </div>
+              </label>
+
+              <label>
+                <strong>Preço antigo:</strong>
+                <input
+                  value={promocaoEditando.precoAntigo}
+                  onChange={(e) =>
+                    setPromocaoEditando({
+                      ...promocaoEditando,
+                      precoAntigo: e.target.value,
+                    })
+                  }
+                  placeholder="Ex: 109,90"
+                />
+              </label>
+
+              <label>
+                <strong>Preço novo:</strong>
+                <input
+                  value={promocaoEditando.precoNovo}
+                  onChange={(e) =>
+                    setPromocaoEditando({
+                      ...promocaoEditando,
+                      precoNovo: e.target.value,
+                    })
+                  }
+                  placeholder="Ex: 89,90"
+                />
+              </label>
+
+              <div className="ad-promo-products-section">
+                <div className="ad-promo-products-header">
+                  <strong>Produtos da promoção</strong>
+                  <span>Selecione um ou mais produtos</span>
+                </div>
+
+                <div className="ad-promo-products-grid">
+                  {produtos.map((produto) => {
+                    const selecionado = promocaoEditando.produtosIds.includes(produto.id);
+
+                    return (
+                      <label
+                        key={produto.id}
+                        className={`ad-promo-product-option ${selecionado ? "selected" : ""
+                          }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selecionado}
+                          onChange={(e) => {
+                            const produtoId = produto.id;
+
+                            setPromocaoEditando({
+                              ...promocaoEditando,
+                              produtosIds: e.target.checked
+                                ? [...promocaoEditando.produtosIds, produtoId]
+                                : promocaoEditando.produtosIds.filter(
+                                  (id) => id !== produtoId
+                                ),
+                            });
+                          }}
+                        />
+
+                        <span className="ad-promo-product-check">
+                          {selecionado ? "✓" : ""}
+                        </span>
+
+                        <div>
+                          <strong>{produto.nome}</strong>
+                          <small>{produto.categoria}</small>
+                        </div>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <label>
+                Data de início
+                <input
+                  type="date"
+                  value={promocaoEditando.dataInicio}
+                  onChange={(e) =>
+                    setPromocaoEditando({
+                      ...promocaoEditando,
+                      dataInicio: e.target.value,
+                    })
+                  }
+                />
+              </label>
+
+              <label>
+                Data de fim
+                <input
+                  type="date"
+                  value={promocaoEditando.dataFim}
+                  onChange={(e) =>
+                    setPromocaoEditando({
+                      ...promocaoEditando,
+                      dataFim: e.target.value,
+                    })
+                  }
+                />
+              </label>
+
+              <label>
+                Status
+                <select
+                  value={promocaoEditando.ativa ? "ativa" : "inativa"}
+                  onChange={(e) =>
+                    setPromocaoEditando({
+                      ...promocaoEditando,
+                      ativa: e.target.value === "ativa",
+                    })
+                  }
+                >
+                  <option value="ativa">Ativa</option>
+                  <option value="inativa">Inativa</option>
+                </select>
+              </label>
+
+              <div className="ad-modal-actions">
+                <button onClick={fecharModalPromocao}>
+                  Cancelar
+                </button>
+                <button className="ad-save-btn" onClick={salvarPromocao}>
+                  Salvar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {funcionarioEditando && (
+          <div className="ad-modal-overlay">
+            <div className="ad-modal">
+              <div className="ad-modal-header">
+                <h2>
+                  {funcionarioEditando.id ? "Editar funcionário" : "Novo funcionário"}
+                </h2>
+
+                <button
+                  className="ad-modal-close"
+                  onClick={() => setFuncionarioEditando(null)}
+                >
+                  ×
+                </button>
+              </div>
+
+              <label>
+                Nome
+                <input
+                  value={funcionarioEditando.nome}
+                  onChange={(e) =>
+                    setFuncionarioEditando({
+                      ...funcionarioEditando,
+                      nome: e.target.value,
+                    })
+                  }
+                />
+              </label>
+
+              <label>
+                Email
+                <input
+                  value={funcionarioEditando.email}
+                  onChange={(e) =>
+                    setFuncionarioEditando({
+                      ...funcionarioEditando,
+                      email: e.target.value,
+                    })
+                  }
+                />
+              </label>
+
+              <label>
+                Telefone
+                <input
+                  value={funcionarioEditando.telefone}
+                  onChange={(e) =>
+                    setFuncionarioEditando({
+                      ...funcionarioEditando,
+                      telefone: e.target.value,
+                    })
+                  }
+                />
+              </label>
+
+              <label>
+                Senha
+                <input
+                  type="password"
+                  value={funcionarioEditando.senha || ""}
+                  onChange={(e) =>
+                    setFuncionarioEditando({
+                      ...funcionarioEditando,
+                      senha: e.target.value,
+                    })
+                  }
+                />
+              </label>
+
+              <label>
+                Matrícula
+                <input
+                  value={funcionarioEditando.matricula}
+                  onChange={(e) =>
+                    setFuncionarioEditando({
+                      ...funcionarioEditando,
+                      matricula: e.target.value,
+                    })
+                  }
+                />
+              </label>
+
+              <label>
+                Perfil
+                <select
+                  value={funcionarioEditando.perfil}
+                  onChange={(e) =>
+                    setFuncionarioEditando({
+                      ...funcionarioEditando,
+                      perfil: e.target.value,
+                    })
+                  }
+                >
+                  <option value="ADMINISTRADOR">Administrador</option>
+                  <option value="GERENTE">Gerente</option>
+                  <option value="ATENDENTE">Atendente</option>
+                  <option value="ENTREGADOR">Entregador</option>
+                </select>
+              </label>
+
+              <div className="ad-modal-actions">
+                <button onClick={() => setFuncionarioEditando(null)}>
+                  Cancelar
+                </button>
+
+                <button className="ad-save-btn" onClick={salvarFuncionario}>
+                  Salvar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
       </main>
     </div>

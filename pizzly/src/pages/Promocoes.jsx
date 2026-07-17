@@ -70,7 +70,9 @@ export default function Promocoes() {
             desc: promo.descricao || "",
             precoNovo: formatarPreco(promo.precoPromocional),
             produtosNomes: promo.produtosNomes || [],
-            img: IMAGENS_PROMOCOES[promo.imagem] || pizzaHero,
+            img: promo.imagem?.startsWith("http")
+              ? promo.imagem
+              : IMAGENS_PROMOCOES[promo.imagem] || pizzaHero,
           }));
 
         setPromocoes(formatadas);

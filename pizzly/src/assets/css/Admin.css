@@ -661,6 +661,7 @@
   background: rgba(0, 0, 0, 0.45);
   z-index: 9999;
   display: flex;
+  overflow-y: auto;
   justify-content: center;
   align-items: center;
   padding: 1rem;
@@ -1078,6 +1079,46 @@ body.dark-admin .ad-mobile-topbar {
   color: #fff;
 }
 
+.ad-promocao-card-img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 0.8rem;
+}
+
+.ad-promocao-info {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  min-width: 220px;
+}
+
+.ad-promocao-thumb {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.ad-promocao-info-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.ad-promocao-info-texto strong {
+  color: inherit;
+}
+
+.ad-promocao-info-texto small {
+  display: block;
+  color: #777;
+  line-height: 1.35;
+}
+
 
 .ad-promocao-card-top {
   display: flex;
@@ -1403,9 +1444,14 @@ body.dark-admin .ad-mobile-topbar {
 }
 
 .ad-cliente-modal {
+  width: 100%;
   max-width: 720px;
+  max-height: calc(100dvh - 2rem);
+
   padding: 0;
-  overflow: hidden;
+
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .ad-cliente-modal-header {
@@ -1415,6 +1461,7 @@ body.dark-admin .ad-mobile-topbar {
   background: linear-gradient(135deg, #c62828, #8f0000);
   color: #fff;
   padding: 1.4rem;
+  flex-shrink: 0;
 }
 
 .ad-cliente-modal-header h2 {
@@ -2807,6 +2854,10 @@ body.dark-admin .ad-dropdown button {
 body.dark-admin .ad-dropdown button:hover {
   background: rgba(198, 40, 40, 0.1);
   color: #ff8a8a;
+}
+
+body.dark-admin .ad-promocao-info-texto small {
+  color: rgba(255, 255, 255, 0.58);
 }
 
 /* ── Cards de pedido/cliente/produto/etc ── */
@@ -4211,4 +4262,163 @@ body.dark-admin .ad-atalho-btn:nth-child(4) .ad-atalho-ico {
   .ad-modal-actions button {
     width: auto;
   }
+}
+
+/*melhorias nos selects do admin*/
+
+.ad-modal select,
+.ad-filters select,
+.ad-config-grid select,
+.ad-period-select {
+  width: 100%;
+  min-height: 50px;
+
+  padding: 0.85rem 2.8rem 0.85rem 1rem;
+
+  background-color: #1d1e27;
+  color: #f5f5f7;
+
+  border: 1px solid rgba(255, 68, 68, 0.45);
+  border-radius: 12px;
+
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+
+  cursor: pointer;
+  outline: none;
+
+  color-scheme: dark;
+
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.ad-modal select:hover,
+.ad-filters select:hover,
+.ad-config-grid select:hover,
+.ad-period-select:hover {
+  border-color: rgba(255, 80, 80, 0.8);
+}
+
+.ad-modal select:focus,
+.ad-filters select:focus,
+.ad-config-grid select:focus,
+.ad-period-select:focus {
+  background-color: #21191d;
+  border-color: #ff4545;
+
+  box-shadow:
+    0 0 0 3px rgba(255, 69, 69, 0.14),
+    0 0 18px rgba(255, 45, 45, 0.18);
+}
+
+/* OPÇÕES ABERTAS */
+
+.ad-modal select option,
+.ad-filters select option,
+.ad-config-grid select option,
+.ad-period-select option {
+  background-color: #1d1e27;
+  color: #f4f4f6;
+
+  font-size: 0.92rem;
+  font-weight: 600;
+
+  padding: 14px;
+}
+
+/* opção selecionada */
+
+.ad-modal select option:checked,
+.ad-filters select option:checked,
+.ad-config-grid select option:checked,
+.ad-period-select option:checked {
+  background-color: #b71c1c;
+  color: #ffffff;
+}
+
+/* CAMPO DE UPLOAD DE IMAGEM */
+.ad-file-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ad-file-upload input[type="file"] {
+  display: none;
+}
+
+.ad-file-upload-button {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+
+  width: 100%;
+  min-height: 54px;
+
+  margin: 0 !important;
+  padding: 0.9rem 1rem;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(198, 40, 40, 0.18),
+      rgba(255, 70, 70, 0.07)
+    );
+
+  border: 1.5px dashed rgba(255, 75, 75, 0.55);
+  border-radius: 12px;
+
+  color: #f2f2f4;
+
+  font-size: 0.92rem;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.03),
+    0 4px 12px rgba(0, 0, 0, 0.18);
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.ad-file-upload-button:hover {
+  transform: translateY(-1px);
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(198, 40, 40, 0.28),
+      rgba(255, 70, 70, 0.12)
+    );
+
+  border-color: #ff4d4d;
+
+  box-shadow:
+    0 0 18px rgba(255, 45, 45, 0.14),
+    0 6px 16px rgba(0, 0, 0, 0.22);
+}
+
+.ad-file-upload-icon {
+  font-size: 1.15rem;
+}
+
+.ad-file-upload small {
+  color: #8d8d98;
+  font-size: 0.76rem;
+  text-align: center;
 }

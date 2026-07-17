@@ -47,6 +47,20 @@ export default function MeusPedidos() {
   const [notaAvaliacao, setNotaAvaliacao] = useState(5);
   const [comentarioAvaliacao, setComentarioAvaliacao] = useState("");
 
+  useEffect(() => {
+    if (!pedidoSelecionado) {
+      return;
+    }
+
+    const overflowAnterior = document.body.style.overflow;
+
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = overflowAnterior;
+    };
+  }, [pedidoSelecionado]);
+
   /*Carregamento dos pedidos: */
   useEffect(() => {
     const usuarioLogado = JSON.parse(localStorage.getItem("pizzly_usuario"));
@@ -278,7 +292,10 @@ export default function MeusPedidos() {
             </div>
           ))}
 
-          {/* Modal de avaliação do pedido */}
+        </section>
+      </main>
+
+      {/* Modal de avaliação do pedido */}
           {pedidoSelecionado && (
           <div className="mp-modal-overlay">
             <div className="mp-modal">
@@ -318,8 +335,6 @@ export default function MeusPedidos() {
             </div>
           </div>
         )}
-        </section>
-      </main>
     </div>
   );
 }
