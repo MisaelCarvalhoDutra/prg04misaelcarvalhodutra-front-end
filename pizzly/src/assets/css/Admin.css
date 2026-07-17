@@ -3055,6 +3055,31 @@ body.dark-admin .ad-table td {
   color: rgba(255, 255, 255, 0.72);
 }
 
+/*SELECTS DOS MODAIS NO MODO ESCURO */
+
+body.dark-admin .ad-modal select {
+  background: #1e1f28;
+  color: #f0f0f0;
+  color-scheme: dark;
+}
+
+body.dark-admin .ad-modal select option {
+  background: #1e1f28;
+  color: #f0f0f0;
+}
+
+body.dark-admin .ad-pedido-modal-status-label select {
+  background: #1e1f28;
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #f0f0f0;
+  color-scheme: dark;
+}
+
+body.dark-admin .ad-pedido-modal-status-label select option {
+  background: #1e1f28;
+  color: #f0f0f0;
+}
+
 /* ── Acessibilidade no dark ── */
 body.dark-admin .ad-nav-item:focus-visible,
 body.dark-admin .ad-save-btn:focus-visible,
@@ -3768,6 +3793,11 @@ body.dark-admin .ad-pedido-modal-status-label select {
   background: rgba(255, 255, 255, 0.05);
   border-color: rgba(255, 255, 255, 0.1);
   color: rgba(255, 255, 255, 0.85);
+}
+
+body.dark-admin .ad-pedido-modal-status-label select option {
+  background: #1e1f28;
+  color: #f0f0f0;
 }
 
 body.dark-admin .ad-pedido-modal-financeiro-row {
