@@ -17,106 +17,106 @@ import guarana2l from "../assets/images/guarana.png";
 import pudim from "../assets/images/pudim.png";
 import pizzaChocolate from "../assets/images/pizzaChocolate.jpg";
 
-  //CONSTANTES E MAPEAMENTOS:
+//CONSTANTES E MAPEAMENTOS:
 
-  // Relaciona a chave de imagem salva no backend ao arquivo do front-end
-  const IMAGENS_PRODUTOS = {
-    calabresa: pizzaCalabresa,
-    marguerita: pizzaMarguerita,
-    portuguesa: pizzaPortuguesa,
-    frango: pizzaFrango,
-    quatroQueijos: pizzaHero,
-    comboFamilia: comboFamilia,
-    cocaCola2l: cocaCola2l,
-    guarana2l: guarana2l,
-    pudim: pudim,
-    pizzaChocolate: pizzaChocolate,
+// Relaciona a chave de imagem salva no backend ao arquivo do front-end
+const IMAGENS_PRODUTOS = {
+  calabresa: pizzaCalabresa,
+  marguerita: pizzaMarguerita,
+  portuguesa: pizzaPortuguesa,
+  frango: pizzaFrango,
+  quatroQueijos: pizzaHero,
+  comboFamilia: comboFamilia,
+  cocaCola2l: cocaCola2l,
+  guarana2l: guarana2l,
+  pudim: pudim,
+  pizzaChocolate: pizzaChocolate,
+};
+
+const TAMANHOS = [
+  { id: "p", label: "Pequena", fatias: "4 fatias", preco: 29.9 },
+  { id: "m", label: "Média", fatias: "6 fatias", preco: 39.9 },
+  { id: "g", label: "Grande", fatias: "8 fatias", preco: 49.9 },
+  { id: "f", label: "Família", fatias: "12 fatias", preco: 69.9 },
+];
+
+const TAXA_ENTREGA_PADRAO = 6;
+
+const fmt = (valor) => `R$ ${valor.toFixed(2).replace(".", ",")}`;
+
+//FUNÇÕES AUXILIARES DE CONVERSÃO E FORMATAÇÃO:
+
+// Adapta o produto retornado pelo backend ao formato usado na tela
+function converterProdutoBackend(produto) {
+  return {
+    id: produto.id,
+    nome: produto.nome,
+    desc: produto.descricao,
+    preco: Number(produto.preco),
+    img: IMAGENS_PRODUTOS[produto.imagem] || pizzaHero,
+    tipoImagem: produto.categoriaNome === "Bebidas" ? "contain" : "cover",
+    categoria: normalizarTexto(produto.categoriaNome),
   };
+}
 
-  const TAMANHOS = [
-    { id: "p", label: "Pequena", fatias: "4 fatias", preco: 29.9 },
-    { id: "m", label: "Média", fatias: "6 fatias", preco: 39.9 },
-    { id: "g", label: "Grande", fatias: "8 fatias", preco: 49.9 },
-    { id: "f", label: "Família", fatias: "12 fatias", preco: 69.9 },
-  ];
-
-  const TAXA_ENTREGA_PADRAO = 6;
-
-  const fmt = (valor) => `R$ ${valor.toFixed(2).replace(".", ",")}`;
-
-  //FUNÇÕES AUXILIARES DE CONVERSÃO E FORMATAÇÃO:
-
-  // Adapta o produto retornado pelo backend ao formato usado na tela
-  function converterProdutoBackend(produto) {
-    return {
-      id: produto.id,
-      nome: produto.nome,
-      desc: produto.descricao,
-      preco: Number(produto.preco),
-      img: IMAGENS_PRODUTOS[produto.imagem] || pizzaHero,
-      tipoImagem: produto.categoriaNome === "Bebidas" ? "contain" : "cover",
-      categoria: normalizarTexto(produto.categoriaNome),
-    };
-  }
-
-  // Adapta a categoria retornada pelo backend ao formato usado na tela
-  function converterCategoriaBackend(categoria) {
-    return {
-      nome: normalizarTexto(categoria.nome),
-      icon:
-        categoria.nome === "Pizzas"
-          ? "🍕"
-          : categoria.nome === "Bebidas"
+// Adapta a categoria retornada pelo backend ao formato usado na tela
+function converterCategoriaBackend(categoria) {
+  return {
+    nome: normalizarTexto(categoria.nome),
+    icon:
+      categoria.nome === "Pizzas"
+        ? "🍕"
+        : categoria.nome === "Bebidas"
           ? "🥤"
           : categoria.nome === "Sobremesas"
-          ? "🍰"
-          : categoria.nome === "Combos"
-          ? "🎁"
-          : "🍽️",
-      sub: categoria.descricao || "Categoria cadastrada no sistema",
-    };
-  }
+            ? "🍰"
+            : categoria.nome === "Combos"
+              ? "🎁"
+              : "🍽️",
+    sub: categoria.descricao || "Categoria cadastrada no sistema",
+  };
+}
 
-  // Adapta o endereço retornado pelo backend ao formato usado na entrega
-  function converterEnderecoBackend(endereco) {
-    return {
-      id: endereco.id,
-      tipo: endereco.tipo,
-      apelido:
-        endereco.tipo === "CASA"
-          ? "Casa"
-          : endereco.tipo === "TRABALHO"
+// Adapta o endereço retornado pelo backend ao formato usado na entrega
+function converterEnderecoBackend(endereco) {
+  return {
+    id: endereco.id,
+    tipo: endereco.tipo,
+    apelido:
+      endereco.tipo === "CASA"
+        ? "Casa"
+        : endereco.tipo === "TRABALHO"
           ? "Trabalho"
           : "Outro",
-      principal: endereco.principal,
-      logradouro: endereco.logradouro,
-      numero: endereco.numero,
-      complemento: endereco.complemento || "",
-      bairro: endereco.bairro,
-      cidade: endereco.cidade,
-      uf: endereco.uf,
-      cep: endereco.cep,
-    };
-  }
+    principal: endereco.principal,
+    logradouro: endereco.logradouro,
+    numero: endereco.numero,
+    complemento: endereco.complemento || "",
+    bairro: endereco.bairro,
+    cidade: endereco.cidade,
+    uf: endereco.uf,
+    cep: endereco.cep,
+  };
+}
 
-  function normalizarTexto(texto) {
-    return String(texto || "")
-      .trim()
-      .toLowerCase();
-  }
+function normalizarTexto(texto) {
+  return String(texto || "")
+    .trim()
+    .toLowerCase();
+}
 
-  function capitalizarTexto(texto) {
-    return String(texto || "")
-      .trim()
-      .toLowerCase()
-      .split(" ")
-      .map(
-        (palavra) =>
-          palavra.charAt(0).toUpperCase() +
-          palavra.slice(1)
-      )
-      .join(" ");
-  }
+function capitalizarTexto(texto) {
+  return String(texto || "")
+    .trim()
+    .toLowerCase()
+    .split(" ")
+    .map(
+      (palavra) =>
+        palavra.charAt(0).toUpperCase() +
+        palavra.slice(1)
+    )
+    .join(" ");
+}
 
 //Componente principal
 export default function Pedido() {
@@ -171,10 +171,10 @@ export default function Pedido() {
 
   // Salva o carrinho e atualiza o contador exibido na Navbar
   useEffect(() => {
-  localStorage.setItem("pizzly_carrinho", JSON.stringify(carrinho));
+    localStorage.setItem("pizzly_carrinho", JSON.stringify(carrinho));
 
-  window.dispatchEvent(new Event("pizzlyCarrinhoAtualizado"));
-}, [carrinho]);
+    window.dispatchEvent(new Event("pizzlyCarrinhoAtualizado"));
+  }, [carrinho]);
 
   // lê parâmetros recebidos pela URL
   useEffect(() => {
@@ -627,124 +627,123 @@ export default function Pedido() {
     }
 
     try {
-  const usuarioLogado = JSON.parse(localStorage.getItem("pizzly_usuario"));
+      const usuarioLogado = JSON.parse(localStorage.getItem("pizzly_usuario"));
 
-  if (!usuarioLogado?.id || usuarioLogado.tipo !== "CLIENTE") {
-    toast.warning("Faça login como cliente para finalizar o pedido.");
-    navigate("/login");
-    return;
-  }
+      if (!usuarioLogado?.id || usuarioLogado.tipo !== "CLIENTE") {
+        toast.warning("Faça login como cliente para finalizar o pedido.");
+        navigate("/login");
+        return;
+      }
 
-    const formaPagamentoBackend =
-      pagamento === "pix"
-        ? "PIX"
-        : pagamento === "credito"
-        ? "CARTAO_CREDITO"
-        : pagamento === "debito"
-        ? "CARTAO_DEBITO"
-        : "DINHEIRO";
+      const formaPagamentoBackend =
+        pagamento === "pix"
+          ? "PIX"
+          : pagamento === "credito"
+            ? "CARTAO_CREDITO"
+            : pagamento === "debito"
+              ? "CARTAO_DEBITO"
+              : "DINHEIRO";
 
-    // cria o pedido principal no backend
-    const pedidoResponse = await fetch(`${API_URL}/pedidos`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        subtotal,
-        taxaEntrega: taxaEntregaAtual,
-        observacao: observacaoPedido,
+      // cria o pedido principal no backend
+      const pedidoResponse = await fetch(`${API_URL}/pedidos`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          subtotal,
+          taxaEntrega: taxaEntregaAtual,
+          observacao: observacaoPedido,
+          formaRecebimento: entrega.formaRecebimento,
+          enderecoId:
+            entrega.formaRecebimento === "entrega" &&
+              entrega.enderecoSalvo !== "outro"
+              ? Number(entrega.enderecoSalvo)
+              : null,
+          clienteId: usuarioLogado.id,
+        }),
+      });
+
+      if (!pedidoResponse.ok) {
+        toast.error("Não foi possível criar o pedido.");
+        return;
+      }
+
+      const pedidoCriado = await pedidoResponse.json();
+
+      // cadastra todos os itens do carrinho vinculados ao pedido criado
+      await Promise.all(
+        carrinho.map((item) =>
+          fetch(`${API_URL}/itens-pedido`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              quantidade: item.quantidade,
+
+              // preço utilizado no momento da compra
+              precoUnitario: item.preco,
+
+              pedidoId: pedidoCriado.id,
+              produtoId: item.produto.id,
+            }),
+          })
+        )
+      );
+
+      // cadastra a forma de pagamento vinculada ao pedido
+      const pagamentoResponse = await fetch(`${API_URL}/pagamentos`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          formaPagamento: formaPagamentoBackend,
+          valorTroco: pagamento === "dinheiro" ? Number(valorTroco) : null,
+          pedidoId: pedidoCriado.id,
+        }),
+      });
+
+      if (!pagamentoResponse.ok) {
+        toast.error("O pedido foi criado, mas ocorreu um erro ao registrar o pagamento.");
+        return;
+      }
+
+      // guarda os dados completos do pedido para a tela de confirmação
+      const pedidoAtual = {
+        id: pedidoCriado.id,
+        data: new Date(pedidoCriado.dataPedido).toLocaleDateString("pt-BR"),
+        status: "Confirmado",
+        itens: carrinho.map(
+          (item) =>
+            `${item.quantidade}x ${item.produto.nome}${item.tamanho ? ` (${item.tamanho})` : ""
+            }`
+        ),
+        subtotal: fmt(subtotal),
+        taxaEntrega: fmt(taxaEntregaAtual),
+        total: fmt(total),
+        tempo:
+          entrega.formaRecebimento === "retirada"
+            ? "25 min"
+            : configuracoes.tempoEntrega,
+        entrega: enderecoEscolhido(),
         formaRecebimento: entrega.formaRecebimento,
-        enderecoId:
-          entrega.formaRecebimento === "entrega" &&
-          entrega.enderecoSalvo !== "outro"
-            ? Number(entrega.enderecoSalvo)
-            : null,
-        clienteId: usuarioLogado.id,
-      }),
-    });
+        pagamento: nomePagamento(),
+      };
 
-    if (!pedidoResponse.ok) {
-      toast.error("Não foi possível criar o pedido.");
-      return;
+      localStorage.setItem("pizzly_pedido_atual", JSON.stringify(pedidoAtual));
+
+      setCarrinho([]);
+      localStorage.removeItem("pizzly_carrinho");
+      localStorage.removeItem("pizzly_etapa");
+      window.dispatchEvent(new Event("pizzlyCarrinhoAtualizado"));
+
+      navigate("/pedido-confirmado");
+    } catch (error) {
+      console.error("Erro ao finalizar pedido:", error);
+      toastServidorOffline();
     }
-
-    const pedidoCriado = await pedidoResponse.json();
-
-    // cadastra todos os itens do carrinho vinculados ao pedido criado
-    await Promise.all(
-      carrinho.map((item) =>
-        fetch(`${API_URL}/itens-pedido`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            quantidade: item.quantidade,
-
-            // preço utilizado no momento da compra
-            precoUnitario: item.preco,
-
-            pedidoId: pedidoCriado.id,
-            produtoId: item.produto.id,
-          }),
-        })
-      )
-    );
-
-    // cadastra a forma de pagamento vinculada ao pedido
-    const pagamentoResponse = await fetch(`${API_URL}/pagamentos`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        formaPagamento: formaPagamentoBackend,
-        valorTroco: pagamento === "dinheiro" ? Number(valorTroco) : null,
-        pedidoId: pedidoCriado.id,
-      }),
-    });
-
-    if (!pagamentoResponse.ok) {
-      toast.error("O pedido foi criado, mas ocorreu um erro ao registrar o pagamento.");
-      return;
-    }
-
-    // guarda os dados completos do pedido para a tela de confirmação
-    const pedidoAtual = {
-      id: pedidoCriado.id,
-      data: new Date(pedidoCriado.dataPedido).toLocaleDateString("pt-BR"),
-      status: "Confirmado",
-      itens: carrinho.map(
-        (item) =>
-          `${item.quantidade}x ${item.produto.nome}${
-            item.tamanho ? ` (${item.tamanho})` : ""
-          }`
-      ),
-      subtotal: fmt(subtotal),
-      taxaEntrega: fmt(taxaEntregaAtual),
-      total: fmt(total),
-      tempo:
-        entrega.formaRecebimento === "retirada"
-          ? "25 min"
-          : configuracoes.tempoEntrega,
-      entrega: enderecoEscolhido(),
-      formaRecebimento: entrega.formaRecebimento,
-      pagamento: nomePagamento(),
-    };
-
-    localStorage.setItem("pizzly_pedido_atual", JSON.stringify(pedidoAtual));
-
-    setCarrinho([]);
-    localStorage.removeItem("pizzly_carrinho");
-    localStorage.removeItem("pizzly_etapa");
-    window.dispatchEvent(new Event("pizzlyCarrinhoAtualizado"));
-
-    navigate("/pedido-confirmado");
-  } catch (error) {
-    console.error("Erro ao finalizar pedido:", error);
-    toastServidorOffline();
-  }
 
   }
 
@@ -755,6 +754,7 @@ export default function Pedido() {
     }
   }
 
+  //renderização
   return (
     <div className="pd-root">
       <Navbar />
@@ -762,12 +762,12 @@ export default function Pedido() {
       <main className="pd-page">
         <section className="pd-hero">
 
-        {!configuracoes.aberta && (
-          <div className="pd-closed-banner">
-            <strong>🔴 Pizzaria fechada no momento</strong>
-            <span>Novos pedidos estão temporariamente indisponíveis.</span>
-          </div>
-        )}
+          {!configuracoes.aberta && (
+            <div className="pd-closed-banner">
+              <strong>🔴 Pizzaria fechada no momento</strong>
+              <span>Novos pedidos estão temporariamente indisponíveis.</span>
+            </div>
+          )}
 
           <div>
             <span className="pd-hero-tag">Cardápio online</span>
@@ -810,9 +810,8 @@ export default function Pedido() {
                   {categoriasSistema.map((categoria) => (
                     <button
                       key={categoria.nome}
-                      className={`pd-categoria-card ${
-                        categoriaAtiva === categoria.nome ? "active" : ""
-                      }`}
+                      className={`pd-categoria-card ${categoriaAtiva === categoria.nome ? "active" : ""
+                        }`}
                       onClick={() => setCategoriaAtiva(categoria.nome)}
                     >
                       <span>{categoria.icon}</span>
@@ -837,9 +836,8 @@ export default function Pedido() {
                       {TAMANHOS.map((tam) => (
                         <button
                           key={tam.id}
-                          className={`pd-size-card ${
-                            tamanho === tam.id ? "selected" : ""
-                          }`}
+                          className={`pd-size-card ${tamanho === tam.id ? "selected" : ""
+                            }`}
                           onClick={() => setTamanho(tam.id)}
                         >
                           <strong>{tam.label}</strong>
@@ -1143,10 +1141,10 @@ export default function Pedido() {
               )}
 
               <button
-                  className="pd-next-btn"
-                  onClick={proximaEtapa}
-                  disabled={!configuracoes.aberta}
-                >
+                className="pd-next-btn"
+                onClick={proximaEtapa}
+                disabled={!configuracoes.aberta}
+              >
                 {etapa === 4 ? "Confirmar pedido →" : "Próximo →"}
               </button>
             </div>
@@ -1178,56 +1176,56 @@ export default function Pedido() {
   );
 }
 
-  //Componentes Auxiliares:
+//Componentes Auxiliares:
 
-  function ProdutoCard({ produto, precoAtual, onAdd, pizzariaAberta }) {
-    const classeImagem =
-      produto.tipoImagem === "contain" ? "pd-img-contain" : "pd-img-cover";
+function ProdutoCard({ produto, precoAtual, onAdd, pizzariaAberta }) {
+  const classeImagem =
+    produto.tipoImagem === "contain" ? "pd-img-contain" : "pd-img-cover";
 
-    return (
-      <article className={`pd-product-card ${produto.tag ? "featured" : ""}`}>
-        {produto.tag && <span className="pd-product-badge">{produto.tag}</span>}
+  return (
+    <article className={`pd-product-card ${produto.tag ? "featured" : ""}`}>
+      {produto.tag && <span className="pd-product-badge">{produto.tag}</span>}
 
-        <div className="pd-product-img-wrap">
-          <img src={produto.img} alt={produto.nome} className={classeImagem} />
+      <div className="pd-product-img-wrap">
+        <img src={produto.img} alt={produto.nome} className={classeImagem} />
+      </div>
+
+      <div className="pd-product-body">
+        <h3>{produto.nome}</h3>
+        <p>{produto.desc}</p>
+
+        <div className="pd-product-bottom">
+          <strong>{fmt(precoAtual)}</strong>
+          <button onClick={onAdd} disabled={!pizzariaAberta}>
+            Adicionar
+          </button>
         </div>
+      </div>
+    </article>
+  );
+}
 
-        <div className="pd-product-body">
-          <h3>{produto.nome}</h3>
-          <p>{produto.desc}</p>
-
-          <div className="pd-product-bottom">
-            <strong>{fmt(precoAtual)}</strong>
-            <button onClick={onAdd} disabled={!pizzariaAberta}>
-              Adicionar
-            </button>
-          </div>
-        </div>
-      </article>
-    );
-  }
-
-  //Exibe o resumo lateral do pedido, cupom e valores calculados.
-  function ResumoPedido({
-    carrinho,
-    subtotal,
-    total,
-    taxaEntregaAtual,
-    cupomAberto,
-    setCupomAberto,
-    cupom,
-    setCupom,
-    aplicarCupom,
-    removerCupom,
-    desconto,
-    cupomAplicado,
-    removerItem,
-    setCarrinho,
-    etapa,
-    entrega,
-    pagamento,
-    proximaEtapa,
-  }) {
+//Exibe o resumo lateral do pedido, cupom e valores calculados.
+function ResumoPedido({
+  carrinho,
+  subtotal,
+  total,
+  taxaEntregaAtual,
+  cupomAberto,
+  setCupomAberto,
+  cupom,
+  setCupom,
+  aplicarCupom,
+  removerCupom,
+  desconto,
+  cupomAplicado,
+  removerItem,
+  setCarrinho,
+  etapa,
+  entrega,
+  pagamento,
+  proximaEtapa,
+}) {
 
   const quantidadeItens = carrinho.reduce(
     (total, item) => total + item.quantidade,
@@ -1235,12 +1233,12 @@ export default function Pedido() {
   );
 
   function textoEntrega() {
-  if (entrega.formaRecebimento === "retirada") {
-    return "Retirada no balcão";
-  }
+    if (entrega.formaRecebimento === "retirada") {
+      return "Retirada no balcão";
+    }
 
-  return "Entrega";
-}
+    return "Entrega";
+  }
 
   function textoPagamento() {
     if (pagamento === "pix") return "Pix";
@@ -1362,10 +1360,10 @@ export default function Pedido() {
       </div>
 
       {etapa === 1 && carrinho.length > 0 && (
-  <button className="pd-cart-next-btn" onClick={proximaEtapa}>
-    Continuar Pedido →
-  </button>
-)}
+        <button className="pd-cart-next-btn" onClick={proximaEtapa}>
+          Continuar Pedido →
+        </button>
+      )}
 
       <div className="pd-security">
         <span>🛡️</span>

@@ -11,19 +11,23 @@ export default function NovaSenha() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
+  // Token de recuperação
   const tokenUrl = searchParams.get("token");
 
   const [token, setToken] = useState(tokenUrl || "");
 
+  // Dados do formulário
   const [novaSenha, setNovaSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
   const [carregando, setCarregando] = useState(false);
 
+  // Validações do formulário
   const senhaValida = novaSenha.length >= 8;
   const senhasConferem =
     confirmarSenha.length > 0 &&
     novaSenha === confirmarSenha;
 
+  // Redefinição da senha
   async function redefinirSenha(e) {
     e.preventDefault();
 
@@ -55,7 +59,7 @@ export default function NovaSenha() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            token,
+            token: token.trim(),
             novaSenha,
           }),
         }
@@ -84,11 +88,13 @@ export default function NovaSenha() {
     }
   }
 
+  //renderização
   return (
     <div className="rp-root">
       <div className="rp-main">
+        {/* Coluna esquerda: apresentação da recuperação */}
         <div className="rp-left">
-          <div className="rp-pizza-pattern" />
+          <div className="rp-pizza-pattern" aria-hidden="true" />
 
           <div className="rp-left-content">
             <div className="rp-brand">
@@ -119,9 +125,10 @@ export default function NovaSenha() {
             </div>
           </div>
 
-          <div className="rp-pizza-photo" />
+          <div className="rp-pizza-photo" aria-hidden="true" />
         </div>
 
+        {/* Coluna direita: formulário de nova senha */}
         <div className="rp-right">
           <div className="rp-card-wrap">
             <div className="rp-card rp-card-reset">
@@ -135,92 +142,96 @@ export default function NovaSenha() {
                 Digite e confirme a nova senha da sua conta.
               </p>
 
-                <form onSubmit={redefinirSenha} className="rp-form">
-                  <div className="rp-field">
-                    <label>Token de recuperação</label>
+              <form onSubmit={redefinirSenha} className="rp-form">
+                <div className="rp-field">
+                  <label htmlFor="rp-token">Token de recuperação</label>
 
-                    <div className="rp-input-box">
-                      <input
-                        type="text"
-                        placeholder="Cole aqui o token recebido por e-mail"
-                        value={token}
-                        onChange={(e) => setToken(e.target.value)}
-                        required
-                      />
-                    </div>
-
-                    <small>
-                      Informe o token enviado para o seu e-mail.
-                    </small>
+                  <div className="rp-input-box">
+                    <input
+                      id="rp-token"
+                      type="text"
+                      autoComplete="one-time-code"
+                      placeholder="Cole aqui o token recebido por e-mail"
+                      value={token}
+                      onChange={(e) => setToken(e.target.value)}
+                      required
+                    />
                   </div>
 
-                  <div className="rp-field">
-                    <label>Nova senha</label>
+                  <small>
+                    Informe o token enviado para o seu e-mail.
+                  </small>
+                </div>
 
-                    <div
-                      className={`rp-input-box ${
-                        novaSenha
-                          ? senhaValida
-                            ? "valid"
-                            : "invalid"
-                          : ""
+                <div className="rp-field">
+                  <label htmlFor="rp-nova-senha">Nova senha</label>
+
+                  <div
+                    className={`rp-input-box ${novaSenha
+                      ? senhaValida
+                        ? "valid"
+                        : "invalid"
+                      : ""
                       }`}
-                    >
-                      <input
-                        type="password"
-                        placeholder="Nova senha"
-                        value={novaSenha}
-                        onChange={(e) => setNovaSenha(e.target.value)}
-                        required
-                      />
-                    </div>
-
-                    {novaSenha && !senhaValida && (
-                      <span className="rp-error">
-                        A senha deve ter no mínimo 8 caracteres.
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="rp-field">
-                    <label>Confirmar senha</label>
-
-                    <div
-                      className={`rp-input-box ${
-                        confirmarSenha
-                          ? senhasConferem
-                            ? "valid"
-                            : "invalid"
-                          : ""
-                      }`}
-                    >
-                      <input
-                        type="password"
-                        placeholder="Confirme sua nova senha"
-                        value={confirmarSenha}
-                        onChange={(e) => setConfirmarSenha(e.target.value)}
-                        required
-                      />
-                    </div>
-
-                    {confirmarSenha && !senhasConferem && (
-                      <span className="rp-error">
-                        As senhas não conferem.
-                      </span>
-                    )}
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="rp-btn-submit"
-                    disabled={carregando}
                   >
-                    {carregando
-                      ? "Redefinindo..."
-                      : "Redefinir senha"}
-                  </button>
-                </form>
-              
+                    <input
+                      id="rp-nova-senha"
+                      type="password"
+                      autoComplete="new-password"
+                      placeholder="Nova senha"
+                      value={novaSenha}
+                      onChange={(e) => setNovaSenha(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  {novaSenha && !senhaValida && (
+                    <span className="rp-error">
+                      A senha deve ter no mínimo 8 caracteres.
+                    </span>
+                  )}
+                </div>
+
+                <div className="rp-field">
+                  <label htmlFor="rp-confirmar-senha">Confirmar senha</label>
+
+                  <div
+                    className={`rp-input-box ${confirmarSenha
+                      ? senhasConferem
+                        ? "valid"
+                        : "invalid"
+                      : ""
+                      }`}
+                  >
+                    <input
+                      id="rp-confirmar-senha"
+                      type="password"
+                      autoComplete="new-password"
+                      placeholder="Confirme sua nova senha"
+                      value={confirmarSenha}
+                      onChange={(e) => setConfirmarSenha(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  {confirmarSenha && !senhasConferem && (
+                    <span className="rp-error">
+                      As senhas não conferem.
+                    </span>
+                  )}
+                </div>
+
+                <button
+                  type="submit"
+                  className="rp-btn-submit"
+                  disabled={carregando}
+                >
+                  {carregando
+                    ? "Redefinindo..."
+                    : "Redefinir senha"}
+                </button>
+              </form>
+
 
               <Link to="/login" className="rp-back-link">
                 ← Voltar para o login
@@ -230,6 +241,7 @@ export default function NovaSenha() {
         </div>
       </div>
 
+      {/* Benefícios exibidos no rodapé */}
       <div className="rp-footer-badges">
         <div className="rp-badge">
           <strong>Pagamento seguro</strong>

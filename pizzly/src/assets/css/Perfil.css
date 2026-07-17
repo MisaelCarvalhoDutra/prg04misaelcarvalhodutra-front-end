@@ -1627,8 +1627,8 @@
 
 /* RESPONSIVIDADE — MOBILE FIRST */
 
-/* Tablet (768px+) */
-@media (min-width: 768px) {
+/* TABLET — 768px a 1023px*/
+@media (min-width: 768px) and (max-width: 1023px) {
   .pf-main {
     padding: 1rem 2rem;
   }

@@ -1194,8 +1194,8 @@
 
 /* RESPONSIVIDADE — MOBILE FIRST */
 
-/* Tablet (768px+)*/
-@media (min-width:768px){
+/* TABLET — 768px a 1023px*/
+@media (min-width: 768px) and (max-width: 1023px) {
 
     .mp-main{
         padding:2rem;

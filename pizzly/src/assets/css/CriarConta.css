@@ -24,44 +24,49 @@ body {
   background: #a01212;
 }
 
+/*Animação:*/
 @keyframes fadeUp {
-  from{
+  from {
     opacity: 0;
     transform: translateY(25px);
   }
 
-  to{
+  to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-.lp-card{
+.lp-card {
   animation: fadeUp 0.5s ease;
 }
 
 
-/* ============================================================
-   WRAPPER RAIZ
-   ============================================================ */
+/* Estrutura principal */
 .lp-root {
-  min-height: 100vh;
-  width: 100%;
-  background: #a01212;
-
   display: flex;
   flex-direction: column;
 
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+
   overflow-x: hidden;
+
+  background: #fff;
+
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
 }
 
 .lp-main {
-  flex: 1;
   display: flex;
+  flex: 1;
+  flex-direction: column;
+
+  width: 100%;
+  min-width: 0;
+
   overflow: visible;
-  
 }
 
 
@@ -73,9 +78,9 @@ body {
   width: 47%;
   min-width: 380px;
   background-color: #a01212;
-  
+
   overflow: hidden;
-  display: flex;
+  display: none;
   flex-direction: column;
   justify-content: space-between;
   position: relative;
@@ -90,17 +95,17 @@ body {
   pointer-events: none;
   background-image:
     /* círculos grandes espalhados */
-    radial-gradient(circle 55px at 8%  15%,  rgba(255,255,255,0.055) 100%, transparent 100%),
-    radial-gradient(circle 45px at 88% 10%,  rgba(255,255,255,0.05)  100%, transparent 100%),
-    radial-gradient(circle 60px at 75% 42%,  rgba(255,255,255,0.05)  100%, transparent 100%),
-    radial-gradient(circle 50px at 18% 55%,  rgba(255,255,255,0.055) 100%, transparent 100%),
-    radial-gradient(circle 55px at 55% 72%,  rgba(255,255,255,0.05)  100%, transparent 100%),
-    radial-gradient(circle 40px at 92% 65%,  rgba(255,255,255,0.05)  100%, transparent 100%),
-    radial-gradient(circle 50px at 35% 88%,  rgba(255,255,255,0.055) 100%, transparent 100%),
-    radial-gradient(circle 40px at 68% 88%,  rgba(255,255,255,0.05)  100%, transparent 100%),
+    radial-gradient(circle 55px at 8% 15%, rgba(255, 255, 255, 0.055) 100%, transparent 100%),
+    radial-gradient(circle 45px at 88% 10%, rgba(255, 255, 255, 0.05) 100%, transparent 100%),
+    radial-gradient(circle 60px at 75% 42%, rgba(255, 255, 255, 0.05) 100%, transparent 100%),
+    radial-gradient(circle 50px at 18% 55%, rgba(255, 255, 255, 0.055) 100%, transparent 100%),
+    radial-gradient(circle 55px at 55% 72%, rgba(255, 255, 255, 0.05) 100%, transparent 100%),
+    radial-gradient(circle 40px at 92% 65%, rgba(255, 255, 255, 0.05) 100%, transparent 100%),
+    radial-gradient(circle 50px at 35% 88%, rgba(255, 255, 255, 0.055) 100%, transparent 100%),
+    radial-gradient(circle 40px at 68% 88%, rgba(255, 255, 255, 0.05) 100%, transparent 100%),
     /* sombra mais escura nos cantos */
-    radial-gradient(ellipse 200px 200px at 0%   100%, rgba(0,0,0,0.18) 0%, transparent 70%),
-    radial-gradient(ellipse 200px 200px at 100% 100%, rgba(0,0,0,0.15) 0%, transparent 70%);
+    radial-gradient(ellipse 200px 200px at 0% 100%, rgba(0, 0, 0, 0.18) 0%, transparent 70%),
+    radial-gradient(ellipse 200px 200px at 100% 100%, rgba(0, 0, 0, 0.15) 0%, transparent 70%);
   z-index: 0;
 }
 
@@ -113,7 +118,7 @@ body {
 
   display: flex;
   flex-direction: column;
-  
+
 }
 
 /* bloco da marca (logo + nome + slogan) */
@@ -129,7 +134,7 @@ body {
 }
 
 
-.lp-badge{
+.lp-badge {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -153,7 +158,7 @@ body {
 .lp-logo-text {
   font-size: 2.4rem;
   font-weight: 800;
-  
+
   color: #ffffff;
   letter-spacing: -1.5px;
   line-height: 1;
@@ -181,7 +186,7 @@ body {
   color: #ffffff;
   margin-bottom: 1rem;
   letter-spacing: -0.5px;
-  font-family: Verdana, Geneva, Tahoma, sans-serif
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
 .lp-yellow {
@@ -192,7 +197,7 @@ body {
   font-size: 0.9rem;
   color: rgba(255, 255, 255, 0.8);
   line-height: 1.7;
-  
+
 }
 
 /* ── Box features ── */
@@ -243,11 +248,10 @@ body {
   height: 190px;
   flex-shrink: 0;
   background:
-    url(../images/Pizza.png)
-    center 55% / cover no-repeat;
+    url(../images/Pizza.png) center 55% / cover no-repeat;
   /* fade para cima para integrar com o fundo */
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.6) 28%, black 65%);
-  mask-image:         linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.6) 28%, black 65%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.6) 28%, black 65%);
+  mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.6) 28%, black 65%);
   margin-top: 1.5rem;
 }
 
@@ -255,20 +259,22 @@ body {
    COLUNA DIREITA — branca
    ============================================================ */
 .lp-right {
-  flex: 1;
+  position: relative;
+
   display: flex;
+  flex: 1;
   flex-direction: column;
   align-items: center;
-  background: #ffffff;
-  
-  position: relative;
-  border-radius: 2.5rem 0 0 2.5rem;
-  padding-top: 0;
-  
+
+  width: 100%;
+  min-width: 0;
+
+  padding: 1rem;
+
+  background: #fff;
+
+  border-radius: 0;
 }
-
-
-
 
 /* ── Área central (card) ── */
 .lp-card-wrap {
@@ -283,26 +289,31 @@ body {
 /* ── Card ── */
 .lp-card {
   width: 100%;
-  max-width: 460px;
-  border: 1.5px solid #ececec;
-  border-radius: 1.3rem;
-  padding: 1.3rem 1.5rem 1.1rem;
+  max-width: 100%;
+
+  padding: 1.3rem 1rem 1.1rem;
+
   background: #fff;
+
+  border: 1.5px solid #ececec;
+  border-radius: 1rem;
+
   box-shadow: 0 4px 28px rgba(0, 0, 0, 0.07);
 }
 
 
-
 .lp-card-title {
-  font-size: 1.55rem;
+  font-size: 1.35rem;
   font-weight: 800;
-  color: #111111;
+  color: #111;
   text-align: center;
   margin-bottom: 0.45rem;
   letter-spacing: -0.3px;
 }
 
-.lp-red { color: #c62828; }
+.lp-red {
+  color: #c62828;
+}
 
 .lp-card-sub {
   text-align: center;
@@ -371,12 +382,6 @@ body {
   box-shadow: none;
 }
 
-/* foco ao clicar */
-.lp-input-box:focus-within {
-  border-color: #22c55e;
-  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.12);
-}
-
 /* válido */
 .lp-input-box.valid {
   border-color: #22c55e;
@@ -388,7 +393,9 @@ body {
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
 }
 
-.lp-input-box input::placeholder { color: #c5c5c5; }
+.lp-input-box input::placeholder {
+  color: #c5c5c5;
+}
 
 /* botão olho */
 .lp-eye-btn {
@@ -413,7 +420,7 @@ body {
   color: #fff;
   border: none;
   border-radius: 0.65rem;
-  padding: 0.94rem;
+  padding: 0.85rem;
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
@@ -422,8 +429,13 @@ body {
   letter-spacing: 0.01em;
 }
 
-.lp-btn-submit:hover  { background: #a82020; }
-.lp-btn-submit:active { transform: scale(0.985); }
+.lp-btn-submit:hover {
+  background: #a82020;
+}
+
+.lp-btn-submit:active {
+  transform: scale(0.985);
+}
 
 .lp-divider {
   display: flex;
@@ -446,20 +458,15 @@ body {
   color: #b0b0b0;
 }
 
-
-/* ── Criar conta ── */
-.lp-signup-text {
-  text-align: center;
-  font-size: 0.88rem;
-  color: #555;
-}
-
 .lp-signup-link {
   color: #c62828;
   font-weight: 700;
   text-decoration: none;
 }
-.lp-signup-link:hover { text-decoration: underline; }
+
+.lp-signup-link:hover {
+  text-decoration: underline;
+}
 
 /* ============================================================
    CRIAR CONTA
@@ -495,16 +502,6 @@ body {
     box-shadow 0.32s ease;
 }
 
-.lp-create-btn:hover {
-  background: #c62828;
-  color: #fff;
-  transform: scale(1.01);
-  box-shadow: 0 6px 14px rgba(198, 40, 40, 0.16);
-}
-
-.lp-create-btn:active {
-  transform: scale(0.99);
-}
 
 .lp-create-btn:hover {
   background: #b71c1c;
@@ -579,7 +576,7 @@ body {
 
   border-top: 1px solid #eeeeee;
   border-bottom: 1px solid #eeeeee;
-
+  display: none;
 
   background: #ffffff;
 
@@ -639,13 +636,16 @@ body {
    ============================================================ */
 .lp-footer {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+
   width: 100%;
-  padding-top: 0.55rem;
-  font-size: 0.76rem;
+
+  padding: 1rem 1.5rem;
+
   color: #b0b0b0;
-  display: none;
+
+  font-size: 0.76rem;
 }
 
 .lp-footer-links {
@@ -658,7 +658,10 @@ body {
   text-decoration: none;
   transition: color 0.15s;
 }
-.lp-footer-links a:hover { color: #c62828; }
+
+.lp-footer-links a:hover {
+  color: #c62828;
+}
 
 /* ============================================================
    MODAL DE VERIFICAÇÃO DE E-MAIL
@@ -680,14 +683,21 @@ body {
 }
 
 .cc-modal {
-  width: 100%;
-  max-width: 430px;
-  background: #fff;
-  border-radius: 1.25rem;
-  padding: 2rem 1.8rem;
   position: relative;
+
+  width: 100%;
+  max-width: 100%;
+
+  padding: 1.7rem 1.3rem;
+
+  background: #fff;
+
+  border-radius: 1rem;
+
   text-align: center;
+
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
+
   animation: ccModalIn 0.28s ease;
 }
 
@@ -759,9 +769,9 @@ body {
   padding: 0.95rem;
 
   text-align: center;
-  font-size: 1.45rem;
+  font-size: 1.25rem;
+  letter-spacing: 0.32rem;
   font-weight: 800;
-  letter-spacing: 0.45rem;
   color: #111;
 
   outline: none;
@@ -820,81 +830,38 @@ body {
   cursor: not-allowed;
 }
 
+/*animações:*/
 
-/* ============================================================
-   RESPONSIVO
-   ============================================================ */
-@media (max-width: 990px) {
-
-  body {
-    overflow: hidden;
+/*pizza flutuar*/
+@keyframes floatPizza {
+  0% {
+    transform: translateY(0);
   }
 
-  .lp-root {
-  min-height: 100vh;
+  50% {
+    transform: translateY(-10px);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.cc-pizza-photo {
+  position: relative;
+  z-index: 1;
   width: 100%;
-  background: #ffffff;
+  height: 190px;
+  flex-shrink: 0;
+  background:
+    url(../images/Pizza.png) center 55% / cover no-repeat;
 
-  display: flex;
-  flex-direction: column;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.6) 28%, black 65%);
+  mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.6) 28%, black 65%);
 
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  
-  
-}
+  margin-top: 1.5rem;
 
-  .lp-left { display: none; }
-  .lp-right { padding: 1.5rem 1.2rem; }
-  .lp-footer-badges { gap: 1.2rem; }
-
-  .lp-footer-badges {
-    display: none;
-  }
-
-  .lp-footer {
-    display: flex;
-    padding: 1rem 1.5rem 1rem; /* mais espaço lados + baixo */
-
-  }
-}
-
-@media (max-width: 520px) {
-  .lp-right {
-    padding: 1rem;
-  }
-
-  .lp-card {
-    max-width: 100%;
-    border-radius: 1rem;
-  }
-
-  .lp-card-title {
-    font-size: 1.35rem;
-  }
-
-  .lp-btn-submit {
-    padding: 0.85rem;
-  }
-
-  .lp-footer-badges {
-    display: none;
-  }
-
-  .lp-footer {
-      display: flex;
-      padding: 1rem 1.5rem 1rem; /* mais espaço lados + baixo */
-  }
-
-  .cc-modal {
-    max-width: 100%;
-    padding: 1.7rem 1.3rem;
-    border-radius: 1rem;
-  }
-
-  .cc-code-input {
-    font-size: 1.25rem;
-    letter-spacing: 0.32rem;
-  }
+  animation: floatPizza 3s ease-in-out infinite;
 }
 
 .lp-password-strength {
@@ -967,35 +934,153 @@ body {
   margin-top: -0.15rem;
 }
 
-/*pizza flutuar*/
-@keyframes floatPizza {
-  0%{
-    transform: translateY(0);
+/*Responsividade:*/
+
+/* TABLET — 768px a 1023px*/
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .lp-right {
+    padding: 1.5rem 1.2rem;
   }
 
-  50%{
-    transform: translateY(-10px);
+  .lp-card {
+    max-width: 460px;
+    padding: 1.3rem 1.5rem 1.1rem;
+    border-radius: 1.3rem;
   }
 
-  100%{
-    transform: translateY(0);
+  .lp-card-title {
+    font-size: 1.55rem;
+  }
+
+  .lp-btn-submit {
+    padding: 0.94rem;
+  }
+
+  .cc-modal {
+    max-width: 430px;
+    padding: 2rem 1.8rem;
+    border-radius: 1.25rem;
+  }
+
+  .cc-code-input {
+    font-size: 1.45rem;
+    letter-spacing: 0.45rem;
   }
 }
 
-.cc-pizza-photo{
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  height: 190px;
-  flex-shrink: 0;
-  background:
-    url(../images/Pizza.png)
-    center 55% / cover no-repeat;
+/* DESKTOP — 1024px+ */
 
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.6) 28%, black 65%);
-  mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.6) 28%, black 65%);
+@media (min-width: 1024px) {
+  body {
+    background: #a01212;
+  }
 
-  margin-top: 1.5rem;
+  .lp-root {
+    background: #a01212;
+  }
 
-  animation: floatPizza 3s ease-in-out infinite;
+  .lp-main {
+    flex-direction: row;
+  }
+
+  .lp-left {
+    position: relative;
+
+    display: flex;
+    flex-shrink: 0;
+    flex-direction: column;
+    justify-content: space-between;
+
+    width: 47%;
+    min-width: 380px;
+
+    overflow: hidden;
+
+    background-color: #a01212;
+    color: #fff;
+  }
+
+  .lp-right {
+    flex: 1;
+
+    padding: 0;
+
+    border-radius: 2.5rem 0 0 2.5rem;
+  }
+
+  .lp-card {
+    max-width: 460px;
+    padding: 1.3rem 1.5rem 1.1rem;
+    border-radius: 1.3rem;
+  }
+
+  .lp-card-title {
+    font-size: 1.55rem;
+  }
+
+  .lp-btn-submit {
+    padding: 0.94rem;
+  }
+
+  .lp-footer-badges {
+    position: relative;
+    z-index: 5;
+
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+
+    width: 100%;
+
+    margin-top: -40px;
+
+    background: #fff;
+
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+  }
+
+  .lp-footer {
+    display: none;
+  }
+
+  .cc-modal {
+    max-width: 430px;
+    padding: 2rem 1.8rem;
+    border-radius: 1.25rem;
+  }
+
+  .cc-code-input {
+    font-size: 1.45rem;
+    letter-spacing: 0.45rem;
+  }
+}
+
+/* ACESSIBILIDADE — MOVIMENTO REDUZIDO */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .lp-card,
+  .cc-modal,
+  .cc-pizza-photo {
+    animation: none;
+  }
+
+  .lp-input-box,
+  .lp-btn-submit,
+  .lp-create-btn,
+  .lp-google-btn,
+  .cc-confirm-btn,
+  .cc-resend-btn,
+  .lp-strength-fill {
+    transition: none;
+  }
+
+  .lp-btn-submit:active,
+  .lp-create-btn:hover,
+  .lp-create-btn:active,
+  .lp-google-btn:hover,
+  .lp-google-btn:active {
+    transform: none;
+  }
 }

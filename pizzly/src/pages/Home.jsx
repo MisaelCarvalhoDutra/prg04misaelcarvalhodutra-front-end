@@ -18,68 +18,6 @@ import pizzaChocolate from "../assets/images/pizzaChocolate.jpg";
 
 const PRECO_INICIAL_PIZZA = "R$ 29,90";
 
-const PIZZAS = [
-  {
-    img: pizzaCalabresa,
-    name: "Calabresa",
-    desc: "Calabresa fatiada, mussarela, cebola e orégano",
-  },
-
-  {
-    img: pizzaFrango,
-    name: "Frango com Catupiry",
-    desc: "Frango desfiado, catupiry, mussarela e orégano",
-  },
-
-  {
-    img: pizzaPortuguesa,
-    name: "Portuguesa",
-    desc: "Presunto, ovos, cebola, pimentão, azeitona e mussarela",
-  },
-
-  {
-    img: pizzaMarguerita,
-    name: "Marguerita",
-    desc: "Mussarela de búfala, tomate fresco e manjericão",
-  },
-
-];
-
-const CATEGORIAS = [
-  {
-    emoji: "🍕",
-    label: "Tradicionais",
-    categoria: "Pizzas",
-    sub: "As clássicas que todo mundo ama",
-    bg: "#fff5f5",
-    color: "#c62828",
-  },
-  {
-    emoji: "🧀",
-    label: "Especiais",
-    categoria: "Pizzas",
-    sub: "Combinações incríveis",
-    bg: "#fffbeb",
-    color: "#b8860b",
-  },
-  {
-    emoji: "🥤",
-    label: "Bebidas",
-    categoria: "Bebidas",
-    sub: "Refrescantes para acompanhar",
-    bg: "#f0fdf4",
-    color: "#2e7d32",
-  },
-  {
-    emoji: "🍰",
-    label: "Sobremesas",
-    categoria: "Sobremesas",
-    sub: "O toque doce do seu pedido",
-    bg: "#faf5ff",
-    color: "#7b1fa2",
-  },
-];
-
 const IMAGENS_PRODUTOS = {
   calabresa: pizzaCalabresa,
   marguerita: pizzaMarguerita,
@@ -93,7 +31,7 @@ const IMAGENS_PRODUTOS = {
   pizzaChocolate,
 };
 
-/*FUNÇÕES AUXILIARES: */
+// Funções auxiliares
 function formatarMoeda(valor) {
   return `R$ ${Number(valor).toFixed(2).replace(".", ",")}`;
 }
@@ -121,10 +59,9 @@ function iconeCategoria(nome) {
 export default function Home() {
   const navigate = useNavigate();
 
+  // Dados exibidos na Home
   const [categorias, setCategorias] = useState([]);
   const [produtosDestaque, setProdutosDestaque] = useState([]);
-
-  //armazena o combo em destaque exibido na Home
   const [comboDestaque, setComboDestaque] = useState(null);
 
 
@@ -147,6 +84,10 @@ export default function Home() {
           fetch(`${API_URL}/categorias?size=100`),
           fetch(`${API_URL}/produtos?size=100`),
         ]);
+
+        if (!categoriasResponse.ok || !produtosResponse.ok) {
+          throw new Error("Não foi possível carregar os dados da Home.");
+        }
 
         const categoriasDados = await categoriasResponse.json();
         const produtosDados = await produtosResponse.json();
@@ -183,7 +124,7 @@ export default function Home() {
 
         setCategorias(categoriasComProdutos);
 
-        // exibe apenas produtos da categoria Pizzas na seção de destaque
+        // Seleciona até quatro pizzas para a seção de destaque
         const pizzasDestaque = produtosDisponiveis
           .filter((produto) => produto.categoria === "pizzas")
           .slice(0, 4);
@@ -200,6 +141,7 @@ export default function Home() {
         console.error("Erro ao carregar Home:", error);
         setCategorias([]);
         setProdutosDestaque([]);
+        setComboDestaque(null);
       }
     }
 
@@ -211,12 +153,12 @@ export default function Home() {
   return (
     <div className="ho-root">
 
-      {/* NAVBAR*/}
+      {/* Barra de navegação */}
       <Navbar />
 
       
 
-      {/* HERO */}
+      {/* Apresentação principal */}
       <section className="ho-hero">
         <div className="ho-hero-inner">
           <div className="ho-hero-txt">
@@ -243,7 +185,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Foto hero */}
+          {/* Imagem principal */}
           <div className="ho-hero-img-wrap">
             <img
               src={pizzaHero} alt="Pizza"
@@ -256,7 +198,7 @@ export default function Home() {
       {/*conteudo*/}
       <main className="ho-main">
 
-        {/* ── Categorias ── */}
+        {/* Categorias disponíveis */}
         <section className="ho-section">
           <h2 className="ho-section-title">Nossas categorias</h2>
           <div className="ho-categorias">
@@ -284,9 +226,9 @@ export default function Home() {
         </section>
 
         {/* ── Pizzas em destaque ── */}
-        <section id = "cardapio" className="ho-section">
+        <section id="cardapio" className="ho-section">
           <div className="ho-sec-hdr">
-            <h2 className="ho-section-title" style={{ margin: 0 }}>Pizzas em destaque</h2>
+            <h2 className="ho-section-title">Pizzas em destaque</h2>
             <button
               type="button"
               className="ho-ver-todas"
@@ -310,6 +252,7 @@ export default function Home() {
                         : formatarMoeda(p.preco)}
                   </span>
                   <button
+                    type="button"
                     className="ho-pizza-btn"
                     onClick={() => navigate("/pedido")}
                   >
@@ -373,7 +316,7 @@ export default function Home() {
           </section>
         )}
 
-        {/* ── Diferenciais ── */}
+        {/* Diferenciais da Pizzly */}
         <section className="ho-section">
           <div className="ho-diferenciais">
             <div className="ho-dif-item">
@@ -478,7 +421,9 @@ export default function Home() {
         </div>
 
         <div className="ho-footer-bottom">
-          <p>© 2024 Pizzly. Todos os direitos reservados.</p>
+          <p>
+            © {new Date().getFullYear()} Pizzly. Todos os direitos reservados.
+          </p>
         </div>
       </footer>
 

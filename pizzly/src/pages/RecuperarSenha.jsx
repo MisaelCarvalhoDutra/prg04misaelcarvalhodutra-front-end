@@ -1,23 +1,25 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import "../assets/css/RecuperarSenha.css";
-import { toastServidorOffline } from "../utils/toastUtils";
+
 import API_URL from "../utils/api";
+import { toastServidorOffline } from "../utils/toastUtils";
 
 import logo from "../assets/images/logopizza.png";
 
+import "../assets/css/RecuperarSenha.css";
+
 export default function RecuperarSenha() {
   const navigate = useNavigate();
+
+  // Dados e estados do formulário
   const [email, setEmail] = useState("");
   const [carregando, setCarregando] = useState(false);
   const [linkEnviado, setLinkEnviado] = useState(false);
 
   const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  async function enviarLink(e) {
-    e.preventDefault();
-
+  async function enviarToken() {
     if (!emailValido) {
       toast.warning("Digite um e-mail válido.");
       return;
@@ -41,7 +43,7 @@ export default function RecuperarSenha() {
         const erro = await response.text();
 
         toast.error(
-          erro || "Não foi possível enviar o link de recuperação."
+          erro || "Não foi possível enviar o token de recuperação."
         );
 
         return;
@@ -51,24 +53,37 @@ export default function RecuperarSenha() {
 
       toast.success("Token de recuperação enviado!");
     } catch (error) {
-      console.error("Erro ao enviar link:", error);
+      console.error("Erro ao enviar token de recuperação:", error);
       toastServidorOffline();
     } finally {
       setCarregando(false);
     }
   }
 
+  async function handleSubmit(event) {
+    event.preventDefault();
+    await enviarToken();
+  }
+
   return (
     <div className="rp-root">
-      <div className="rp-main">
-        <div className="rp-left">
-          <div className="rp-pizza-pattern" />
+      <main className="rp-main">
+        <section
+          className="rp-left"
+          aria-label="Informações sobre recuperação de senha"
+        >
+          <div className="rp-pizza-pattern" aria-hidden="true" />
 
           <div className="rp-left-content">
             <div className="rp-brand">
               <div className="rp-logo-row">
                 <span className="rp-logo-text">Pizzly</span>
-                <img src={logo} alt="Pizzly Logo" className="rp-logo-icon" />
+
+                <img
+                  src={logo}
+                  alt="Logo da Pizzly"
+                  className="rp-logo-icon"
+                />
               </div>
 
               <p className="rp-tagline">SABOR QUE CONECTA</p>
@@ -81,35 +96,43 @@ export default function RecuperarSenha() {
               </h1>
 
               <p>
-                Sem problemas! Vamos te ajudar a voltar para sua conta com
+                Sem problemas! Vamos ajudar você a voltar para sua conta com
                 segurança.
               </p>
             </div>
 
             <div className="rp-info-box">
-              <span>🔒</span>
+              <span aria-hidden="true">🔒</span>
+
               <p>
-                O link será enviado apenas para o e-mail cadastrado e expirará
+                O token será enviado apenas para o e-mail cadastrado e expirará
                 em 15 minutos.
               </p>
             </div>
           </div>
 
-          <div className="rp-pizza-photo" />
-        </div>
+          <div className="rp-pizza-photo" aria-hidden="true" />
+        </section>
 
-        <div className="rp-right">
+        <section
+          className="rp-right"
+          aria-labelledby="recuperar-senha-titulo"
+        >
           <div className="rp-card-wrap">
             <div className="rp-card">
               <div
                 className={`rp-card-icon ${
                   linkEnviado ? "success" : ""
                 }`}
+                aria-hidden="true"
               >
                 {linkEnviado ? "✓" : "🔐"}
               </div>
 
-              <h2 className="rp-card-title">
+              <h2
+                id="recuperar-senha-titulo"
+                className="rp-card-title"
+              >
                 {linkEnviado ? (
                   <>
                     Verifique seu <span>e-mail</span>
@@ -122,11 +145,17 @@ export default function RecuperarSenha() {
               </h2>
 
               <p className="rp-card-sub">
-                Informe o token recebido por e-mail e crie sua nova senha.
+                {linkEnviado
+                  ? "Abra sua caixa de entrada e copie o token de recuperação."
+                  : "Informe o e-mail cadastrado para receber o token de recuperação."}
               </p>
 
               {!linkEnviado ? (
-                <form onSubmit={enviarLink} className="rp-form">
+                <form
+                  onSubmit={handleSubmit}
+                  className="rp-form"
+                  noValidate
+                >
                   <div className="rp-field">
                     <label htmlFor="rp-email">E-mail</label>
 
@@ -142,14 +171,27 @@ export default function RecuperarSenha() {
                       <input
                         id="rp-email"
                         type="email"
+                        name="email"
                         placeholder="seu@email.com"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(event) => setEmail(event.target.value)}
+                        autoComplete="email"
+                        aria-invalid={email ? !emailValido : undefined}
+                        aria-describedby={
+                          email && !emailValido
+                            ? "rp-email-error"
+                            : undefined
+                        }
+                        required
                       />
                     </div>
 
                     {email && !emailValido && (
-                      <span className="rp-error">
+                      <span
+                        id="rp-email-error"
+                        className="rp-error"
+                        role="alert"
+                      >
                         Digite um e-mail válido.
                       </span>
                     )}
@@ -166,7 +208,11 @@ export default function RecuperarSenha() {
                   </button>
                 </form>
               ) : (
-                <div className="rp-success-box">
+                <div
+                  className="rp-success-box"
+                  role="status"
+                  aria-live="polite"
+                >
                   <p>
                     Abra sua caixa de entrada, copie o token recebido e use-o
                     para criar uma nova senha.
@@ -183,7 +229,7 @@ export default function RecuperarSenha() {
                   <button
                     type="button"
                     className="rp-btn-secondary"
-                    onClick={enviarLink}
+                    onClick={enviarToken}
                     disabled={carregando}
                   >
                     {carregando ? "Enviando..." : "Reenviar token"}
@@ -193,6 +239,7 @@ export default function RecuperarSenha() {
                     type="button"
                     className="rp-btn-secondary"
                     onClick={() => setLinkEnviado(false)}
+                    disabled={carregando}
                   >
                     Trocar e-mail
                   </button>
@@ -204,10 +251,10 @@ export default function RecuperarSenha() {
               </Link>
             </div>
           </div>
-        </div>
-      </div>
+        </section>
+      </main>
 
-      <div className="rp-footer-badges">
+      <footer className="rp-footer-badges">
         <div className="rp-badge">
           <strong>Pagamento seguro</strong>
           <p>Seus dados protegidos</p>
@@ -227,7 +274,7 @@ export default function RecuperarSenha() {
           <strong>Ambiente 100% seguro</strong>
           <p>Compra protegida</p>
         </div>
-      </div>
+      </footer>
     </div>
   );
 }

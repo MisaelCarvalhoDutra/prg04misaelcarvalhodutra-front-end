@@ -11,31 +11,43 @@
   display: flex;
 
   width: 100%;
-  height: 100vh;
+  min-height: 100vh;
+  min-height: 100dvh;
 
   overflow: hidden;
 
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
   background: #f4f5f7;
   color: #111;
 }
 
 /*SIDEBAR E NAVEGAÇÃO*/
 .ad-sidebar {
-  width: 220px;
-  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
 
-  background: linear-gradient(180deg, #a30000 0%, #7f0000 100%);
+  z-index: 10000;
 
   display: flex;
   flex-direction: column;
 
-  position: relative;
+  width: min(280px, 84vw);
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
 
   flex-shrink: 0;
-
   overflow: hidden;
-  min-height: 0;
+
+  transform: translateX(-105%);
+  transition: transform 0.28s ease;
+
+  background: linear-gradient(180deg, #a30000 0%, #7f0000 100%);
+}
+
+.ad-sidebar.open {
+  transform: translateX(0);
 }
 
 .ad-sidebar-logo {
@@ -43,7 +55,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 1.4rem 1.2rem 1rem;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .ad-logo-text {
@@ -59,7 +71,8 @@
   padding: 0.8rem 0.7rem;
   gap: 0.15rem;
   flex: 1;
-  min-height: 0; /* sem isso, o flex-item pode se recusar a encolher e travar o scroll */
+  min-height: 0;
+  /* sem isso, o flex-item pode se recusar a encolher e travar o scroll */
   overflow-y: auto;
 }
 
@@ -71,7 +84,7 @@
   border-radius: 0.6rem;
   background: transparent;
   border: none;
-  color: rgba(255,255,255,0.75);
+  color: rgba(255, 255, 255, 0.75);
   font-size: 0.88rem;
   font-weight: 500;
   cursor: pointer;
@@ -82,7 +95,7 @@
 }
 
 .ad-nav-item:hover {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   color: #fff;
 }
 
@@ -114,7 +127,7 @@
 
 .ad-sidebar-footer {
   padding: 0.8rem 0.9rem 1.2rem;
-  border-top: 1px solid rgba(255,255,255,0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
@@ -130,7 +143,7 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
   color: #fff;
   font-size: 0.75rem;
   font-weight: 700;
@@ -152,16 +165,16 @@
 
 .ad-user-info span {
   font-size: 0.72rem;
-  color: rgba(255,255,255,0.6);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .ad-sair-btn {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  background: rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.08);
   border: none;
-  color: rgba(255,255,255,0.7);
+  color: rgba(255, 255, 255, 0.7);
   font-size: 0.82rem;
   font-weight: 600;
   padding: 0.5rem 0.8rem;
@@ -171,7 +184,7 @@
 }
 
 .ad-sair-btn:hover {
-  background: rgba(255,255,255,0.15);
+  background: rgba(255, 255, 255, 0.15);
   color: #fff;
 }
 
@@ -183,37 +196,52 @@
   inset: 0;
   background: rgba(0, 0, 0, 0.45);
   z-index: 9999;
+  backdrop-filter: blur(3px);
 }
 
 /*CONTEÚDO PRINCIPAL E TOPO*/
 .ad-content {
+  display: flex;
+  flex-direction: column;
   flex: 1;
+  gap: 1.2rem;
 
+  width: 100%;
+  max-width: 100%;
   height: 100vh;
+  height: 100dvh;
 
   min-width: 0;
   min-height: 0;
 
-  padding: 1.5rem 1.8rem;
+  margin: 0;
+  padding: 5rem 1rem 1.5rem;
 
   overflow-y: auto;
   overflow-x: hidden;
+}
 
-  display: flex;
-  flex-direction: column;
+.ad-content {
+  animation: adFadeUp 0.45s ease both;
+}
 
-  gap: 1.2rem;
+.ad-content>* {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  flex-shrink: 0;
 }
 
 .ad-topbar {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: stretch;
   gap: 1rem;
 }
 
 .ad-greeting {
-  font-size: 1.45rem;
+  font-size: 1.55rem;
+  line-height: 1.12;
   font-weight: 800;
 }
 
@@ -221,6 +249,7 @@
   font-size: 0.82rem;
   color: #777;
   margin-top: 0.15rem;
+  line-height: 1.55;
 }
 
 .ad-date-box {
@@ -232,24 +261,41 @@
   padding: 0.5rem 0.9rem;
   font-size: 0.82rem;
   color: #444;
+  width: fit-content;
+  max-width: 100%;
 }
 
 /*INDICADORES E DASHBOARD*/
 .ad-kpis {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.8rem;
 }
 
 .ad-kpi-card {
   background: #fff;
   border-radius: 0.9rem;
-  padding: 1rem 1.1rem;
+  padding: 0.9rem;
   display: flex;
-  align-items: flex-start;
-  gap: 0.9rem;
+  align-items: center;
+  gap: 0.7rem;
   border: 1px solid #f0f0f0;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  min-width: 0;
+}
+
+.ad-kpi-card>div:last-child {
+  min-width: 0;
+}
+
+.ad-kpi-label,
+.ad-kpi-delta,
+.ad-kpi-val {
+  overflow-wrap: anywhere;
+}
+
+.ad-kpi-val {
+  font-size: 1.15rem;
 }
 
 .ad-kpi-icon {
@@ -270,7 +316,6 @@
 }
 
 .ad-kpi-val {
-  font-size: 1.25rem;
   font-weight: 800;
   color: #111;
   display: block;
@@ -284,7 +329,7 @@
 
 .ad-main-grid {
   display: grid;
-  grid-template-columns: 1fr 320px;
+  grid-template-columns: minmax(0, 1fr);
   gap: 1.2rem;
   align-items: start;
 }
@@ -297,18 +342,30 @@
 }
 
 .ad-card {
+  width: 100%;
+  min-width: 0;
+
   background: #fff;
-  border-radius: 0.9rem;
-  padding: 1.2rem 1.3rem;
+
   border: 1px solid #f0f0f0;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  border-radius: 0.85rem;
+
+  padding: 0.9rem;
+
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
 .ad-card-hdr {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1rem;
+
   margin-bottom: 1rem;
+}
+
+.ad-card-hdr .ad-save-btn {
+  width: 100%;
 }
 
 .ad-card-hdr strong,
@@ -410,7 +467,7 @@
   border: 1px solid #e5e5e5;
   border-radius: 0.7rem;
   min-width: 160px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
   z-index: 20;
   overflow: hidden;
 }
@@ -432,8 +489,13 @@
 
 .ad-second-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 1.2rem;
+}
+
+.ad-col-main,
+.ad-col-side {
+  min-width: 0;
 }
 
 .ad-top-list,
@@ -552,6 +614,8 @@
   justify-content: space-between;
   font-size: 0.65rem;
   color: #bbb;
+  gap: 0.4rem;
+  overflow-x: auto;
 }
 
 .ad-atalhos {
@@ -594,7 +658,7 @@
 .ad-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.45);
+  background: rgba(0, 0, 0, 0.45);
   z-index: 9999;
   display: flex;
   justify-content: center;
@@ -603,18 +667,24 @@
 }
 
 .ad-modal {
-  background: #fff;
-  width: 100%;
-  max-width: 520px;
-  max-height: 90vh;
-  overflow-y: auto;
-  overflow-x: hidden;
-  border-radius: 1rem;
-  padding: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 0.7rem;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+
+  width: 100%;
+  max-width: calc(100vw - 2rem);
+  max-height: calc(100dvh - 2rem);
+
+  padding: 1.2rem;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  background: #fff;
+
+  border-radius: 1rem;
+
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
 }
 
 .ad-modal h2 {
@@ -634,8 +704,9 @@
 
 .ad-modal-actions {
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column-reverse;
   gap: 0.7rem;
+
   margin-top: 0.5rem;
 }
 
@@ -698,7 +769,9 @@
 
 .ad-filters {
   display: flex;
+  flex-direction: column;
   gap: 0.8rem;
+
   margin-bottom: 1rem;
 }
 
@@ -709,6 +782,8 @@
   padding: 0.85rem;
   font-family: inherit;
   outline: none;
+  width: 100%;
+  min-width: 0;
 }
 
 .ad-filters input {
@@ -747,8 +822,8 @@
 
 .ad-config-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 18px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.125rem;
 }
 
 .ad-config-grid label {
@@ -769,13 +844,13 @@
   background: #fff;
 }
 
-.ad-config-grid + .ad-save-btn {
+.ad-config-grid+.ad-save-btn {
   margin-top: 24px;
 }
 
 /*MENU MOBILE E CARDS RESPONSIVOS*/
 .ad-mobile-menu-btn {
-  display: none;
+  display: flex;
   position: fixed;
   top: 1rem;
   left: 1rem;
@@ -792,6 +867,29 @@
   align-items: center;
   justify-content: center;
   box-shadow: 0 6px 16px rgba(198, 40, 40, 0.28);
+}
+
+.ad-mobile-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+
+  z-index: 10000;
+
+  height: 5rem;
+
+  background: rgba(244, 245, 247, 0.92);
+  backdrop-filter: blur(12px);
+
+  border-bottom: 1px solid rgba(198, 40, 40, 0.08);
+
+  pointer-events: none;
+}
+
+body.dark-admin .ad-mobile-topbar {
+  background: rgba(12, 14, 19, 0.92);
+  border-bottom-color: rgba(198, 40, 40, 0.18);
 }
 
 /* CARDS ALTERNATIVOS DO LAYOUT MOBILE */
@@ -1249,6 +1347,17 @@
   margin-bottom: 0.45rem;
 }
 
+/* Tabelas ocultas no mobile e tablet */
+.ad-pedidos-table,
+.ad-clientes-table,
+.ad-produtos-table,
+.ad-categorias-table,
+.ad-promocoes-table,
+.ad-funcionarios-table,
+.ad-auditoria-table {
+  display: none;
+}
+
 /* Cards alternativos utilizados no layout mobile */
 .ad-pedido-cards,
 .ad-cliente-cards,
@@ -1257,7 +1366,40 @@
 .ad-promocao-cards,
 .ad-funcionario-cards,
 .ad-auditoria-cards {
-  display: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  width: 100%;
+  min-width: 0;
+}
+
+.ad-pedido-card,
+.ad-cliente-card,
+.ad-produto-card,
+.ad-categoria-card,
+.ad-promocao-card,
+.ad-funcionario-card,
+.ad-auditoria-card {
+  width: 100%;
+  min-width: 0;
+}
+
+.ad-pedido-card-top,
+.ad-cliente-card-top,
+.ad-produto-card-top,
+.ad-promocao-card-top,
+.ad-funcionario-card-top,
+.ad-auditoria-card-top {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.ad-produto-card-actions,
+.ad-categoria-card-actions,
+.ad-promocao-card-actions,
+.ad-funcionario-card-actions {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .ad-cliente-modal {
@@ -1300,13 +1442,13 @@
 
 .ad-cliente-modal .ad-modal-close {
   margin-left: auto;
-  background: rgba(255,255,255,0.18);
+  background: rgba(255, 255, 255, 0.18);
   color: #fff;
 }
 
 .ad-cliente-resumo {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 1rem;
   padding: 1.2rem;
   background: #fff;
@@ -1336,7 +1478,7 @@
 
 .ad-cliente-info-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 1rem;
   padding: 0 1.2rem 1.2rem;
 }
@@ -1355,7 +1497,7 @@
 
 .ad-cliente-pedido-item {
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: minmax(0, 1fr);
   align-items: center;
   gap: 0.8rem;
   padding: 0.85rem;
@@ -1425,6 +1567,7 @@
 }
 
 @keyframes adBadgePulse {
+
   0%,
   100% {
     box-shadow:
@@ -1442,21 +1585,15 @@
 /* Fundo geral mais elegante */
 .ad-root {
   background:
-    radial-gradient(
-      circle at 82% 4%,
+    radial-gradient(circle at 82% 4%,
       rgba(198, 40, 40, 0.07),
-      transparent 25%
-    ),
-    radial-gradient(
-      circle at 30% 95%,
+      transparent 25%),
+    radial-gradient(circle at 30% 95%,
       rgba(253, 216, 53, 0.05),
-      transparent 26%
-    ),
-    linear-gradient(
-      180deg,
+      transparent 26%),
+    linear-gradient(180deg,
       #f7f8fa 0%,
-      #f1f3f6 100%
-    );
+      #f1f3f6 100%);
 }
 
 .ad-content {
@@ -1467,17 +1604,13 @@
 .ad-sidebar {
 
   background:
-    radial-gradient(
-      circle at 25% 5%,
+    radial-gradient(circle at 25% 5%,
       rgba(253, 216, 53, 0.1),
-      transparent 22%
-    ),
-    linear-gradient(
-      180deg,
+      transparent 22%),
+    linear-gradient(180deg,
       #aa0505 0%,
       #850000 52%,
-      #670000 100%
-    );
+      #670000 100%);
 
   border-right: 1px solid rgba(253, 216, 53, 0.14);
 
@@ -1497,13 +1630,11 @@
   width: 1px;
 
   background:
-    linear-gradient(
-      180deg,
+    linear-gradient(180deg,
       transparent,
       rgba(253, 216, 53, 0.55),
       rgba(198, 40, 40, 0.55),
-      transparent
-    );
+      transparent);
 
   box-shadow:
     0 0 8px rgba(253, 216, 53, 0.2);
@@ -1515,11 +1646,9 @@
   position: relative;
 
   background:
-    linear-gradient(
-      180deg,
+    linear-gradient(180deg,
       rgba(255, 255, 255, 0.035),
-      transparent
-    );
+      transparent);
 }
 
 .ad-logo-text {
@@ -1550,12 +1679,10 @@
   height: 100%;
 
   background:
-    linear-gradient(
-      90deg,
+    linear-gradient(90deg,
       transparent,
       rgba(255, 255, 255, 0.09),
-      transparent
-    );
+      transparent);
 
   transform: skewX(-18deg);
 }
@@ -1577,11 +1704,9 @@
 
 .ad-nav-item.active {
   background:
-    linear-gradient(
-      135deg,
+    linear-gradient(135deg,
       #ffffff,
-      #fff8e1
-    );
+      #fff8e1);
 
   box-shadow:
     0 7px 18px rgba(0, 0, 0, 0.15),
@@ -1604,11 +1729,9 @@
   border-radius: 0 999px 999px 0;
 
   background:
-    linear-gradient(
-      180deg,
+    linear-gradient(180deg,
       #fdd835,
-      #c62828
-    );
+      #c62828);
 
   box-shadow:
     0 0 8px rgba(253, 216, 53, 0.55);
@@ -1624,19 +1747,14 @@
   transform: scale(1.12) rotate(-4deg);
 
   filter:
-    drop-shadow(
-      0 4px 5px rgba(0, 0, 0, 0.18)
-    );
+    drop-shadow(0 4px 5px rgba(0, 0, 0, 0.18));
 }
 
 .ad-nav-badge {
   border: 1px solid rgba(255, 255, 255, 0.45);
 
   animation:
-    adBadgePulse
-    2.6s
-    ease-in-out
-    infinite;
+    adBadgePulse 2.6s ease-in-out infinite;
 }
 
 .ad-user-avatar {
@@ -1676,11 +1794,9 @@
 
 .ad-greeting {
   background:
-    linear-gradient(
-      90deg,
+    linear-gradient(90deg,
       #171717,
-      #9f1818
-    );
+      #9f1818);
 
   -webkit-background-clip: text;
   background-clip: text;
@@ -1748,13 +1864,11 @@
   height: 2px;
 
   background:
-    linear-gradient(
-      90deg,
+    linear-gradient(90deg,
       transparent,
       rgba(198, 40, 40, 0.6),
       rgba(253, 216, 53, 0.52),
-      transparent
-    );
+      transparent);
 
   opacity: 0;
 
@@ -1835,11 +1949,9 @@
   border-radius: 999px;
 
   background:
-    linear-gradient(
-      90deg,
+    linear-gradient(90deg,
       #c62828,
-      #fdd835
-    );
+      #fdd835);
 
   box-shadow:
     0 0 7px rgba(198, 40, 40, 0.15);
@@ -1860,11 +1972,9 @@
 
 .ad-table tbody tr:hover {
   background:
-    linear-gradient(
-      90deg,
+    linear-gradient(90deg,
       rgba(198, 40, 40, 0.035),
-      rgba(253, 216, 53, 0.025)
-    );
+      rgba(253, 216, 53, 0.025));
 
   box-shadow:
     inset 3px 0 #c62828;
@@ -1872,11 +1982,9 @@
 
 .ad-table th {
   background:
-    linear-gradient(
-      180deg,
+    linear-gradient(180deg,
       #fff,
-      #fafafa
-    );
+      #fafafa);
 }
 
 .ad-produto-thumb {
@@ -1946,12 +2054,10 @@
   height: 100%;
 
   background:
-    linear-gradient(
-      90deg,
+    linear-gradient(90deg,
       transparent,
       rgba(255, 255, 255, 0.36),
-      transparent
-    );
+      transparent);
 
   transform: skewX(-18deg);
 }
@@ -2036,8 +2142,7 @@
   opacity: 1;
 
   transform:
-    translateY(-4px)
-    scale(1.018);
+    translateY(-4px) scale(1.018);
 
   border-color:
     rgba(198, 40, 40, 0.13);
@@ -2060,9 +2165,7 @@
   transform: scale(1.12) rotate(-4deg);
 
   filter:
-    drop-shadow(
-      0 5px 5px rgba(0, 0, 0, 0.13)
-    );
+    drop-shadow(0 5px 5px rgba(0, 0, 0, 0.13));
 }
 
 /* LISTAS E GRÁFICO */
@@ -2089,11 +2192,9 @@
   border-radius: 0.75rem;
 
   background:
-    linear-gradient(
-      180deg,
+    linear-gradient(180deg,
       rgba(198, 40, 40, 0.025),
-      transparent
-    );
+      transparent);
 
   transition:
     box-shadow 0.22s ease,
@@ -2167,8 +2268,7 @@
   position: relative;
 
   border:
-    1px solid
-    rgba(198, 40, 40, 0.11);
+    1px solid rgba(198, 40, 40, 0.11);
 
   box-shadow:
     0 28px 75px rgba(0, 0, 0, 0.3),
@@ -2188,13 +2288,11 @@
   height: 2px;
 
   background:
-    linear-gradient(
-      90deg,
+    linear-gradient(90deg,
       transparent,
       #c62828,
       #fdd835,
-      transparent
-    );
+      transparent);
 
   box-shadow:
     0 0 10px rgba(198, 40, 40, 0.14);
@@ -2210,8 +2308,7 @@
 
 .ad-modal-close:hover {
   transform:
-    rotate(90deg)
-    scale(1.05);
+    rotate(90deg) scale(1.05);
 
   box-shadow:
     0 5px 13px rgba(198, 40, 40, 0.1);
@@ -2258,11 +2355,9 @@
   width: 3px;
 
   background:
-    linear-gradient(
-      180deg,
+    linear-gradient(180deg,
       #c62828,
-      #fdd835
-    );
+      #fdd835);
 
   opacity: 0;
 
@@ -2318,34 +2413,69 @@
 
 /* ── Animações exclusivas do dark mode ── */
 @keyframes dark-shimmer {
-  0%   { background-position: -200% center; }
-  100% { background-position:  200% center; }
+  0% {
+    background-position: -200% center;
+  }
+
+  100% {
+    background-position: 200% center;
+  }
 }
 
 @keyframes dark-glow-pulse {
-  0%, 100% { opacity: 0.5; }
-  50%       { opacity: 1;   }
+
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+
+  50% {
+    opacity: 1;
+  }
 }
 
 @keyframes dark-badge-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(198, 40, 40, 0.6); }
-  50%       { box-shadow: 0 0 0 5px rgba(198, 40, 40, 0); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(198, 40, 40, 0.6);
+  }
+
+  50% {
+    box-shadow: 0 0 0 5px rgba(198, 40, 40, 0);
+  }
 }
 
 @keyframes dark-fade-up {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes dark-orb-float {
-  0%, 100% { transform: translateY(0) scale(1);   opacity: 0.6; }
-  50%       { transform: translateY(-8px) scale(1.04); opacity: 1; }
+
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.6;
+  }
+
+  50% {
+    transform: translateY(-8px) scale(1.04);
+    opacity: 1;
+  }
 }
 
 /* ── ROOT ── */
 body.dark-admin .ad-root {
   background:
-    radial-gradient(ellipse 60% 40% at 85%  5%, rgba(198, 40, 40, 0.12), transparent),
+    radial-gradient(ellipse 60% 40% at 85% 5%, rgba(198, 40, 40, 0.12), transparent),
     radial-gradient(ellipse 50% 35% at 15% 90%, rgba(198, 40, 40, 0.08), transparent),
     radial-gradient(ellipse 40% 30% at 50% 50%, rgba(253, 216, 53, 0.03), transparent),
     #0c0e13;
@@ -2355,14 +2485,13 @@ body.dark-admin .ad-root {
 /* ── SIDEBAR ── */
 body.dark-admin .ad-sidebar {
   background:
-    radial-gradient(ellipse 80% 30% at 50%  0%, rgba(198, 40, 40, 0.14), transparent),
+    radial-gradient(ellipse 80% 30% at 50% 0%, rgba(198, 40, 40, 0.14), transparent),
     radial-gradient(ellipse 60% 25% at 20% 95%, rgba(253, 216, 53, 0.05), transparent),
     linear-gradient(175deg, #1c0a0a 0%, #141418 55%, #0f1015 100%);
   border-right: 1px solid rgba(198, 40, 40, 0.2);
   box-shadow:
     4px 0 32px rgba(0, 0, 0, 0.5),
     inset -1px 0 0 rgba(198, 40, 40, 0.1);
-  position: relative;
 }
 
 /* Linha shimmer na borda direita da sidebar */
@@ -2373,14 +2502,12 @@ body.dark-admin .ad-sidebar::after {
   top: 0;
   bottom: 0;
   width: 1px;
-  background: linear-gradient(
-    180deg,
-    transparent 0%,
-    rgba(198, 40, 40, 0.9) 25%,
-    rgba(253, 216, 53, 0.6) 50%,
-    rgba(198, 40, 40, 0.9) 75%,
-    transparent 100%
-  );
+  background: linear-gradient(180deg,
+      transparent 0%,
+      rgba(198, 40, 40, 0.9) 25%,
+      rgba(253, 216, 53, 0.6) 50%,
+      rgba(198, 40, 40, 0.9) 75%,
+      transparent 100%);
   background-size: auto 200%;
   animation: dark-shimmer 4s linear infinite;
   pointer-events: none;
@@ -2943,6 +3070,7 @@ body.dark-admin .ad-filters select:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .ad-content,
   .ad-nav-badge {
     animation: none;
@@ -2973,6 +3101,7 @@ body.dark-admin .ad-filters select:focus-visible {
     transform: none;
   }
 }
+
 /* Cobre todos os elementos que ficavam brancos/ilegíveis no modo escuro (Dark Mode) */
 
 /* ── Textos gerais soltos ── */
@@ -3438,7 +3567,7 @@ body.dark-admin .ad-link-btn:hover {
 
 .ad-pedido-modal-resumo {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 0.8rem;
   padding: 1.2rem;
   background: #fff;
@@ -3682,12 +3811,10 @@ body.dark-admin .ad-atalho-btn::before {
   inset: 0;
 
   background:
-    linear-gradient(
-      120deg,
+    linear-gradient(120deg,
       transparent 20%,
       rgba(255, 255, 255, 0.1) 45%,
-      transparent 70%
-    );
+      transparent 70%);
 
   transform: translateX(-130%);
 
@@ -3702,8 +3829,7 @@ body.dark-admin .ad-atalho-btn:hover::before {
 
 body.dark-admin .ad-atalho-btn:hover {
   transform:
-    translateY(-5px)
-    scale(1.025);
+    translateY(-5px) scale(1.025);
 
   filter: brightness(1.07);
 }
@@ -3729,25 +3855,19 @@ body.dark-admin .ad-atalho-ico {
 
 body.dark-admin .ad-atalho-btn:hover .ad-atalho-ico {
   transform:
-    translateY(-2px)
-    scale(1.15)
-    rotate(-4deg);
+    translateY(-2px) scale(1.15) rotate(-4deg);
 }
 
 /* Ver pedidos — vermelho */
 
 body.dark-admin .ad-atalho-btn:nth-child(1) {
   background:
-    radial-gradient(
-      circle at 50% 0%,
+    radial-gradient(circle at 50% 0%,
       rgba(255, 90, 90, 0.19),
-      transparent 58%
-    ),
-    linear-gradient(
-      145deg,
+      transparent 58%),
+    linear-gradient(145deg,
       #32191d,
-      #1c1418
-    ) !important;
+      #1c1418) !important;
 
   border-color:
     rgba(255, 95, 95, 0.2);
@@ -3768,25 +3888,19 @@ body.dark-admin .ad-atalho-btn:nth-child(1):hover {
 
 body.dark-admin .ad-atalho-btn:nth-child(1) .ad-atalho-ico {
   filter:
-    drop-shadow(
-      0 0 8px rgba(255, 90, 90, 0.42)
-    );
+    drop-shadow(0 0 8px rgba(255, 90, 90, 0.42));
 }
 
 /* Cardápio — amarelo */
 
 body.dark-admin .ad-atalho-btn:nth-child(2) {
   background:
-    radial-gradient(
-      circle at 50% 0%,
+    radial-gradient(circle at 50% 0%,
       rgba(253, 216, 53, 0.18),
-      transparent 58%
-    ),
-    linear-gradient(
-      145deg,
+      transparent 58%),
+    linear-gradient(145deg,
       #312a17,
-      #1c1912
-    ) !important;
+      #1c1912) !important;
 
   border-color:
     rgba(253, 216, 53, 0.2);
@@ -3807,25 +3921,19 @@ body.dark-admin .ad-atalho-btn:nth-child(2):hover {
 
 body.dark-admin .ad-atalho-btn:nth-child(2) .ad-atalho-ico {
   filter:
-    drop-shadow(
-      0 0 8px rgba(253, 216, 53, 0.43)
-    );
+    drop-shadow(0 0 8px rgba(253, 216, 53, 0.43));
 }
 
 /* Promoções — verde */
 
 body.dark-admin .ad-atalho-btn:nth-child(3) {
   background:
-    radial-gradient(
-      circle at 50% 0%,
+    radial-gradient(circle at 50% 0%,
       rgba(70, 210, 140, 0.17),
-      transparent 58%
-    ),
-    linear-gradient(
-      145deg,
+      transparent 58%),
+    linear-gradient(145deg,
       #183025,
-      #121c18
-    ) !important;
+      #121c18) !important;
 
   border-color:
     rgba(70, 210, 140, 0.2);
@@ -3846,25 +3954,19 @@ body.dark-admin .ad-atalho-btn:nth-child(3):hover {
 
 body.dark-admin .ad-atalho-btn:nth-child(3) .ad-atalho-ico {
   filter:
-    drop-shadow(
-      0 0 8px rgba(70, 210, 140, 0.42)
-    );
+    drop-shadow(0 0 8px rgba(70, 210, 140, 0.42));
 }
 
 /* Relatórios — roxo */
 
 body.dark-admin .ad-atalho-btn:nth-child(4) {
   background:
-    radial-gradient(
-      circle at 50% 0%,
+    radial-gradient(circle at 50% 0%,
       rgba(170, 120, 255, 0.18),
-      transparent 58%
-    ),
-    linear-gradient(
-      145deg,
+      transparent 58%),
+    linear-gradient(145deg,
       #261c35,
-      #18141f
-    ) !important;
+      #18141f) !important;
 
   border-color:
     rgba(170, 120, 255, 0.22);
@@ -3885,186 +3987,152 @@ body.dark-admin .ad-atalho-btn:nth-child(4):hover {
 
 body.dark-admin .ad-atalho-btn:nth-child(4) .ad-atalho-ico {
   filter:
-    drop-shadow(
-      0 0 8px rgba(170, 120, 255, 0.44)
-    );
+    drop-shadow(0 0 8px rgba(170, 120, 255, 0.44));
 }
 
-/* Permite que o conteúdo ultrapasse a altura e gere rolagem */
-.ad-content > * {
-  flex-shrink: 0;
-}
 
 /* RESPONSIVIDADE */
-@media (max-width: 1280px) {
-  .ad-main-grid {
-    grid-template-columns: minmax(0, 1fr) 280px;
-  }
-}
 
-@media (max-width: 1024px) {
-  .ad-kpis {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+/* TABLET — 768px a 1023px */
+@media (min-width: 768px) and (max-width: 1023px) {
 
-  .ad-main-grid,
-  .ad-second-row {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .ad-col-main,
-  .ad-col-side {
-    min-width: 0;
-  }
-}
-
-@media (max-width: 768px) {
-  /* A sidebar sai completamente do fluxo da página */
-  .ad-sidebar,
-  body.dark-admin .ad-sidebar {
-    position: fixed !important;
-
-    top: 0;
-    left: 0 !important;
-
-    width: min(280px, 84vw);
-    height: 100vh;
-    height: 100dvh;
-
-    z-index: 10000;
-
-    transform: translateX(-105%);
-    transition: transform 0.28s ease;
-
-    overflow: hidden;
-  }
-
-  .ad-sidebar.open,
-  body.dark-admin .ad-sidebar.open {
-    transform: translateX(0);
-  }
-
-  .ad-sidebar-overlay {
-    position: fixed;
-    inset: 0;
-
-    z-index: 9999;
-
-    background: rgba(0, 0, 0, 0.58);
-    backdrop-filter: blur(3px);
-  }
-
-  .ad-mobile-menu-btn {
-    display: flex;
-
-    top: 1rem;
-    left: 1rem;
-
-    align-items: center;
-    justify-content: center;
-  }
-
-  /* O conteúdo passa a ocupar toda a largura */
   .ad-content,
   body.dark-admin .ad-content {
-    width: 100%;
-    max-width: 100%;
-
-    height: 100vh;
-    height: 100dvh;
-
-    margin: 0;
-
-    padding: 5rem 1rem 1.5rem;
-
-    overflow-y: auto;
-    overflow-x: hidden;
-  }
-
-  .ad-content > * {
-    width: 100%;
-    max-width: 100%;
-    min-width: 0;
-  }
-
-  .ad-topbar {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
+    padding: 5rem 1.5rem 1.5rem;
   }
 
   .ad-greeting {
     font-size: 1.8rem;
-    line-height: 1.12;
-  }
-
-  .ad-greeting-sub {
-    line-height: 1.55;
-  }
-
-  .ad-date-box {
-    width: fit-content;
-    max-width: 100%;
   }
 
   .ad-kpis {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.8rem;
   }
 
   .ad-kpi-card {
-    min-width: 0;
-    padding: 0.9rem;
-    gap: 0.7rem;
-  }
-
-  .ad-kpi-card > div:last-child {
-    min-width: 0;
-  }
-
-  .ad-kpi-label,
-  .ad-kpi-delta {
-    overflow-wrap: anywhere;
-  }
-
-  .ad-kpi-val {
-    font-size: 1.15rem;
-    overflow-wrap: anywhere;
-  }
-
-  .ad-main-grid,
-  .ad-second-row {
-    grid-template-columns: minmax(0, 1fr);
+    align-items: flex-start;
   }
 
   .ad-card {
-    width: 100%;
-    min-width: 0;
-
-    padding: 1rem;
+    padding: 1.1rem;
   }
 
-  .ad-card-hdr {
-    flex-direction: column;
-    align-items: stretch;
+  .ad-config-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ad-cliente-resumo {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .ad-cliente-info-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ad-pedido-modal-resumo {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .ad-modal-actions {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+
+  .ad-modal-actions button {
+    width: auto;
+  }
+
+  .ad-produto-card-actions,
+  .ad-categoria-card-actions,
+  .ad-promocao-card-actions,
+  .ad-funcionario-card-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* DESKTOP — 1024px+ */
+@media (min-width: 1024px) {
+
+  .ad-sidebar,
+  body.dark-admin .ad-sidebar {
+    position: relative !important;
+    top: auto;
+    left: auto !important;
+
+    width: 220px;
+    height: 100vh;
+    height: 100dvh;
+
+    transform: none;
+  }
+
+  .ad-sidebar-overlay,
+  .ad-mobile-menu-btn,
+  .ad-mobile-topbar {
+    display: none;
+  }
+
+  .ad-content,
+  body.dark-admin .ad-content {
+    width: auto;
+    height: 100vh;
+    height: 100dvh;
+
+    padding: 1.5rem 1.8rem;
+  }
+
+  .ad-topbar {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+
+  .ad-greeting {
+    font-size: 1.45rem;
+  }
+
+  .ad-kpis {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 1rem;
   }
 
+  .ad-kpi-card {
+    align-items: flex-start;
+    padding: 1rem 1.1rem;
+    gap: 0.9rem;
+  }
+
+  .ad-kpi-val {
+    font-size: 1.25rem;
+  }
+
+  .ad-main-grid {
+    grid-template-columns: minmax(0, 1fr) 320px;
+  }
+
+  .ad-second-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ad-card {
+    padding: 1.2rem 1.3rem;
+    border-radius: 0.9rem;
+  }
+
+  .ad-card-hdr {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
   .ad-card-hdr .ad-save-btn {
-    width: 100%;
+    width: auto;
   }
 
   .ad-filters {
-    flex-direction: column;
+    flex-direction: row;
   }
 
-  .ad-filters input,
-  .ad-filters select {
-    width: 100%;
-    min-width: 0;
-  }
-
-  /* No celular, substitui tabelas por cards */
   .ad-pedidos-table,
   .ad-clientes-table,
   .ad-produtos-table,
@@ -4072,7 +4140,7 @@ body.dark-admin .ad-atalho-btn:nth-child(4) .ad-atalho-ico {
   .ad-promocoes-table,
   .ad-funcionarios-table,
   .ad-auditoria-table {
-    display: none;
+    display: block;
   }
 
   .ad-pedido-cards,
@@ -4082,104 +4150,35 @@ body.dark-admin .ad-atalho-btn:nth-child(4) .ad-atalho-ico {
   .ad-promocao-cards,
   .ad-funcionario-cards,
   .ad-auditoria-cards {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-
-    width: 100%;
-    min-width: 0;
-  }
-
-  .ad-pedido-card,
-  .ad-cliente-card,
-  .ad-produto-card,
-  .ad-categoria-card,
-  .ad-promocao-card,
-  .ad-funcionario-card,
-  .ad-auditoria-card {
-    width: 100%;
-    min-width: 0;
+    display: none;
   }
 
   .ad-config-grid {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   }
 
-  .ad-cliente-resumo,
+  .ad-cliente-resumo {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .ad-cliente-info-grid {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .ad-cliente-pedido-item {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) auto auto;
   }
 
-  .ad-modal {
-    max-width: calc(100vw - 2rem);
-    max-height: calc(100dvh - 2rem);
-
-    padding: 1.2rem;
+  .ad-pedido-modal-resumo {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .ad-modal-actions {
-    flex-direction: column-reverse;
+    flex-direction: row;
+    justify-content: flex-end;
   }
 
   .ad-modal-actions button {
-    width: 100%;
-  }
-}
-
-@media (max-width: 520px) {
-  .ad-content,
-  body.dark-admin .ad-content {
-    padding:
-      4.8rem
-      0.75rem
-      1.25rem;
-  }
-
-  .ad-greeting {
-    font-size: 1.55rem;
-  }
-
-  .ad-kpis {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .ad-kpi-card {
-    align-items: center;
-  }
-
-  .ad-atalhos {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
-  }
-
-  .ad-card {
-    border-radius: 0.85rem;
-    padding: 0.9rem;
-  }
-
-  .ad-pedido-card-top,
-  .ad-cliente-card-top,
-  .ad-produto-card-top,
-  .ad-promocao-card-top,
-  .ad-funcionario-card-top,
-  .ad-auditoria-card-top {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .ad-produto-card-actions,
-  .ad-categoria-card-actions,
-  .ad-promocao-card-actions,
-  .ad-funcionario-card-actions {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .ad-chart-labels {
-    gap: 0.4rem;
-    overflow-x: auto;
+    width: auto;
   }
 }

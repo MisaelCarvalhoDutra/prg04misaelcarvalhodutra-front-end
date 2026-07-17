@@ -1,4 +1,4 @@
-/* RESET E ESTRUTURA GERAL*/
+/* reset*/
 *,
 *::before,
 *::after {
@@ -7,27 +7,28 @@
 
 .pd-root {
   min-height: 100vh;
-  background: #f4f5f7;
+  min-height: 100dvh;
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   color: #111;
 }
 
 .pd-page {
+  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 0.85rem;
 }
 
-/*HERO DO CARDÁPIO*/
+/*hero do cardápio*/
 .pd-hero {
   background: linear-gradient(135deg, #b30000, #8b0000);
   color: #fff;
-  border-radius: 1.3rem;
-  padding: 2rem;
+  border-radius: 1rem;
+  padding: 1.2rem;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 2rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
   margin-bottom: 1.1rem;
 }
 
@@ -43,29 +44,29 @@
 }
 
 .pd-hero h1 {
-  font-size: 2.1rem;
+  font-size: 1.4rem;
   margin-bottom: 0.4rem;
 }
 
 .pd-hero p {
   max-width: 620px;
-  color: rgba(255,255,255,0.85);
-  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.85rem;
   line-height: 1.5;
 }
 
 .pd-hero-info {
-  background: rgba(0,0,0,0.25);
+  background: rgba(0, 0, 0, 0.25);
   padding: 1rem 1.3rem;
   border-radius: 1rem;
-  min-width: 160px;
+  width: 100%;
   text-align: center;
 }
 
 .pd-hero-info span {
   display: block;
   font-size: 0.75rem;
-  color: rgba(255,255,255,0.75);
+  color: rgba(255, 255, 255, 0.75);
   margin-bottom: 0.25rem;
 }
 
@@ -74,14 +75,14 @@
   font-size: 1.25rem;
 }
 
-/*INDICADOR DAS ETAPAS DO PEDIDO*/
+/*Indicador das etapas do Pedido*/
 .pd-steps {
   background: #fff;
   border: 1px solid #eee;
   border-radius: 1rem;
-  padding: 1rem;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 0.8rem;
   gap: 0.8rem;
   margin-bottom: 1.2rem;
 }
@@ -93,12 +94,14 @@
   gap: 0.6rem;
   color: #999;
   font-weight: 700;
-  font-size: 0.82rem;
+  font-size: 0.76rem;
 }
 
 .pd-step span {
-  width: 30px;
-  height: 30px;
+  width: 26px;
+  height: 26px;
+  font-size: 0.75rem;
+  flex-shrink: 0;
   border-radius: 50%;
   background: #f0f0f0;
   color: #999;
@@ -120,7 +123,7 @@
 /*CATEGORIAS E TAMANHOS*/
 .pd-categorias {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: 1fr;
   gap: 0.9rem;
   margin-bottom: 1.3rem;
 }
@@ -129,7 +132,8 @@
   background: #fff;
   border: 1.5px solid #eee;
   border-radius: 1rem;
-  padding: 1rem;
+  min-height: 72px;
+  padding: 0.85rem;
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -141,16 +145,16 @@
 
 .pd-categoria-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 18px rgba(0,0,0,0.06);
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.06);
 }
 
 .pd-categoria-card.active {
   border-color: #c62828;
   background: #fff5f5;
-  box-shadow: 0 0 0 3px rgba(198,40,40,0.08);
+  box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.08);
 }
 
-.pd-categoria-card > span {
+.pd-categoria-card>span {
   font-size: 1.9rem;
 }
 
@@ -171,7 +175,7 @@
 /*LAYOUT PRINCIPAL*/
 .pd-layout {
   display: grid;
-  grid-template-columns: 1fr 340px;
+  grid-template-columns: minmax(0, 1fr);
   gap: 1.2rem;
   align-items: start;
 }
@@ -189,7 +193,8 @@
   padding: 0.9rem 1rem;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   gap: 1rem;
 }
 
@@ -236,7 +241,7 @@
 .pd-size-grid {
   margin-top: 0.9rem;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
 }
 
@@ -272,14 +277,14 @@
 .pd-size-card.selected {
   border-color: #c62828;
   background: #fff5f5;
-  box-shadow: 0 0 0 3px rgba(198,40,40,0.1);
+  box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.1);
 }
 
 
-/*PRODUTOS DO CARDÁPIO*/
+/*Produtos do Cardápio*/
 .pd-products-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr;
   gap: 1rem;
 }
 
@@ -290,16 +295,16 @@
   border-radius: 1rem;
   overflow: hidden;
   transition: 0.15s;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
 }
 
 .pd-product-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
 .pd-product-card.featured {
-  border-color: rgba(198,40,40,0.35);
+  border-color: rgba(198, 40, 40, 0.35);
 }
 
 .pd-product-badge {
@@ -316,7 +321,7 @@
 }
 
 .pd-product-img-wrap {
-  height: 165px;
+  height: 190px;
   background: #fff;
   display: flex;
   align-items: center;
@@ -358,9 +363,10 @@
 
 .pd-product-bottom {
   display: flex;
-  align-items: center;
   justify-content: space-between;
   gap: 0.8rem;
+  flex-direction: column;
+  align-items: stretch;
 }
 
 .pd-product-bottom strong {
@@ -378,26 +384,25 @@
   font-weight: 900;
   cursor: pointer;
   font-family: inherit;
+  width: 100%;
 }
 
 .pd-product-bottom button:hover {
   opacity: 0.9;
 }
 
-/*CARRINHO E RESUMO DO PEDIDO*/
+/*Carrinho e Resumo do pedido*/
 .pd-cart {
-  position: sticky;
-  top: 84px;
+  position: relative;
+  max-height: none;
   background: #fff;
   border: 1px solid #eee;
   border-radius: 1rem;
-  padding: 1.1rem;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
-  max-height: calc(100vh - 100px);
-  overflow-y: auto;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
 }
 
 .pd-cart-header {
@@ -524,6 +529,7 @@
 .pd-coupon-box {
   display: flex;
   gap: 0.45rem;
+  width: 100%;
 }
 
 .pd-coupon-box input {
@@ -663,10 +669,7 @@
   transform: none;
 }
 
-/* ==========================================================
-   ETAPAS DO PEDIDO
-   ========================================================== */
-
+/* Etapas do pedido*/
 .pd-step-card {
   background: #fff;
   border: 1px solid #eee;
@@ -685,10 +688,11 @@
 
 .pd-review-list li {
   display: flex;
-  align-items: center;
   gap: 1rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid #f2f2f2;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .pd-review-list img {
@@ -727,7 +731,7 @@
 
 .pd-form-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 1rem;
   margin-top: 1rem;
 }
@@ -765,7 +769,7 @@
 
 .pd-payment-options {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr;
   gap: 1rem;
   margin-top: 1rem;
 }
@@ -799,7 +803,7 @@
 
 .pd-step-actions {
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
   gap: 0.8rem;
 }
 
@@ -953,16 +957,15 @@
   margin-bottom: 0.25rem;
 }
 
-/* ==========================================================
-   MELHORIAS DO PEDIDO
-   ========================================================== */
-
+/*melhorias do pedido*/
 .pd-qtd-control {
   display: flex !important;
   flex-direction: row !important;
   align-items: center;
   gap: 0.5rem;
   flex: 0;
+  width: 100%;
+  justify-content: flex-start;
 }
 
 .pd-qtd-control button {
@@ -1065,7 +1068,7 @@
 
 .pd-card-form div {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 0.8rem;
 }
 
@@ -1125,6 +1128,7 @@
 }
 
 @keyframes pdGlowPulse {
+
   0%,
   100% {
     box-shadow:
@@ -1150,6 +1154,7 @@
 }
 
 @keyframes pdIconFloat {
+
   0%,
   100% {
     transform: translateY(0);
@@ -1163,16 +1168,12 @@
 /* fundo mais sofisticado */
 .pd-root {
   background:
-    radial-gradient(
-      circle at 8% 5%,
+    radial-gradient(circle at 8% 5%,
       rgba(198, 40, 40, 0.08),
-      transparent 28%
-    ),
-    radial-gradient(
-      circle at 95% 35%,
+      transparent 28%),
+    radial-gradient(circle at 95% 35%,
       rgba(253, 216, 53, 0.07),
-      transparent 25%
-    ),
+      transparent 25%),
     linear-gradient(180deg, #f7f8fa 0%, #f1f2f5 100%);
 }
 
@@ -1181,20 +1182,15 @@
   animation: pdFadeUp 0.55s ease both;
 }
 
-/* ==========================================================
-   HERO
-   ========================================================== */
-
+/* hero */
 .pd-hero {
   position: relative;
   overflow: hidden;
 
   background:
-    radial-gradient(
-      circle at 88% 10%,
+    radial-gradient(circle at 88% 10%,
       rgba(253, 216, 53, 0.16),
-      transparent 30%
-    ),
+      transparent 30%),
     linear-gradient(135deg, #b30000 0%, #8b0000 55%, #680000 100%);
 
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -1217,12 +1213,10 @@
   width: 38%;
   height: 200%;
 
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.08),
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.08),
+      transparent);
 
   transform: rotate(18deg);
   pointer-events: none;
@@ -1289,10 +1283,7 @@
     0 0 18px rgba(253, 216, 53, 0.22);
 }
 
-/* ==========================================================
-   ETAPAS
-   ========================================================== */
-
+/* etapas */
 .pd-steps {
   position: relative;
   overflow: hidden;
@@ -1313,13 +1304,11 @@
 
   height: 2px;
 
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(198, 40, 40, 0.45),
-    rgba(253, 216, 53, 0.55),
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(198, 40, 40, 0.45),
+      rgba(253, 216, 53, 0.55),
+      transparent);
 }
 
 .pd-step {
@@ -1356,10 +1345,7 @@
     0 0 12px rgba(198, 40, 40, 0.28);
 }
 
-/* ==========================================================
-   CATEGORIAS
-   ========================================================== */
-
+/*Categorias: */
 .pd-categoria-card {
   position: relative;
   overflow: hidden;
@@ -1384,12 +1370,10 @@
   width: 42%;
   height: 100%;
 
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(198, 40, 40, 0.06),
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(198, 40, 40, 0.06),
+      transparent);
 
   transform: skewX(-18deg);
   pointer-events: none;
@@ -1420,25 +1404,22 @@
     0 0 16px rgba(198, 40, 40, 0.08);
 }
 
-.pd-categoria-card > span {
+.pd-categoria-card>span {
   transition:
     transform 0.25s ease,
     filter 0.25s ease;
 }
 
-.pd-categoria-card:hover > span {
+.pd-categoria-card:hover>span {
   transform: scale(1.13) rotate(-4deg);
   filter: drop-shadow(0 5px 8px rgba(0, 0, 0, 0.14));
 }
 
-.pd-categoria-card.active > span {
+.pd-categoria-card.active>span {
   animation: pdIconFloat 2.2s ease-in-out infinite;
 }
 
-/* ==========================================================
-   TAMANHOS
-   ========================================================== */
-
+/* Tamanhos */
 .pd-size-box {
   border-color: rgba(198, 40, 40, 0.09);
 
@@ -1479,10 +1460,7 @@
   text-shadow: 0 0 8px rgba(198, 40, 40, 0.2);
 }
 
-/* ==========================================================
-   TÍTULOS DE SEÇÃO
-   ========================================================== */
-
+/* Títulos de seção */
 .pd-section-head h2 {
   position: relative;
   display: inline-block;
@@ -1505,10 +1483,7 @@
     0 0 10px rgba(253, 216, 53, 0.18);
 }
 
-/* ==========================================================
-   CARDS DOS PRODUTOS
-   ========================================================== */
-
+/* Cards dos produtos */
 .pd-product-card {
   isolation: isolate;
 
@@ -1529,13 +1504,11 @@
   padding: 1px;
   border-radius: inherit;
 
-  background: linear-gradient(
-    135deg,
-    transparent 20%,
-    rgba(198, 40, 40, 0.65),
-    rgba(253, 216, 53, 0.55),
-    transparent 80%
-  );
+  background: linear-gradient(135deg,
+      transparent 20%,
+      rgba(198, 40, 40, 0.65),
+      rgba(253, 216, 53, 0.55),
+      transparent 80%);
 
   -webkit-mask:
     linear-gradient(#fff 0 0) content-box,
@@ -1577,11 +1550,9 @@
   position: absolute;
   inset: 0;
 
-  background: linear-gradient(
-    to top,
-    rgba(80, 0, 0, 0.08),
-    transparent 45%
-  );
+  background: linear-gradient(to top,
+      rgba(80, 0, 0, 0.08),
+      transparent 45%);
 
   opacity: 0;
   transition: opacity 0.3s ease;
@@ -1665,12 +1636,10 @@
   width: 45%;
   height: 100%;
 
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.7),
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.7),
+      transparent);
 
   transform: skewX(-18deg);
 }
@@ -1692,10 +1661,7 @@
   transform: scale(0.96);
 }
 
-/* ==========================================================
-   CARRINHO
-   ========================================================== */
-
+/* Carrinho*/
 .pd-cart {
   overflow-x: hidden;
 
@@ -1720,13 +1686,11 @@
 
   height: 3px;
 
-  background: linear-gradient(
-    90deg,
-    transparent,
-    #c62828,
-    #fdd835,
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      #c62828,
+      #fdd835,
+      transparent);
 
   box-shadow: 0 0 10px rgba(198, 40, 40, 0.18);
 }
@@ -1761,11 +1725,9 @@
   border: 1px dashed #e7e7e7;
 
   background:
-    radial-gradient(
-      circle at center,
+    radial-gradient(circle at center,
       rgba(198, 40, 40, 0.035),
-      transparent 65%
-    ),
+      transparent 65%),
     #fafafa;
 }
 
@@ -1807,7 +1769,7 @@
     0 5px 12px rgba(0, 0, 0, 0.1);
 }
 
-.pd-cart-item > button {
+.pd-cart-item>button {
   width: 26px;
   height: 26px;
 
@@ -1823,7 +1785,7 @@
     transform 0.2s ease;
 }
 
-.pd-cart-item > button:hover {
+.pd-cart-item>button:hover {
   background: #fff0f0;
   color: #c62828;
   transform: rotate(90deg) scale(1.08);
@@ -1873,10 +1835,7 @@
     0 0 9px rgba(198, 40, 40, 0.17);
 }
 
-/* ==========================================================
-   BOTÕES PRINCIPAIS
-   ========================================================== */
-
+/* Botões principais */
 .pd-next-btn,
 .pd-cart-next-btn,
 .pd-checkout-btn {
@@ -1905,12 +1864,10 @@
   width: 42%;
   height: 100%;
 
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.75),
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.75),
+      transparent);
 
   transform: skewX(-18deg);
 }
@@ -1958,10 +1915,7 @@
     0 5px 14px rgba(198, 40, 40, 0.08);
 }
 
-/* ==========================================================
-   CARDS DAS OUTRAS ETAPAS
-   ========================================================== */
-
+/* Card das outras estapas */
 .pd-step-card,
 .pd-payment-box,
 .pd-address-card,
@@ -2032,10 +1986,7 @@
     0 0 9px rgba(198, 40, 40, 0.15);
 }
 
-/* ==========================================================
-   CAMPOS
-   ========================================================== */
-
+/* campos*/
 .pd-entrega-box select,
 .pd-entrega-box input,
 .pd-entrega-box textarea,
@@ -2116,22 +2067,27 @@
   animation: pdFadeUp 0.4s ease both;
 }
 
-/* ==========================================================
-   ACESSIBILIDADE
-   ========================================================== */
-
+/* acessibilidade */
 .pd-categoria-card:focus-visible,
 .pd-size-card:focus-visible,
 .pd-product-bottom button:focus-visible,
+.pd-cart-header button:focus-visible,
+.pd-cart-item button:focus-visible,
+.pd-coupon-toggle:focus-visible,
+.pd-coupon-box button:focus-visible,
+.pd-checkout-btn:focus-visible,
+.pd-continue-btn:focus-visible,
 .pd-next-btn:focus-visible,
 .pd-back-btn:focus-visible,
 .pd-cart-next-btn:focus-visible,
-.pd-location-btn:focus-visible {
+.pd-location-btn:focus-visible,
+.pd-payment-options button:focus-visible,
+.pd-review-list button:focus-visible {
   outline: 3px solid rgba(253, 216, 53, 0.72);
   outline-offset: 3px;
 }
 
-.pd-cart > * {
+.pd-cart>* {
   flex-shrink: 0;
 }
 
@@ -2152,33 +2108,14 @@
 }
 
 /*Responsividade:*/
-@media (max-width: 1050px) {
+
+/* TABLET */
+@media (min-width: 768px) and (max-width: 1023px) {
   .pd-page {
     padding: 1.2rem;
   }
 
-  .pd-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .pd-cart {
-    position: static;
-    max-height: none;
-  }
-
-  .pd-products-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 768px) {
-  .pd-page {
-    padding: 1rem;
-  }
-
   .pd-hero {
-    flex-direction: column;
-    align-items: flex-start;
     padding: 1.4rem;
   }
 
@@ -2186,142 +2123,205 @@
     font-size: 1.55rem;
   }
 
-  .pd-hero-info {
-    width: 100%;
-  }
-
-  .pd-steps {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .pd-step {
-    font-size: 0.76rem;
+  .pd-hero p {
+    font-size: 0.95rem;
   }
 
   .pd-categorias {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .pd-categoria-card {
-    padding: 0.85rem;
-  }
-
-  .pd-size-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .pd-address {
-    flex-direction: column;
-    align-items: flex-start;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .pd-products-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-    .pd-form-grid {
-    grid-template-columns: 1fr;
+  .pd-product-img-wrap {
+    height: 175px;
   }
 
-  .pd-payment-options {
-    grid-template-columns: 1fr;
+  .pd-product-bottom {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .pd-product-bottom button {
+    width: auto;
+  }
+
+  .pd-coupon-box {
+    flex-direction: row;
+  }
+
+  .pd-coupon-box button {
+    width: auto;
+  }
+
+  .pd-review-list li {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .pd-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pd-card-form div {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .pd-step-actions {
-    flex-direction: column;
+    flex-direction: row;
+    justify-content: flex-end;
   }
 
   .pd-back-btn,
   .pd-next-btn {
-    width: 100%;
-  }
-
-  .pd-review-list li {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}
-
-@media (max-width: 520px) {
-  .pd-page {
-    padding: 0.85rem;
-  }
-
-  .pd-hero {
-    border-radius: 1rem;
-    padding: 1.2rem;
-  }
-
-  .pd-hero h1 {
-    font-size: 1.4rem;
-  }
-
-  .pd-hero p {
-    font-size: 0.85rem;
-  }
-
-  .pd-steps {
-    grid-template-columns: 1fr 1fr;
-    padding: 0.8rem;
-  }
-
-  .pd-step span {
-    width: 26px;
-    height: 26px;
-    font-size: 0.75rem;
-  }
-
-  .pd-categorias {
-    grid-template-columns: 1fr;
-  }
-
-  .pd-categoria-card {
-    min-height: 72px;
-  }
-
-  .pd-products-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .pd-product-img-wrap {
-    height: 190px;
-  }
-
-  .pd-product-bottom {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .pd-product-bottom button {
-    width: 100%;
-  }
-
-  .pd-coupon-box {
-    flex-direction: column;
-  }
-
-  .pd-coupon-box button {
-    width: 100%;
-  }
-
-  .pd-cart {
-    padding: 1rem;
-  }
-
-    .pd-card-form div {
-    grid-template-columns: 1fr;
+    width: auto;
   }
 
   .pd-qtd-control {
-    width: 100%;
-    justify-content: flex-start;
+    width: auto;
   }
 }
 
+/* DESKTOP */
+@media (min-width: 1024px) {
+  .pd-page {
+    padding: 2rem;
+  }
+
+  .pd-hero {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+    padding: 2rem;
+    border-radius: 1.3rem;
+  }
+
+  .pd-hero h1 {
+    font-size: 2.1rem;
+  }
+
+  .pd-hero p {
+    font-size: 0.95rem;
+  }
+
+  .pd-hero-info {
+    width: auto;
+    min-width: 160px;
+  }
+
+  .pd-steps {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    padding: 1rem;
+  }
+
+  .pd-step {
+    font-size: 0.82rem;
+  }
+
+  .pd-step span {
+    width: 30px;
+    height: 30px;
+    font-size: inherit;
+  }
+
+  .pd-categorias {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .pd-categoria-card {
+    min-height: auto;
+    padding: 1rem;
+  }
+
+  .pd-layout {
+    grid-template-columns: minmax(0, 1fr) 340px;
+  }
+
+  .pd-address {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .pd-size-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .pd-products-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .pd-product-img-wrap {
+    height: 165px;
+  }
+
+  .pd-product-bottom {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .pd-product-bottom button {
+    width: auto;
+  }
+
+  .pd-cart {
+    position: sticky;
+    top: 84px;
+    max-height: calc(100vh - 100px);
+    max-height: calc(100dvh - 100px);
+    padding: 1.1rem;
+  }
+
+  .pd-coupon-box {
+    flex-direction: row;
+  }
+
+  .pd-coupon-box button {
+    width: auto;
+  }
+
+  .pd-review-list li {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .pd-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pd-payment-options {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .pd-step-actions {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+
+  .pd-back-btn,
+  .pd-next-btn {
+    width: auto;
+  }
+
+  .pd-card-form div {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pd-qtd-control {
+    width: auto;
+  }
+}
+
+
+/*REDUÇÃO DE MOVIMENTO*/
 @media (prefers-reduced-motion: reduce) {
+
   .pd-page,
+  .pd-closed-banner,
   .pd-product-card.featured,
-  .pd-categoria-card.active > span {
+  .pd-categoria-card.active>span {
     animation: none;
   }
 
@@ -2342,4 +2342,3 @@
     transform: none;
   }
 }
-
