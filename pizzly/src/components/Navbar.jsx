@@ -7,7 +7,7 @@ import API_URL from "../utils/api";
 // incluindo menu, carrinho, notificações e acesso ao perfil
 export default function Navbar() {
   const navigate = useNavigate();
-  
+
   // controle visual dos painéis
   const [menuOpen, setMenuOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
@@ -22,8 +22,9 @@ export default function Navbar() {
   const [perfilIncompleto, setPerfilIncompleto] = useState(false);
   const [pendenciasPerfil, setPendenciasPerfil] = useState([]);
 
-  // verifica se o usuário logado é funcionário
-  const isFuncionario = usuario?.tipo === "FUNCIONARIO";
+
+  const isCliente =
+    usuario?.tipo === "CLIENTE";
 
   // calcula a quantidade total de itens do carrinho
   const quantidadeCarrinho = carrinho.reduce(
@@ -52,19 +53,44 @@ export default function Navbar() {
   // sincroniza Navbar com alterações no carrinho e no usuário logado
   //para atualizar automaticamente quando outro componente alterar o carrinho.
   useEffect(() => {
+    function sincronizarStorage() {
+      carregarCarrinho();
+      carregarUsuario();
+    }
+
     carregarCarrinho();
     carregarUsuario();
 
-      window.addEventListener("pizzlyCarrinhoAtualizado", carregarCarrinho);
-      window.addEventListener("pizzlyUsuarioAtualizado", carregarUsuario);
-      window.addEventListener("storage", () => {
-        carregarCarrinho();
-        carregarUsuario();
-      });
+    window.addEventListener(
+      "pizzlyCarrinhoAtualizado",
+      carregarCarrinho
+    );
+
+    window.addEventListener(
+      "pizzlyUsuarioAtualizado",
+      carregarUsuario
+    );
+
+    window.addEventListener(
+      "storage",
+      sincronizarStorage
+    );
 
     return () => {
-      window.removeEventListener("pizzlyCarrinhoAtualizado", carregarCarrinho);
-      window.removeEventListener("pizzlyUsuarioAtualizado", carregarUsuario);
+      window.removeEventListener(
+        "pizzlyCarrinhoAtualizado",
+        carregarCarrinho
+      );
+
+      window.removeEventListener(
+        "pizzlyUsuarioAtualizado",
+        carregarUsuario
+      );
+
+      window.removeEventListener(
+        "storage",
+        sincronizarStorage
+      );
     };
   }, []);
 
@@ -112,8 +138,8 @@ export default function Navbar() {
   async function marcarNotificacaoComoLida(id) {
     try {
       const response = await fetch(
-          `${API_URL}/notificacoes/${id}/lida`,
-      {
+        `${API_URL}/notificacoes/${id}/lida`,
+        {
           method: "PATCH", //pra atualizar, ou seja, mudar para "lida"
         }
       );
@@ -135,8 +161,8 @@ export default function Navbar() {
   async function marcarTodasComoLidas() {
     try {
       const response = await fetch(
-          `${API_URL}/notificacoes/cliente/${usuario.id}/lidas`,
-      {
+        `${API_URL}/notificacoes/cliente/${usuario.id}/lidas`,
+        {
           method: "PATCH", //pra atualizar e mudar todas para lidas
         }
       );
@@ -193,20 +219,20 @@ export default function Navbar() {
       setPendenciasPerfil(pendencias);
 
       setPerfilIncompleto(pendencias.length > 0);
-      } catch (error) {
-        console.error("Erro ao verificar perfil:", error);
-      }
+    } catch (error) {
+      console.error("Erro ao verificar perfil:", error);
+    }
   }
 
   return (
     <>
-    {/* barra principal de navegação do sistema */}
+      {/* barra principal de navegação do sistema */}
       <nav className="ho-nav">
         <div className="ho-nav-inner">
 
           {/* logo que redireciona para a página inicial */}
           <Link
-            to={isFuncionario ? "/admin" : "/"}
+            to="/"
             className="ho-logo"
             onClick={fecharMenu}
           >
@@ -222,40 +248,49 @@ export default function Navbar() {
 
           {/* links exibidos conforme o tipo do usuário logado */}
           <ul className="ho-nav-links">
-            {isFuncionario ? (
-              <li>
-                <Link to="/admin" className="ho-nav-link">
-                  Painel
-                </Link>
-              </li>
-            ) : (
+            <li>
+              <Link
+                to="/"
+                className="ho-nav-link"
+              >
+                Home
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                to="/pedido"
+                className="ho-nav-link"
+              >
+                Cardápio
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                to="/promocoes"
+                className="ho-nav-link"
+              >
+                Promoções
+              </Link>
+            </li>
+
+            {isCliente && (
               <>
                 <li>
-                  <Link to="/" className="ho-nav-link">
-                    Home
-                  </Link>
-                </li>
-
-                <li>
-                  <Link to="/pedido" className="ho-nav-link">
-                    Cardápio
-                  </Link>
-                </li>
-
-                <li>
-                  <Link to="/promocoes" className="ho-nav-link">
-                    Promoções
-                  </Link>
-                </li>
-
-                <li>
-                  <Link to="/meus-pedidos" className="ho-nav-link">
+                  <Link
+                    to="/meus-pedidos"
+                    className="ho-nav-link"
+                  >
                     Meus Pedidos
                   </Link>
                 </li>
 
                 <li>
-                  <Link to="/acompanhar-pedido" className="ho-nav-link">
+                  <Link
+                    to="/acompanhar-pedido"
+                    className="ho-nav-link"
+                  >
                     Acompanhar Pedido
                   </Link>
                 </li>
@@ -267,39 +302,38 @@ export default function Navbar() {
           <div className="ho-nav-actions">
 
             {/* carrinho disponível apenas para clientes e visitantes */}
-            {!isFuncionario && (
-              <button
-                type="button"
-                className="ho-cart"
-                onClick={() => {
-                  setMenuOpen(false);
-                  setCartOpen(true);
-                }}
-                aria-label="Ir para o carrinho"
+            <button
+              type="button"
+              className="ho-cart"
+              onClick={() => {
+                setMenuOpen(false);
+                setCartOpen(true);
+              }}
+              aria-label="Ir para o carrinho"
+            >
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#fff"
+                strokeWidth="1.8"
               >
-                <svg
-                  width="22"
-                  height="22"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#fff"
-                  strokeWidth="1.8"
-                >
-                  <circle cx="9" cy="21" r="1" />
-                  <circle cx="20" cy="21" r="1" />
-                  <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-                </svg>
+                <circle cx="9" cy="21" r="1" />
+                <circle cx="20" cy="21" r="1" />
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+              </svg>
 
-                {quantidadeCarrinho > 0 && (
-                  <span className="ho-cart-badge">
-                    {quantidadeCarrinho}
-                  </span>
-                )}
-              </button>
-            )}
+              {quantidadeCarrinho > 0 && (
+                <span className="ho-cart-badge">
+                  {quantidadeCarrinho}
+                </span>
+              )}
+            </button>
+
 
             {/* alerta exibido quando o cliente está sem telefone ou endereço cadastrado */}
-            {!isFuncionario && usuario?.tipo === "CLIENTE" && perfilIncompleto && (
+            {isCliente && perfilIncompleto && (
               <button
                 type="button"
                 className="ho-profile-warning"
@@ -318,7 +352,7 @@ export default function Navbar() {
             )}
 
             {/* botão de notificações exibido apenas para clientes logados */}
-            {!isFuncionario && usuario?.tipo === "CLIENTE" && (
+            {isCliente && (
               <button
                 type="button"
                 className="ho-notification"
@@ -341,11 +375,11 @@ export default function Navbar() {
             )}
 
             <button
-                type="button"
-                className="ho-btn-login"
-                onClick={() => navigate(usuario ? "/perfil" : "/login")}
-              >
-                {usuario ? "Meu Perfil" : "Entrar"}
+              type="button"
+              className="ho-btn-login"
+              onClick={() => navigate(usuario ? "/perfil" : "/login")}
+            >
+              {usuario ? "Meu Perfil" : "Entrar"}
             </button>
 
             <button
@@ -360,235 +394,259 @@ export default function Navbar() {
             </button>
           </div>
         </div>
-      </nav>
+      </nav >
 
       {/* camada escura usada para fechar menus e painéis laterais ao clicar fora */}
-      {menuOpen && (
-        <div
-          className="ho-overlay"
-          onClick={fecharMenu}
-        />
-      )}
+      {
+        menuOpen && (
+          <div
+            className="ho-overlay"
+            onClick={fecharMenu}
+          />
+        )
+      }
 
       {/* painel lateral do carrinho com resumo dos itens adicionados */}
-      {cartOpen && (
-        <div
-          className="ho-overlay"
-          onClick={fecharMenu}
-        />
-      )}
+      {
+        cartOpen && (
+          <div
+            className="ho-overlay"
+            onClick={fecharMenu}
+          />
+        )
+      }
 
-      {notificacoesOpen && (
-        <div
-          className="ho-overlay"
-          onClick={fecharMenu}
-        />
-      )}
+      {
+        notificacoesOpen && (
+          <div
+            className="ho-overlay"
+            onClick={fecharMenu}
+          />
+        )
+      }
 
-      {menuOpen && (
-        <div className="ho-mobile-menu">
+      {
+        menuOpen && (
+          <div className="ho-mobile-menu">
 
-          {isFuncionario ? (
-            <Link to="/admin" onClick={fecharMenu}>
-              Painel
+            <Link
+              to="/"
+              onClick={fecharMenu}
+            >
+              Home
             </Link>
-          ) : (
-            <>
-              <Link to="/" onClick={fecharMenu}>
-                Home
-              </Link>
 
-              <Link to="/pedido" onClick={fecharMenu}>
-                Cardápio
-              </Link>
+            <Link
+              to="/pedido"
+              onClick={fecharMenu}
+            >
+              Cardápio
+            </Link>
 
-              <Link to="/promocoes" onClick={fecharMenu}>
-                Promoções
-              </Link>
+            <Link
+              to="/promocoes"
+              onClick={fecharMenu}
+            >
+              Promoções
+            </Link>
 
-              <Link to="/meus-pedidos" onClick={fecharMenu}>
-                Meus Pedidos
-              </Link>
+            {isCliente && (
+              <>
+                <Link
+                  to="/meus-pedidos"
+                  onClick={fecharMenu}
+                >
+                  Meus Pedidos
+                </Link>
 
-              <Link to="/acompanhar-pedido" onClick={fecharMenu}>
-                Acompanhar Pedido
-              </Link>
-            </>
-          )}
+                <Link
+                  to="/acompanhar-pedido"
+                  onClick={fecharMenu}
+                >
+                  Acompanhar Pedido
+                </Link>
+              </>
+            )}
 
-          <button
-            type="button"
-            onClick={() => {
-              fecharMenu();
-              navigate(usuario ? "/perfil" : "/login");
-            }}
-          >
-            {usuario ? "Meu Perfil" : "Entrar"}
-          </button>
-        </div>
-      )}
 
-      {cartOpen && (
-        <aside className="ho-cart-panel">
-          <div className="ho-cart-panel-header">
-            <div>
-              <span>Seu carrinho</span>
-              <strong>Resumo do pedido</strong>
-            </div>
-
-            <button type="button" onClick={fecharMenu}>
-              ×
+            <button
+              type="button"
+              onClick={() => {
+                fecharMenu();
+                navigate(usuario ? "/perfil" : "/login");
+              }}
+            >
+              {usuario ? "Meu Perfil" : "Entrar"}
             </button>
           </div>
+        )
+      }
 
-          {carrinho.length === 0 ? (
-            <>
-              <div className="ho-cart-panel-empty">
-                <span>🛒</span>
-                <strong>Carrinho vazio</strong>
-                <p>Adicione itens no cardápio para começar seu pedido.</p>
+      {
+        cartOpen && (
+          <aside className="ho-cart-panel">
+            <div className="ho-cart-panel-header">
+              <div>
+                <span>Seu carrinho</span>
+                <strong>Resumo do pedido</strong>
               </div>
 
-              {/* leva o usuário para o cardápio caso o carrinho esteja vazio */}
+              <button type="button" onClick={fecharMenu}>
+                ×
+              </button>
+            </div>
+
+            {carrinho.length === 0 ? (
+              <>
+                <div className="ho-cart-panel-empty">
+                  <span>🛒</span>
+                  <strong>Carrinho vazio</strong>
+                  <p>Adicione itens no cardápio para começar seu pedido.</p>
+                </div>
+
+                {/* leva o usuário para o cardápio caso o carrinho esteja vazio */}
+                <button
+                  type="button"
+                  className="ho-cart-panel-btn"
+                  onClick={() => {
+                    fecharMenu();
+                    localStorage.setItem("pizzly_etapa", "2");
+                    fecharMenu();
+                    navigate("/pedido");
+                  }}
+                >
+                  Ver cardápio →
+                </button>
+              </>
+            ) : (
+              <>
+                <ul className="ho-cart-panel-list">
+                  {/* lista os itens salvos no carrinho */}
+                  {carrinho.map((item) => (
+                    <li key={item.uid} className="ho-cart-panel-item">
+                      <img src={item.img} alt={item.produto.nome} />
+
+                      <div>
+                        <strong>
+                          {item.quantidade}x {item.produto.nome}
+                        </strong>
+
+                        {item.tamanho && <span>{item.tamanho}</span>}
+
+                        <b>
+                          {fmt(item.preco * item.quantidade)}
+                        </b>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="ho-cart-panel-total">
+                  <span>Total parcial</span>
+                  <strong>{fmt(totalCarrinho)}</strong>
+                </div>
+
+                {/* direciona o usuário para a etapa de revisão/finalização do pedido */}
+                <button
+                  type="button"
+                  className="ho-cart-panel-btn"
+                  onClick={() => {
+                    localStorage.setItem("pizzly_etapa", "2");
+                    window.dispatchEvent(new Event("pizzlyIrParaRevisao"));
+
+                    fecharMenu();
+                    navigate("/pedido?etapa=2");
+                  }}
+                >
+                  Finalizar pedido →
+                </button>
+              </>
+            )}
+          </aside>
+        )
+      }
+
+      {/* painel lateral com as notificações não lidas do cliente */}
+      {
+        notificacoesOpen && (
+          <aside className="ho-notification-panel">
+
+            <div className="ho-cart-panel-header ho-notification-header">
+              <div>
+                <span>Central de notificações</span>
+                <strong>Suas atualizações</strong>
+              </div>
+
               <button
                 type="button"
-                className="ho-cart-panel-btn"
-                onClick={() => {
-                  fecharMenu();
-                  localStorage.setItem("pizzly_etapa", "2");
-                  fecharMenu();
-                  navigate("/pedido");
-                }}
+                onClick={fecharMenu}
               >
-                Ver cardápio →
+                ×
               </button>
-            </>
-          ) : (
-            <>
-              <ul className="ho-cart-panel-list">
-                {/* lista os itens salvos no carrinho */}
-                {carrinho.map((item) => (
-                  <li key={item.uid} className="ho-cart-panel-item">
-                    <img src={item.img} alt={item.produto.nome} />
+            </div>
 
+            {/* marca todas as notificações como lidas no backend */}
+            {notificacoes.length > 0 && (
+              <button
+                type="button"
+                className="ho-mark-all-btn"
+                onClick={marcarTodasComoLidas}
+              >
+                ✓ Marcar todas como lidas
+              </button>
+            )}
+
+            {notificacoes.length === 0 ? (
+              <div className="ho-cart-panel-empty">
+                <span>🔔</span>
+                <strong>Nenhuma notificação</strong>
+
+                <p>
+                  Você não possui notificações novas.
+                </p>
+              </div>
+            ) : (
+              <ul className="ho-notification-list">
+                {/* lista as notificações retornadas pelo backend */}
+                {notificacoes.map((notificacao) => (
+                  <li
+                    key={notificacao.id}
+                    className="ho-notification-item"
+                  >
                     <div>
                       <strong>
-                        {item.quantidade}x {item.produto.nome}
+                        {notificacao.titulo}
                       </strong>
 
-                      {item.tamanho && <span>{item.tamanho}</span>}
+                      <p>
+                        {notificacao.mensagem}
+                      </p>
 
-                      <b>
-                        {fmt(item.preco * item.quantidade)}
-                      </b>
+                      <small>
+                        {new Date(
+                          notificacao.dataEnvio
+                        ).toLocaleString("pt-BR")}
+                      </small>
                     </div>
+
+                    {/* marca individualmente a notificação como lida */}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        marcarNotificacaoComoLida(
+                          notificacao.id
+                        )
+                      }
+                    >
+                      Marcar como lida
+                    </button>
                   </li>
                 ))}
               </ul>
-
-              <div className="ho-cart-panel-total">
-                <span>Total parcial</span>
-                <strong>{fmt(totalCarrinho)}</strong>
-              </div>
-
-              {/* direciona o usuário para a etapa de revisão/finalização do pedido */}
-              <button
-                type="button"
-                className="ho-cart-panel-btn"
-                onClick={() => {
-                  localStorage.setItem("pizzly_etapa", "2");
-                  window.dispatchEvent(new Event("pizzlyIrParaRevisao"));
-
-                  fecharMenu();
-                  navigate("/pedido?etapa=2");
-                }}
-              >
-                Finalizar pedido →
-              </button>
-            </>
-          )}
-        </aside>
-      )}
-
-      {/* painel lateral com as notificações não lidas do cliente */}
-      {notificacoesOpen && (
-        <aside className="ho-notification-panel">
-
-          <div className="ho-cart-panel-header ho-notification-header">
-          <div>
-            <span>Central de notificações</span>
-            <strong>Suas atualizações</strong>
-          </div>
-
-          <button
-            type="button"
-            onClick={fecharMenu}
-          >
-            ×
-          </button>
-        </div>
-
-        {/* marca todas as notificações como lidas no backend */}
-        {notificacoes.length > 0 && (
-          <button
-            type="button"
-            className="ho-mark-all-btn"
-            onClick={marcarTodasComoLidas}
-          >
-            ✓ Marcar todas como lidas
-          </button>
-        )}
-
-          {notificacoes.length === 0 ? (
-            <div className="ho-cart-panel-empty">
-              <span>🔔</span>
-              <strong>Nenhuma notificação</strong>
-
-              <p>
-                Você não possui notificações novas.
-              </p>
-            </div>
-          ) : (
-            <ul className="ho-notification-list">
-              {/* lista as notificações retornadas pelo backend */}
-              {notificacoes.map((notificacao) => (
-                <li
-                  key={notificacao.id}
-                  className="ho-notification-item"
-                >
-                  <div>
-                    <strong>
-                      {notificacao.titulo}
-                    </strong>
-
-                    <p>
-                      {notificacao.mensagem}
-                    </p>
-
-                    <small>
-                      {new Date(
-                        notificacao.dataEnvio
-                      ).toLocaleString("pt-BR")}
-                    </small>
-                  </div>
-
-                  {/* marca individualmente a notificação como lida */}
-                  <button
-                    type="button"
-                    onClick={() =>
-                      marcarNotificacaoComoLida(
-                        notificacao.id
-                      )
-                    }
-                  >
-                    Marcar como lida
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </aside>
-      )}
+            )}
+          </aside>
+        )
+      }
     </>
   );
 }

@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import { toast } from "react-toastify";
 import "../assets/css/Login.css";
 import { toastServidorOffline } from "../utils/toastUtils";
@@ -13,6 +16,30 @@ import googleLogo from "../assets/images/googleLogo.svg";
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const destinoAposLogin =
+    location.state?.from || "/";
+
+  useEffect(() => {
+    let usuarioLogado = null;
+
+    try {
+      usuarioLogado = JSON.parse(
+        localStorage.getItem("pizzly_usuario")
+      );
+    } catch (error) {
+      console.error("Erro ao recuperar usuário salvo:", error);
+
+      localStorage.removeItem("pizzly_usuario");
+    }
+
+    if (usuarioLogado?.tipo === "FUNCIONARIO") {
+      navigate("/admin", {
+        replace: true,
+      });
+    }
+  }, [navigate]);
 
   // Estados do formulário
   const [showPassword, setShowPassword] = useState(false);
@@ -87,12 +114,15 @@ export default function Login() {
 
       // cliente vai para a loja
       if (usuarioLogado.tipo === "CLIENTE") {
-        navigate("/");
-      }
-
-      // funcionário vai direto para o painel administrativo
-      else if (usuarioLogado.tipo === "FUNCIONARIO") {
-        navigate("/admin");
+        navigate(destinoAposLogin, {
+          replace: true,
+        });
+      } else if (
+        usuarioLogado.tipo === "FUNCIONARIO"
+      ) {
+        navigate("/admin", {
+          replace: true,
+        });
       }
 
     } catch (error) {
@@ -128,9 +158,15 @@ export default function Login() {
       window.dispatchEvent(new Event("pizzlyUsuarioAtualizado"));
 
       if (usuarioLogado.tipo === "CLIENTE") {
-        navigate("/");
-      } else if (usuarioLogado.tipo === "FUNCIONARIO") {
-        navigate("/admin");
+        navigate(destinoAposLogin, {
+          replace: true,
+        });
+      } else if (
+        usuarioLogado.tipo === "FUNCIONARIO"
+      ) {
+        navigate("/admin", {
+          replace: true,
+        });
       }
     } catch (error) {
       console.error("Erro no login com Google:", error);

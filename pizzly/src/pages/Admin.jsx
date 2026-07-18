@@ -393,11 +393,29 @@ export default function Admin() {
   const [clientesBackend, setClientesBackend] = useState([]);
 
   useEffect(() => {
-    const usuarioLogado = JSON.parse(localStorage.getItem("pizzly_usuario"));
+    let usuarioAtual = null;
+
+    try {
+      usuarioAtual = JSON.parse(
+        localStorage.getItem("pizzly_usuario")
+      );
+    } catch (error) {
+      console.error(
+        "Erro ao recuperar funcionário autenticado:",
+        error
+      );
+
+      localStorage.removeItem("pizzly_usuario");
+    }
 
     // somente funcionários podem acessar o painel administrativo
-    if (!usuarioLogado || usuarioLogado.tipo !== "FUNCIONARIO") {
-      navigate("/login");
+    if (
+      !usuarioAtual ||
+      usuarioAtual.tipo !== "FUNCIONARIO"
+    ) {
+      navigate("/login", {
+        replace: true,
+      });
     }
   }, [navigate]);
 
@@ -1642,7 +1660,13 @@ export default function Admin() {
     localStorage.removeItem("pizzly_usuario");
     localStorage.removeItem("pizzly_admin_aba");
 
-    navigate("/login", { replace: true });
+    window.dispatchEvent(
+      new Event("pizzlyUsuarioAtualizado")
+    );
+
+    navigate("/login", {
+      replace: true,
+    });
   }
 
   //RENDERIZAÇÃO RESPONSIVA DAS ABAS:

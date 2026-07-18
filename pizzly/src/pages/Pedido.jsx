@@ -594,6 +594,47 @@ export default function Pedido() {
       return;
     }
 
+    // Exige login ao sair do cardápio e iniciar a compra
+    if (etapa === 1) {
+      let usuarioLogado = null;
+
+      try {
+        usuarioLogado = JSON.parse(
+          localStorage.getItem("pizzly_usuario")
+        );
+      } catch (error) {
+        console.error(
+          "Erro ao ler usuário logado:",
+          error
+        );
+
+        localStorage.removeItem("pizzly_usuario");
+      }
+
+      if (
+        !usuarioLogado?.id ||
+        usuarioLogado.tipo !== "CLIENTE"
+      ) {
+        // Guarda a etapa para continuar após o login
+        localStorage.setItem(
+          "pizzly_etapa",
+          "2"
+        );
+
+        toast.info(
+          "Entre na sua conta para continuar o pedido."
+        );
+
+        navigate("/login", {
+          state: {
+            from: "/pedido?etapa=2",
+          },
+        });
+
+        return;
+      }
+    }
+
     if (
       etapa === 3 &&
       entrega.formaRecebimento === "entrega" &&

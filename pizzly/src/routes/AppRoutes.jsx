@@ -1,12 +1,17 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom"
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import Home from "../pages/Home"
-import Login from "../pages/Login"
-import Pedido from "../pages/Pedido"
-import Admin from "../pages/Admin"
+import Home from "../pages/Home";
+import Login from "../pages/Login";
+import Pedido from "../pages/Pedido";
+import Admin from "../pages/Admin";
 import CriarConta from "../pages/CriarConta";
 import MeusPedidos from "../pages/MeusPedidos";
 import AcompanharPedido from "../pages/AcompanharPedido";
@@ -16,43 +21,126 @@ import Perfil from "../pages/Perfil";
 import RecuperarSenha from "../pages/RecuperarSenha";
 import NovaSenha from "../pages/NovaSenha";
 
-// define todas as rotas da aplicação
+import RotaProtegida from "../components/RotaProtegida";
+import RotaLoja from "../components/RotaLoja";
+
 function AppRoutes() {
   return (
     <BrowserRouter>
-
-      {/* rotas principais do sistema */}
       <Routes>
+        {/* PÁGINAS DA LOJA:
+            disponíveis para visitantes e clientes */}
 
-        <Route path="/" element={<Home />} />
+        <Route
+          path="/"
+          element={
+            <RotaLoja>
+              <Home />
+            </RotaLoja>
+          }
+        />
 
-        <Route path="/login" element={<Login />} />
+        <Route
+          path="/pedido"
+          element={
+            <RotaLoja>
+              <Pedido />
+            </RotaLoja>
+          }
+        />
 
-        <Route path="/pedido" element={<Pedido />} />
+        <Route
+          path="/promocoes"
+          element={
+            <RotaLoja>
+              <Promocoes />
+            </RotaLoja>
+          }
+        />
 
-        <Route path="/admin" element={<Admin />} />
+        <Route
+          path="/criar-conta"
+          element={
+            <RotaLoja>
+              <CriarConta />
+            </RotaLoja>
+          }
+        />
 
-        <Route path="/criar-conta" element={<CriarConta />} />
+        {/* AUTENTICAÇÃO E RECUPERAÇÃO DE SENHA */}
 
-        <Route path="/meus-pedidos" element={<MeusPedidos />} />
+        <Route
+          path="/login"
+          element={<Login />}
+        />
 
-        <Route path="/acompanhar-pedido" element={<AcompanharPedido />} />
+        <Route
+          path="/recuperar-senha"
+          element={<RecuperarSenha />}
+        />
 
-        <Route path="/promocoes" element={<Promocoes />} />
+        <Route
+          path="/nova-senha"
+          element={<NovaSenha />}
+        />
 
-        <Route path="/pedido-confirmado" element={<PedidoConfirmado />} />
+        {/* ROTAS EXCLUSIVAS DE CLIENTE */}
 
-        <Route path="/perfil" element={<Perfil />} />
+        <Route
+          path="/meus-pedidos"
+          element={
+            <RotaProtegida tiposPermitidos={["CLIENTE"]}>
+              <MeusPedidos />
+            </RotaProtegida>
+          }
+        />
 
-        <Route path="/recuperar-senha" element={<RecuperarSenha />} />
+        <Route
+          path="/acompanhar-pedido"
+          element={
+            <RotaProtegida tiposPermitidos={["CLIENTE"]}>
+              <AcompanharPedido />
+            </RotaProtegida>
+          }
+        />
 
-        <Route path="/nova-senha" element={<NovaSenha />} />
+        <Route
+          path="/pedido-confirmado"
+          element={
+            <RotaProtegida tiposPermitidos={["CLIENTE"]}>
+              <PedidoConfirmado />
+            </RotaProtegida>
+          }
+        />
 
+        <Route
+          path="/perfil"
+          element={
+            <RotaProtegida tiposPermitidos={["CLIENTE"]}>
+              <Perfil />
+            </RotaProtegida>
+          }
+        />
 
+        {/* ROTA EXCLUSIVA DE FUNCIONÁRIO */}
+
+        <Route
+          path="/admin"
+          element={
+            <RotaProtegida tiposPermitidos={["FUNCIONARIO"]}>
+              <Admin />
+            </RotaProtegida>
+          }
+        />
+
+        {/* ROTA INEXISTENTE */}
+
+        <Route
+          path="*"
+          element={<Navigate to="/" replace />}
+        />
       </Routes>
 
-      {/*trocando alerts() por toast, mais bonito visualmente */}
-      {/* componente global responsável por exibir mensagens de sucesso e erro */}
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -63,9 +151,8 @@ function AppRoutes() {
         draggable
         theme="colored"
       />
-
     </BrowserRouter>
-  )
+  );
 }
 
-export default AppRoutes
+export default AppRoutes;
