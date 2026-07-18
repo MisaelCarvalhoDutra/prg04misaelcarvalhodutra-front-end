@@ -65,17 +65,6 @@ export default function Home() {
   const [comboDestaque, setComboDestaque] = useState(null);
 
 
-  // redireciona funcionários diretamente para o painel administrativo
-  useEffect(() => {
-    const usuarioLogado = JSON.parse(
-      localStorage.getItem("pizzly_usuario")
-    );
-
-    if (usuarioLogado?.tipo === "FUNCIONARIO") {
-      navigate("/admin");
-    }
-  }, [navigate]);
-
   // carrega categorias, produtos em destaque e o combo principal.
   useEffect(() => {
     async function carregarHome() {
