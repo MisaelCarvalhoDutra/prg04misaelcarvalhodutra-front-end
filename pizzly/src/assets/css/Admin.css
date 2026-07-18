@@ -2308,7 +2308,7 @@ body.dark-admin .ad-mobile-topbar {
 
   backdrop-filter: blur(4px);
 
-  animation: adFadeUp 0.22s ease both;
+  animation: none;
 }
 
 .ad-modal {
@@ -2644,7 +2644,7 @@ body.dark-admin .ad-sair-btn:hover {
 
 /* ── Content area ── */
 body.dark-admin .ad-content {
-  animation: dark-fade-up 0.3s ease both;
+  animation: none;
 }
 
 /* ── Topbar ── */
@@ -4275,10 +4275,10 @@ body.dark-admin .ad-atalho-btn:nth-child(4) .ad-atalho-ico {
 
   padding: 0.85rem 2.8rem 0.85rem 1rem;
 
-  background-color: #1d1e27;
-  color: #f5f5f7;
+  background-color: #ffffff;
+  color: #333333;
 
-  border: 1px solid rgba(255, 68, 68, 0.45);
+  border: 1px solid #dddddd;
   border-radius: 12px;
 
   font-family: inherit;
@@ -4288,11 +4288,11 @@ body.dark-admin .ad-atalho-btn:nth-child(4) .ad-atalho-ico {
   cursor: pointer;
   outline: none;
 
-  color-scheme: dark;
+  color-scheme: light;
 
   box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    0 4px 12px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
 
   transition:
     border-color 0.2s ease,
@@ -4304,19 +4304,75 @@ body.dark-admin .ad-atalho-btn:nth-child(4) .ad-atalho-ico {
 .ad-filters select:hover,
 .ad-config-grid select:hover,
 .ad-period-select:hover {
-  border-color: rgba(255, 80, 80, 0.8);
+  border-color: rgba(198, 40, 40, 0.45);
 }
 
 .ad-modal select:focus,
 .ad-filters select:focus,
 .ad-config-grid select:focus,
 .ad-period-select:focus {
+  background-color: #ffffff;
+  border-color: #c62828;
+
+  box-shadow:
+    0 0 0 3px rgba(198, 40, 40, 0.1),
+    0 0 14px rgba(198, 40, 40, 0.08);
+}
+
+.ad-modal select option,
+.ad-filters select option,
+.ad-config-grid select option,
+.ad-period-select option {
+  background-color: #ffffff;
+  color: #333333;
+
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+/* Selects do admin - modo escuro */
+
+body.dark-admin .ad-modal select,
+body.dark-admin .ad-filters select,
+body.dark-admin .ad-config-grid select,
+body.dark-admin .ad-period-select {
+  background-color: #1d1e27;
+  color: #f5f5f7;
+
+  border-color: rgba(255, 68, 68, 0.45);
+
+  color-scheme: dark;
+
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+body.dark-admin .ad-modal select:hover,
+body.dark-admin .ad-filters select:hover,
+body.dark-admin .ad-config-grid select:hover,
+body.dark-admin .ad-period-select:hover {
+  border-color: rgba(255, 80, 80, 0.8);
+}
+
+body.dark-admin .ad-modal select:focus,
+body.dark-admin .ad-filters select:focus,
+body.dark-admin .ad-config-grid select:focus,
+body.dark-admin .ad-period-select:focus {
   background-color: #21191d;
   border-color: #ff4545;
 
   box-shadow:
     0 0 0 3px rgba(255, 69, 69, 0.14),
     0 0 18px rgba(255, 45, 45, 0.18);
+}
+
+body.dark-admin .ad-modal select option,
+body.dark-admin .ad-filters select option,
+body.dark-admin .ad-config-grid select option,
+body.dark-admin .ad-period-select option {
+  background-color: #1d1e27;
+  color: #f4f4f6;
 }
 
 /* OPÇÕES ABERTAS */

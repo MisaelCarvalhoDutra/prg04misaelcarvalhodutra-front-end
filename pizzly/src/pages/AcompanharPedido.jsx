@@ -11,7 +11,7 @@ const PEDIDO_PADRAO = {
   status: "Preparando",
   itens: ["1x Pizza Calabresa", "1x Coca-Cola 2L"],
   total: "R$ 68,80",
-  tempo: "30 - 45 min",
+  tempo: "",
   entrega: "Rua das Flores, 123 — Centro",
   pagamento: "Pix",
 };
@@ -101,6 +101,7 @@ function converterStatus(status) {
 export default function AcompanharPedido() {
   const navigate = useNavigate();
   const [pedido, setPedido] = useState(PEDIDO_PADRAO);
+  const [tempoEntrega, setTempoEntrega] = useState("25 - 30 min");
   const location = useLocation();
 
   // identifica se o pedido foi cancelado para exibir uma mensagem específica
@@ -115,6 +116,30 @@ export default function AcompanharPedido() {
   const etapasBase = ehRetirada
     ? ETAPAS_RETIRADA
     : ETAPAS_ENTREGA;
+
+    useEffect(() => {
+  async function carregarConfiguracoes() {
+    try {
+      const response = await fetch(`${API_URL}/configuracoes`);
+
+      if (!response.ok) {
+        console.error(
+          "Não foi possível carregar as configurações:",
+          response.status
+        );
+        return;
+      }
+
+      const dados = await response.json();
+
+      setTempoEntrega(dados.tempoEntrega || "");
+    } catch (error) {
+      console.error("Erro ao carregar configurações:", error);
+    }
+  }
+
+  carregarConfiguracoes();
+}, []);
 
   useEffect(() => {
     const pedidoDaNavegacao = location.state?.pedido;
@@ -163,16 +188,16 @@ export default function AcompanharPedido() {
             .toFixed(2)
             .replace(".", ",")}`,
 
-          tempo:
-            pedidoBackend.status === "ENTREGUE"
-              ? "Entregue"
-              : pedidoBackend.status === "RETIRADO"
-              ? "Retirado"
-              : pedidoBackend.status === "PRONTO_PARA_RETIRADA"
-              ? "Pronto para retirada"
-              : pedidoBackend.formaRecebimento === "retirada"
-              ? "25 min"
-              : "30 - 45 min",
+        tempo:
+  pedidoBackend.status === "ENTREGUE"
+    ? "Entregue"
+    : pedidoBackend.status === "RETIRADO"
+    ? "Retirado"
+    : pedidoBackend.status === "PRONTO_PARA_RETIRADA"
+    ? "Pronto para retirada"
+    : pedidoBackend.formaRecebimento === "retirada"
+    ? "25 min"
+    : tempoEntrega,
 
           entrega:
             pedidoBackend.formaRecebimento === "retirada"
@@ -209,7 +234,7 @@ export default function AcompanharPedido() {
       clearInterval(intervalo);
       window.removeEventListener("focus", atualizarAoVoltarParaPagina);
     };
-    }, [location.state]);
+    }, [location.state, tempoEntrega]);
 
   //CÁLCULO DA LINHA DO TEMPO
   
@@ -248,7 +273,7 @@ export default function AcompanharPedido() {
           {/* Tempo estimado do pedido */}
           <div className="ap-time-card">
             <span>Tempo estimado</span>
-            <strong>{pedido.tempo}</strong>
+            <strong>{pedido.tempo || "Carregando..."}</strong>
           </div>
         </section>
 

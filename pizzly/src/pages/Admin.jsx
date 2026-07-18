@@ -2442,10 +2442,10 @@ export default function Admin() {
         {lista.map((promo) => (
           <div key={promo.id} className="ad-promocao-card">
             <img
-  src={obterImagemPromocao(promo.imagem)}
-  alt={promo.titulo}
-  className="ad-promocao-card-img"
-/>
+              src={obterImagemPromocao(promo.imagem)}
+              alt={promo.titulo}
+              className="ad-promocao-card-img"
+            />
             <div className="ad-promocao-card-top">
               <strong>{promo.titulo}</strong>
               <span>{promo.ativa ? "Ativa" : "Inativa"}</span>
@@ -2515,19 +2515,19 @@ export default function Admin() {
               {promocoes.map((promo) => (
                 <tr key={promo.id}>
                   <td>
-  <div className="ad-promocao-info">
-    <img
-      src={obterImagemPromocao(promo.imagem)}
-      alt={promo.titulo}
-      className="ad-promocao-thumb"
-    />
+                    <div className="ad-promocao-info">
+                      <img
+                        src={obterImagemPromocao(promo.imagem)}
+                        alt={promo.titulo}
+                        className="ad-promocao-thumb"
+                      />
 
-    <div className="ad-promocao-info-texto">
-      <strong>{promo.titulo}</strong>
-      <small>{promo.desc}</small>
-    </div>
-  </div>
-</td>
+                      <div className="ad-promocao-info-texto">
+                        <strong>{promo.titulo}</strong>
+                        <small>{promo.desc}</small>
+                      </div>
+                    </div>
+                  </td>
 
                   <td>R$ {promo.precoNovo}</td>
 
