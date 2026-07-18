@@ -901,7 +901,8 @@ body.dark-admin .ad-mobile-topbar {
 .ad-categoria-card,
 .ad-promocao-card,
 .ad-funcionario-card,
-.ad-auditoria-card {
+.ad-auditoria-card,
+.ad-avaliacao-card {
   background: #fff;
   border: 1px solid #eee;
   border-radius: 1rem;
@@ -1388,6 +1389,44 @@ body.dark-admin .ad-mobile-topbar {
   margin-bottom: 0.45rem;
 }
 
+/* CARD DE AVALIAÇÃO */
+.ad-avaliacao-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.8rem;
+  margin-bottom: 0.8rem;
+}
+
+.ad-avaliacao-card-top strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.ad-avaliacao-nota {
+  flex-shrink: 0;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #b8860b;
+  white-space: nowrap;
+}
+
+.ad-avaliacao-card p {
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: #444;
+  overflow-wrap: anywhere;
+}
+
+.ad-avaliacao-card p:last-child {
+  margin-bottom: 0;
+}
+
+.ad-avaliacao-data {
+  color: #777;
+}
+
 /* Tabelas ocultas no mobile e tablet */
 .ad-pedidos-table,
 .ad-clientes-table,
@@ -1395,7 +1434,8 @@ body.dark-admin .ad-mobile-topbar {
 .ad-categorias-table,
 .ad-promocoes-table,
 .ad-funcionarios-table,
-.ad-auditoria-table {
+.ad-auditoria-table,
+.ad-avaliacoes-table {
   display: none;
 }
 
@@ -1406,7 +1446,8 @@ body.dark-admin .ad-mobile-topbar {
 .ad-categoria-cards,
 .ad-promocao-cards,
 .ad-funcionario-cards,
-.ad-auditoria-cards {
+.ad-auditoria-cards,
+.ad-avaliacao-cards {
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -1421,7 +1462,8 @@ body.dark-admin .ad-mobile-topbar {
 .ad-categoria-card,
 .ad-promocao-card,
 .ad-funcionario-card,
-.ad-auditoria-card {
+.ad-auditoria-card,
+.ad-avaliacao-card {
   width: 100%;
   min-width: 0;
 }
@@ -4214,15 +4256,20 @@ body.dark-admin .ad-atalho-btn:nth-child(4) .ad-atalho-ico {
     flex-direction: row;
   }
 
+  /* Tabelas voltam no desktop */
+
   .ad-pedidos-table,
   .ad-clientes-table,
   .ad-produtos-table,
   .ad-categorias-table,
   .ad-promocoes-table,
   .ad-funcionarios-table,
-  .ad-auditoria-table {
+  .ad-auditoria-table,
+  .ad-avaliacoes-table {
     display: block;
   }
+
+  /* Cards escondidos no desktop */
 
   .ad-pedido-cards,
   .ad-cliente-cards,
@@ -4230,7 +4277,8 @@ body.dark-admin .ad-atalho-btn:nth-child(4) .ad-atalho-ico {
   .ad-categoria-cards,
   .ad-promocao-cards,
   .ad-funcionario-cards,
-  .ad-auditoria-cards {
+  .ad-auditoria-cards,
+  .ad-avaliacao-cards {
     display: none;
   }
 
@@ -4425,11 +4473,9 @@ body.dark-admin .ad-period-select option {
   padding: 0.9rem 1rem;
 
   background:
-    linear-gradient(
-      135deg,
+    linear-gradient(135deg,
       rgba(198, 40, 40, 0.18),
-      rgba(255, 70, 70, 0.07)
-    );
+      rgba(255, 70, 70, 0.07));
 
   border: 1.5px dashed rgba(255, 75, 75, 0.55);
   border-radius: 12px;
@@ -4456,11 +4502,9 @@ body.dark-admin .ad-period-select option {
   transform: translateY(-1px);
 
   background:
-    linear-gradient(
-      135deg,
+    linear-gradient(135deg,
       rgba(198, 40, 40, 0.28),
-      rgba(255, 70, 70, 0.12)
-    );
+      rgba(255, 70, 70, 0.12));
 
   border-color: #ff4d4d;
 
