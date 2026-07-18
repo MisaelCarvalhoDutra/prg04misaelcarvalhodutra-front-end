@@ -2577,50 +2577,50 @@ export default function Admin() {
   }
 
   function renderCardsAvaliacoes(lista) {
-  return (
-    <div className="ad-avaliacao-cards">
-      {lista.map((avaliacao) => (
-        <div key={avaliacao.id} className="ad-avaliacao-card">
-          <div className="ad-avaliacao-card-top">
-            <strong>
-              {avaliacao.clienteNome || "Cliente"}
-            </strong>
+    return (
+      <div className="ad-avaliacao-cards">
+        {lista.map((avaliacao) => (
+          <div key={avaliacao.id} className="ad-avaliacao-card">
+            <div className="ad-avaliacao-card-top">
+              <strong>
+                {avaliacao.clienteNome || "Cliente"}
+              </strong>
 
-            <span
-  className="ad-avaliacao-nota"
-  aria-label={`${avaliacao.nota} de 5 estrelas`}
->
-  {"⭐".repeat(Number(avaliacao.nota) || 0)}
-</span>
+              <span
+                className="ad-avaliacao-nota"
+                aria-label={`${avaliacao.nota} de 5 estrelas`}
+              >
+                {"⭐".repeat(Number(avaliacao.nota) || 0)}
+              </span>
+            </div>
+
+            <p>
+              <strong>Pedido:</strong>{" "}
+              #{avaliacao.pedidoId || "Não informado"}
+            </p>
+
+            <p className="ad-avaliacao-comentario">
+              <strong>Comentário:</strong>{" "}
+              {avaliacao.comentario || "Nenhum comentário informado."}
+            </p>
+
+            <p className="ad-avaliacao-data">
+              <strong>Data:</strong>{" "}
+              {avaliacao.dataAvaliacao
+                ? new Date(avaliacao.dataAvaliacao).toLocaleString("pt-BR")
+                : "Não informada"}
+            </p>
           </div>
+        ))}
 
-          <p>
-            <strong>Pedido:</strong>{" "}
-            #{avaliacao.pedidoId || "Não informado"}
-          </p>
-
-          <p className="ad-avaliacao-comentario">
-            <strong>Comentário:</strong>{" "}
-            {avaliacao.comentario || "Nenhum comentário informado."}
-          </p>
-
-          <p className="ad-avaliacao-data">
-            <strong>Data:</strong>{" "}
-            {avaliacao.dataAvaliacao
-              ? new Date(avaliacao.dataAvaliacao).toLocaleString("pt-BR")
-              : "Não informada"}
-          </p>
-        </div>
-      ))}
-
-      {lista.length === 0 && (
-        <div className="ad-avaliacao-card">
-          <strong>Nenhuma avaliação encontrada.</strong>
-        </div>
-      )}
-    </div>
-  );
-}
+        {lista.length === 0 && (
+          <div className="ad-avaliacao-card">
+            <strong>Nenhuma avaliação encontrada.</strong>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   function RelatoriosContent() {
     const ticketMedio =
@@ -2858,63 +2858,63 @@ export default function Admin() {
           </div>
         </div>
 
-              <div className="ad-card">
-  <div className="ad-card-hdr">
-    <div>
-      <strong>Avaliações dos clientes</strong>
+        <div className="ad-card">
+          <div className="ad-card-hdr">
+            <div>
+              <strong>Avaliações dos clientes</strong>
 
-      <p className="ad-greeting-sub">
-        Acompanhe as notas e comentários enviados após os pedidos.
-      </p>
-    </div>
+              <p className="ad-greeting-sub">
+                Acompanhe as notas e comentários enviados após os pedidos.
+              </p>
+            </div>
 
-    <button className="ad-save-btn" onClick={carregarAvaliacoes}>
-      Atualizar
-    </button>
-  </div>
+            <button className="ad-save-btn" onClick={carregarAvaliacoes}>
+              Atualizar
+            </button>
+          </div>
 
-  {renderCardsAvaliacoes(avaliacoes)}
+          {renderCardsAvaliacoes(avaliacoes)}
 
-  <div className="ad-table-wrap ad-avaliacoes-table">
-    <table className="ad-table">
-      <thead>
-        <tr>
-          <th>Cliente</th>
-          <th>Pedido</th>
-          <th>Nota</th>
-          <th>Comentário</th>
-          <th>Data</th>
-        </tr>
-      </thead>
+          <div className="ad-table-wrap ad-avaliacoes-table">
+            <table className="ad-table">
+              <thead>
+                <tr>
+                  <th>Cliente</th>
+                  <th>Pedido</th>
+                  <th>Nota</th>
+                  <th>Comentário</th>
+                  <th>Data</th>
+                </tr>
+              </thead>
 
-      <tbody>
-        {avaliacoes.map((avaliacao) => (
-          <tr key={avaliacao.id}>
-            <td>{avaliacao.clienteNome}</td>
-            <td>#{avaliacao.pedidoId}</td>
-            <td>{"⭐".repeat(avaliacao.nota)}</td>
-            <td>{avaliacao.comentario || "Sem comentário"}</td>
+              <tbody>
+                {avaliacoes.map((avaliacao) => (
+                  <tr key={avaliacao.id}>
+                    <td>{avaliacao.clienteNome}</td>
+                    <td>#{avaliacao.pedidoId}</td>
+                    <td>{"⭐".repeat(avaliacao.nota)}</td>
+                    <td>{avaliacao.comentario || "Sem comentário"}</td>
 
-            <td>
-              {new Date(
-                avaliacao.dataAvaliacao
-              ).toLocaleString("pt-BR")}
-            </td>
-          </tr>
-        ))}
+                    <td>
+                      {new Date(
+                        avaliacao.dataAvaliacao
+                      ).toLocaleString("pt-BR")}
+                    </td>
+                  </tr>
+                ))}
 
-        {avaliacoes.length === 0 && (
-          <tr>
-            <td colSpan="5">
-              Nenhuma avaliação registrada.
-            </td>
-          </tr>
-        )}
-      </tbody>
-    </table>
-  </div>
-</div>
-        
+                {avaliacoes.length === 0 && (
+                  <tr>
+                    <td colSpan="5">
+                      Nenhuma avaliação registrada.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </>
     );
   }

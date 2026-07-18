@@ -1427,6 +1427,45 @@ body.dark-admin .ad-mobile-topbar {
   color: #777;
 }
 
+.ad-avaliacao-card {
+  transition:
+    transform .2s ease,
+    border-color .2s ease,
+    box-shadow .2s ease;
+}
+
+.ad-avaliacao-card:active {
+  transform: translateY(-2px);
+
+  border-color: rgba(198, 40, 40, .35);
+
+  box-shadow:
+    0 0 18px rgba(198, 40, 40, .35),
+    0 0 8px rgba(253, 216, 53, .25);
+}
+
+/* Desktop */
+.ad-avaliacao-card:hover {
+  transform: translateY(-4px);
+
+  border-color: rgba(198, 40, 40, .35);
+
+  box-shadow:
+    0 14px 32px rgba(0,0,0,.12),
+    0 0 18px rgba(198,40,40,.18);
+}
+
+/* Mobile e clique */
+.ad-avaliacao-card:active {
+  transform: translateY(-2px);
+
+  border-color: rgba(198,40,40,.35);
+
+  box-shadow:
+    0 0 18px rgba(198,40,40,.35),
+    0 0 8px rgba(253,216,53,.25);
+}
+
 /* Tabelas ocultas no mobile e tablet */
 .ad-pedidos-table,
 .ad-clientes-table,
@@ -2909,7 +2948,8 @@ body.dark-admin .ad-produto-card,
 body.dark-admin .ad-categoria-card,
 body.dark-admin .ad-promocao-card,
 body.dark-admin .ad-funcionario-card,
-body.dark-admin .ad-auditoria-card {
+body.dark-admin .ad-auditoria-card,
+body.dark-admin .ad-avaliacao-card {
   background: linear-gradient(145deg, #1a1b22, #14151b);
   border: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow:
@@ -2924,7 +2964,8 @@ body.dark-admin .ad-produto-card:hover,
 body.dark-admin .ad-categoria-card:hover,
 body.dark-admin .ad-promocao-card:hover,
 body.dark-admin .ad-funcionario-card:hover,
-body.dark-admin .ad-auditoria-card:hover {
+body.dark-admin .ad-auditoria-card:hover,
+body.dark-admin .ad-avaliacao-card:hover {
   transform: translateY(-4px);
   border-color: rgba(198, 40, 40, 0.25);
   box-shadow:
@@ -2939,9 +2980,10 @@ body.dark-admin .ad-produto-card:hover::before,
 body.dark-admin .ad-categoria-card:hover::before,
 body.dark-admin .ad-promocao-card:hover::before,
 body.dark-admin .ad-funcionario-card:hover::before,
-body.dark-admin .ad-auditoria-card:hover::before {
-  background: linear-gradient(180deg, #c62828, #FDD835);
-  box-shadow: 2px 0 12px rgba(198, 40, 40, 0.5);
+body.dark-admin .ad-auditoria-card:hover::before,
+body.dark-admin .ad-avaliacao-card:hover::before {
+    background: linear-gradient(180deg, #c62828, #FDD835);
+    box-shadow: 2px 0 12px rgba(198, 40, 40, 0.5);
 }
 
 /* ── Textos nos cards dark ── */
@@ -2950,6 +2992,18 @@ body.dark-admin .ad-cliente-card strong,
 body.dark-admin .ad-produto-card strong,
 body.dark-admin .ad-funcionario-card strong {
   color: #f0f0f0;
+}
+
+body.dark-admin .ad-avaliacao-card strong {
+  color: #f0f0f0;
+}
+
+body.dark-admin .ad-avaliacao-card p {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+body.dark-admin .ad-avaliacao-data {
+  color: rgba(255, 255, 255, 0.55);
 }
 
 body.dark-admin .ad-pedido-card span,
