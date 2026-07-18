@@ -2,9 +2,9 @@
 
 <img src="pizzly/src/assets/images/logopizza.png" width="250">
 
-# 🍕 Pizzly | Sistema de Pizzaria com Delivery
+# 🍕 Pizzly | Sistema Web para Pizzaria com Delivery
 
-Sistema Web desenvolvido em React como frontend e Spring Boot como backend durante a disciplina de Programação Web.
+Sistema Full Stack desenvolvido durante a disciplina de Programação Web utilizando **React**, **Spring Boot** e **PostgreSQL**.
 
 </div>
 
@@ -12,23 +12,24 @@ Sistema Web desenvolvido em React como frontend e Spring Boot como backend duran
 
 # 📖 Sobre o Projeto
 
-O **Pizzly** é um sistema completo para gerenciamento de uma pizzaria com delivery.
+O **Pizzly** é um sistema completo para gerenciamento de uma pizzaria com delivery, desenvolvido utilizando arquitetura cliente-servidor.
 
-O projeto foi desenvolvido utilizando arquitetura cliente-servidor, onde o frontend em **React** consome uma **API REST em Spring Boot**, permitindo autenticação, gerenciamento de pedidos, usuários, produtos, carrinho, notificações e painel administrativo.
+A aplicação permite que clientes realizem pedidos online de forma simples e intuitiva, enquanto funcionários administram toda a operação da pizzaria através de um painel administrativo exclusivo.
 
-Além das funcionalidades para clientes, o sistema também possui um painel administrativo para gerenciamento da pizzaria.
+O projeto foi desenvolvido utilizando **React** no frontend e uma **API REST em Spring Boot** no backend, integrados através de requisições HTTP.
 
 ---
 
 # 🎯 Objetivos
 
 - Simular o funcionamento de uma pizzaria digital.
-- Permitir pedidos online de forma intuitiva.
+- Desenvolver uma aplicação Full Stack.
 - Integrar Front-end e Back-end utilizando API REST.
 - Aplicar conceitos modernos de React.
 - Aplicar conceitos de Spring Boot.
-- Desenvolver uma aplicação responsiva.
-- Praticar arquitetura em camadas.
+- Utilizar banco de dados PostgreSQL.
+- Desenvolver uma interface responsiva.
+- Aplicar arquitetura em camadas.
 
 ---
 
@@ -40,16 +41,17 @@ Além das funcionalidades para clientes, o sistema também possui um painel admi
 - ✅ Login
 - ✅ Login com Google
 - ✅ Recuperação de senha por e-mail
-- ✅ Edição de perfil
-- ✅ Cadastro de endereços
 - ✅ Completar perfil
+- ✅ Editar perfil
+- ✅ Cadastro de endereços
 - ✅ Visualização do cardápio
 - ✅ Promoções
 - ✅ Carrinho de compras
 - ✅ Realização de pedidos
-- ✅ Acompanhamento de pedidos
+- ✅ Acompanhamento do pedido em tempo real
 - ✅ Histórico de pedidos
 - ✅ Central de notificações
+- ✅ Controle de acesso para finalização do pedido
 
 ---
 
@@ -57,6 +59,7 @@ Além das funcionalidades para clientes, o sistema também possui um painel admi
 
 - ✅ Login administrativo
 - ✅ Painel administrativo
+- ✅ Controle de acesso por perfil de usuário
 - ✅ Gerenciamento de produtos
 - ✅ Gerenciamento de categorias
 - ✅ Gerenciamento de clientes
@@ -64,11 +67,57 @@ Além das funcionalidades para clientes, o sistema também possui um painel admi
 - ✅ Gerenciamento de pedidos
 - ✅ Gerenciamento de promoções
 - ✅ Configurações da pizzaria
-- ✅ Auditoria de ações administrativas
+- ✅ Auditoria das ações administrativas
 
 ---
 
-# 🏗️ Estrutura do Projeto
+# 🔐 Controle de Acesso
+
+O sistema possui três níveis de acesso.
+
+## 👀 Visitante
+
+- Pode navegar livremente pela aplicação;
+- Visualiza cardápio e promoções;
+- Pode adicionar produtos ao carrinho;
+- Deve realizar login para concluir um pedido.
+
+## 👤 Cliente
+
+- Realiza pedidos;
+- Gerencia seus dados;
+- Acompanha pedidos;
+- Possui acesso às funcionalidades do cliente.
+
+## 👨‍💼 Funcionário
+
+- É redirecionado automaticamente ao painel administrativo após o login;
+- Possui acesso apenas ao ambiente administrativo;
+- Não possui acesso às páginas da loja.
+
+---
+
+# 🏗️ Arquitetura
+
+```text
+                React + Vite
+                     │
+                     │
+          Requisições HTTP (REST)
+                     │
+                     ▼
+        Spring Boot (API REST)
+                     │
+                     ▼
+      PostgreSQL (Supabase)
+                     │
+                     ▼
+      Railway (Backend)
+```
+
+---
+
+# 🗂️ Estrutura do Projeto
 
 ```text
 📦 pizzly
@@ -86,7 +135,7 @@ Além das funcionalidades para clientes, o sistema também possui um painel admi
 │   ├── CardHome.jsx
 │   ├── Footer.jsx
 │   ├── Header.jsx
-│   └── NavBar.jsx
+│   └── Navbar.jsx
 │
 ├── 📂 pages
 │   ├── Home.jsx
@@ -102,7 +151,9 @@ Além das funcionalidades para clientes, o sistema também possui um painel admi
 │   └── Admin.jsx
 │
 ├── 📂 routes
-│   └── AppRoutes.jsx
+│   ├── AppRoutes.jsx
+│   ├── RotaLoja.jsx
+│   └── RotaProtegida.jsx
 │
 ├── App.jsx
 ├── main.jsx
@@ -113,24 +164,41 @@ Além das funcionalidades para clientes, o sistema também possui um painel admi
 
 # ⚙️ Tecnologias Utilizadas
 
-### Front-end
+## Front-end
 
 - React
 - React Router DOM
 - React Toastify
 - Bootstrap
 - Vite
-- CSS3
 - JavaScript
+- CSS3
 
-### Back-end
+---
+
+## Back-end
 
 - Spring Boot
 - Spring Data JPA
 - Hibernate
 - Spring Validation
 - Spring Mail
-- PostgreSQL
+- Spring Security
+- OAuth2 (Google Login)
+- Lombok
+
+---
+
+## Banco de Dados
+
+- PostgreSQL (Supabase)
+
+---
+
+## Deploy
+
+- Vercel (Frontend)
+- Railway (Backend)
 
 ---
 
@@ -138,40 +206,55 @@ Além das funcionalidades para clientes, o sistema também possui um painel admi
 
 O frontend consome uma API REST desenvolvida em Spring Boot.
 
-Entre os principais recursos consumidos estão:
+Entre os principais recursos integrados estão:
 
 - Autenticação
 - Login com Google
 - Cadastro de clientes
+- Cadastro de funcionários
 - Produtos
+- Categorias
+- Promoções
 - Pedidos
 - Carrinho
 - Endereços
-- Notificações
-- Recuperação de senha
 - Perfil
+- Recuperação de senha
+- Notificações
 - Administração
+
+Toda a comunicação entre Front-end e Back-end é realizada através de requisições HTTP utilizando JSON.
 
 ---
 
 # 📱 Interface
 
-O sistema possui interface totalmente responsiva, adaptando-se para:
+A aplicação possui interface responsiva, adaptando-se automaticamente para diferentes dispositivos.
 
 - 💻 Desktop
 - 💻 Notebook
-- 📱 Smartphone
 - 📱 Tablet
+- 📱 Smartphone
 
 ---
 
 # 🌐 Deploy
 
-Frontend hospedado na Vercel.
+O sistema encontra-se publicado em ambiente de produção.
 
-```
+## Frontend
+
+Hospedado na Vercel.
+
 https://prg04misaelcarvalhodutra-front-end.vercel.app/
-```
+
+## Backend
+
+Hospedado na Railway.
+
+## Banco de Dados
+
+PostgreSQL hospedado no Supabase.
 
 ---
 
@@ -181,15 +264,27 @@ https://prg04misaelcarvalhodutra-front-end.vercel.app/
 - SPA (Single Page Application)
 - React Hooks
 - Props
-- Estados (useState)
-- Efeitos colaterais (useEffect)
+- useState
+- useEffect
 - React Router DOM
-- Comunicação com API REST
+- API REST
 - Consumo de JSON
 - LocalStorage
 - Responsividade
-- Organização em Componentes
+- Mobile First
 - Arquitetura Cliente-Servidor
+- Arquitetura em Camadas
+- Autenticação
+- Autorização
+- Controle de acesso por perfil
+- Proteção de rotas
+- Deploy em produção
 - Integração Front-end e Back-end
 
 ---
+
+# 👨‍💻 Autor
+
+**Misael Carvalho Dutra**
+
+Projeto desenvolvido durante a disciplina de **Programação Web** do curso de **Análise e Desenvolvimento de Sistemas (IFBA)**.
