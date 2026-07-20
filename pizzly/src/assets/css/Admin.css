@@ -4550,28 +4550,57 @@ body.dark-admin .ad-period-select option {
 }
 
 .ad-file-upload-button {
-  display: flex;
+  display: flex !important;
+  flex-direction: row !important;
   align-items: center;
   justify-content: center;
   gap: 0.7rem;
 
-  padding: 1rem;
+  width: 100%;
+  min-height: 54px;
 
-  border: 2px dashed #ff8a80;
-  border-radius: 1rem;
+  margin: 0 !important;
+  padding: 0.9rem 1rem;
 
-  background: #fff5f5;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(198, 40, 40, 0.18),
+      rgba(255, 70, 70, 0.07)
+    );
 
-  color: #444;      /* <- esta linha resolve o problema */
+  border: 1.5px dashed rgba(255, 75, 75, 0.55);
+  border-radius: 12px;
+
+  color: #333;
+
+  font-size: 0.92rem;
   font-weight: 700;
-
   cursor: pointer;
-  transition: 0.2s;
+}
+
+.ad-file-upload-button span:not(.ad-file-upload-icon) {
+  color: #333;
 }
 
 .ad-file-upload-button:hover {
   background: #ffeaea;
   border-color: #c62828;
+}
+
+body.dark-admin .ad-file-upload-button {
+    background: #2b2b35;
+    border-color: #c62828;
+    color: #f2f2f4;
+}
+
+body.dark-admin .ad-file-upload-button span {
+    color: #f2f2f4;
+}
+
+body.dark-admin .ad-file-upload-button:hover {
+    background: #333340;
+    border-color: #ff5a5a;
 }
 
 .ad-file-upload-icon {
