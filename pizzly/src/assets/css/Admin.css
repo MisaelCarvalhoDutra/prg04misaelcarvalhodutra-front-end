@@ -659,16 +659,16 @@
   position: fixed;
   inset: 0;
 
-  z-index: 9999;
+  z-index: 20000;
 
-  display: grid;
-  place-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 
-  padding: 1rem;
+  padding: 0.75rem;
 
-  background: rgba(0, 0, 0, 0.45);
-
-  backdrop-filter: blur(3px);
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .ad-modal {
@@ -676,14 +676,15 @@
   flex-direction: column;
   gap: 0.7rem;
 
-  width: min(700px, 100%);
-  max-width: 700px;
+  width: 100%;
+  max-width: 100%;
 
-  max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 1.5rem);
 
-  padding: 1.5rem;
+  padding: 1rem;
 
   overflow-y: auto;
+  overflow-x: hidden;
 
   background: #fff;
   border-radius: 1rem;
@@ -1453,19 +1454,19 @@ body.dark-admin .ad-mobile-topbar {
   border-color: rgba(198, 40, 40, .35);
 
   box-shadow:
-    0 14px 32px rgba(0,0,0,.12),
-    0 0 18px rgba(198,40,40,.18);
+    0 14px 32px rgba(0, 0, 0, .12),
+    0 0 18px rgba(198, 40, 40, .18);
 }
 
 /* Mobile e clique */
 .ad-avaliacao-card:active {
   transform: translateY(-2px);
 
-  border-color: rgba(198,40,40,.35);
+  border-color: rgba(198, 40, 40, .35);
 
   box-shadow:
-    0 0 18px rgba(198,40,40,.35),
-    0 0 8px rgba(253,216,53,.25);
+    0 0 18px rgba(198, 40, 40, .35),
+    0 0 8px rgba(253, 216, 53, .25);
 }
 
 /* Tabelas ocultas no mobile e tablet */
@@ -2984,8 +2985,8 @@ body.dark-admin .ad-promocao-card:hover::before,
 body.dark-admin .ad-funcionario-card:hover::before,
 body.dark-admin .ad-auditoria-card:hover::before,
 body.dark-admin .ad-avaliacao-card:hover::before {
-    background: linear-gradient(180deg, #c62828, #FDD835);
-    box-shadow: 2px 0 12px rgba(198, 40, 40, 0.5);
+  background: linear-gradient(180deg, #c62828, #FDD835);
+  box-shadow: 2px 0 12px rgba(198, 40, 40, 0.5);
 }
 
 /* ── Textos nos cards dark ── */
@@ -4253,9 +4254,9 @@ body.dark-admin .ad-atalho-btn:nth-child(4) .ad-atalho-ico {
   }
 
   .ad-modal {
-  width: min(700px, 100%);
-  max-width: 700px;
-}
+    max-width: 620px;
+    padding: 1.25rem;
+  }
 }
 
 /* DESKTOP — 1024px+ */
@@ -4563,11 +4564,9 @@ body.dark-admin .ad-period-select option {
   padding: 0.9rem 1rem;
 
   background:
-    linear-gradient(
-      135deg,
+    linear-gradient(135deg,
       rgba(198, 40, 40, 0.18),
-      rgba(255, 70, 70, 0.07)
-    );
+      rgba(255, 70, 70, 0.07));
 
   border: 1.5px dashed rgba(255, 75, 75, 0.55);
   border-radius: 12px;
@@ -4589,18 +4588,18 @@ body.dark-admin .ad-period-select option {
 }
 
 body.dark-admin .ad-file-upload-button {
-    background: #2b2b35;
-    border-color: #c62828;
-    color: #f2f2f4;
+  background: #2b2b35;
+  border-color: #c62828;
+  color: #f2f2f4;
 }
 
 body.dark-admin .ad-file-upload-button span {
-    color: #f2f2f4;
+  color: #f2f2f4;
 }
 
 body.dark-admin .ad-file-upload-button:hover {
-    background: #333340;
-    border-color: #ff5a5a;
+  background: #333340;
+  border-color: #ff5a5a;
 }
 
 .ad-file-upload-icon {
