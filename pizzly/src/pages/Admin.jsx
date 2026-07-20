@@ -883,7 +883,7 @@ export default function Admin() {
       );
     }, 0);
 
-    const clientesUnicos = new Set(pedidos.map((pedido) => pedido.cliente)).size;
+    const clientesUnicos = clientesBackend.length;
 
     const porStatus = {
       Confirmado: pedidos.filter(
@@ -922,7 +922,7 @@ export default function Admin() {
       clientesUnicos,
       porStatus,
     };
-  }, [pedidos]);
+  }, [pedidos, clientesBackend]);
 
   const atividades = useMemo(() => {
     return pedidos.slice(0, 4).map((pedido) => ({
@@ -955,34 +955,35 @@ export default function Admin() {
   }, [pedidos, filtroStatus, buscaPedido]);
 
   const clientes = useMemo(() => {
-    const mapa = {};
-
-    pedidos.forEach((pedido) => {
-      // agora agrupamos pelo ID do cliente, não pelo nome
-      const chaveCliente = pedido.clienteId || pedido.cliente;
-
-      const clienteReal = clientesBackend.find(
-        (cliente) => cliente.id === pedido.clienteId
+    return clientesBackend.map((cliente) => {
+      const pedidosDoCliente = pedidos.filter(
+        (pedido) => Number(pedido.clienteId) === Number(cliente.id)
       );
 
-      if (!mapa[chaveCliente]) {
-        mapa[chaveCliente] = {
-          id: pedido.clienteId,
-          nome: clienteReal?.nome || pedido.cliente || "Cliente Pizzly",
-          email: clienteReal?.email || "E-mail não encontrado",
-          telefone: clienteReal?.telefone || "Não cadastrado",
-          pedidos: [],
-          totalGasto: 0,
-          ultimoPedido: pedido.data,
-        };
-      }
+      const totalGasto = pedidosDoCliente.reduce(
+        (soma, pedido) =>
+          soma + moedaParaNumero(pedido.total),
+        0
+      );
 
-      mapa[chaveCliente].pedidos.push(pedido);
-      mapa[chaveCliente].totalGasto += moedaParaNumero(pedido.total);
-      mapa[chaveCliente].ultimoPedido = pedido.data;
+      const pedidosOrdenados = [...pedidosDoCliente].sort(
+        (a, b) =>
+          new Date(b.dataOriginal) - new Date(a.dataOriginal)
+      );
+
+      return {
+        id: cliente.id,
+        nome: cliente.nome || "Cliente Pizzly",
+        email: cliente.email || "E-mail não encontrado",
+        telefone: cliente.telefone || "Não cadastrado",
+        pedidos: pedidosDoCliente,
+        totalGasto,
+        ultimoPedido:
+          pedidosOrdenados.length > 0
+            ? pedidosOrdenados[0].data
+            : "Nenhum pedido",
+      };
     });
-
-    return Object.values(mapa);
   }, [pedidos, clientesBackend]);
 
   const clientesFiltrados = useMemo(() => {

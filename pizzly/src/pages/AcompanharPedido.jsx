@@ -97,17 +97,35 @@ function converterStatus(status) {
   return "Confirmado";
 }
 
+
+ function obterUsuarioLogado() {
+  try {
+    return JSON.parse(
+      localStorage.getItem("pizzly_usuario")
+    );
+  } catch (error) {
+    console.error(
+      "Erro ao recuperar usuário logado:",
+      error
+    );
+
+    return null;
+  }
+}
+
 // página responsável por exibir o acompanhamento do pedido do cliente
 export default function AcompanharPedido() {
   const navigate = useNavigate();
-  const [pedido, setPedido] = useState(PEDIDO_PADRAO);
+  const [pedido, setPedido] = useState(null);
   const [tempoEntrega, setTempoEntrega] = useState("25 - 30 min");
   const location = useLocation();
 
   // identifica se o pedido foi cancelado para exibir uma mensagem específica
-  const pedidoCancelado = pedido.status === "Cancelado";
+  const pedidoCancelado =
+  pedido?.status === "Cancelado";
 
-  const ehRetirada = pedido.formaRecebimento === "retirada";
+const ehRetirada =
+  pedido?.formaRecebimento === "retirada";
 
   const statusOrdem = ehRetirada
     ? STATUS_ORDEM_RETIRADA
@@ -117,48 +135,73 @@ export default function AcompanharPedido() {
     ? ETAPAS_RETIRADA
     : ETAPAS_ENTREGA;
 
-    useEffect(() => {
-  async function carregarConfiguracoes() {
-    try {
-      const response = await fetch(`${API_URL}/configuracoes`);
+  useEffect(() => {
+    async function carregarConfiguracoes() {
+      try {
+        const response = await fetch(`${API_URL}/configuracoes`);
 
-      if (!response.ok) {
-        console.error(
-          "Não foi possível carregar as configurações:",
-          response.status
-        );
-        return;
+        if (!response.ok) {
+          console.error(
+            "Não foi possível carregar as configurações:",
+            response.status
+          );
+          return;
+        }
+
+        const dados = await response.json();
+
+        setTempoEntrega(dados.tempoEntrega || "");
+      } catch (error) {
+        console.error("Erro ao carregar configurações:", error);
       }
-
-      const dados = await response.json();
-
-      setTempoEntrega(dados.tempoEntrega || "");
-    } catch (error) {
-      console.error("Erro ao carregar configurações:", error);
     }
-  }
 
-  carregarConfiguracoes();
-}, []);
+    carregarConfiguracoes();
+  }, []);
 
   useEffect(() => {
-    const pedidoDaNavegacao = location.state?.pedido;
+  const usuarioLogado = obterUsuarioLogado();
 
-    const pedidoSalvo = JSON.parse(
-      localStorage.getItem("pizzly_pedido_atual")
+  if (!usuarioLogado?.id) {
+    setPedido(null);
+    return;
+  }
+
+  const chavePedido =
+    `pizzly_pedido_atual_${usuarioLogado.id}`;
+
+  const pedidoDaNavegacao =
+    location.state?.pedido;
+
+  let pedidoSalvo = null;
+
+  try {
+    pedidoSalvo = JSON.parse(
+      localStorage.getItem(chavePedido)
+    );
+  } catch (error) {
+    console.error(
+      "Erro ao recuperar pedido salvo:",
+      error
     );
 
-    const pedidoInicial = pedidoDaNavegacao || pedidoSalvo;
+    localStorage.removeItem(chavePedido);
+  }
 
-    if (!pedidoInicial?.id) {
-      return;
-    }
+  const pedidoInicial =
+    pedidoDaNavegacao || pedidoSalvo;
 
-    // Exibe primeiro os dados recebidos pela navegação ou pelo localStorage
-    setPedido({
-      ...PEDIDO_PADRAO,
-      ...pedidoInicial,
-    });
+  if (!pedidoInicial?.id) {
+    setPedido(null);
+    return;
+  }
+
+  setPedido({
+    ...PEDIDO_PADRAO,
+    ...pedidoInicial,
+  });
+
+
 
     async function carregarPedidoAtualizado() {
       try {
@@ -188,16 +231,16 @@ export default function AcompanharPedido() {
             .toFixed(2)
             .replace(".", ",")}`,
 
-        tempo:
-  pedidoBackend.status === "ENTREGUE"
-    ? "Entregue"
-    : pedidoBackend.status === "RETIRADO"
-    ? "Retirado"
-    : pedidoBackend.status === "PRONTO_PARA_RETIRADA"
-    ? "Pronto para retirada"
-    : pedidoBackend.formaRecebimento === "retirada"
-    ? "25 min"
-    : tempoEntrega,
+          tempo:
+            pedidoBackend.status === "ENTREGUE"
+              ? "Entregue"
+              : pedidoBackend.status === "RETIRADO"
+                ? "Retirado"
+                : pedidoBackend.status === "PRONTO_PARA_RETIRADA"
+                  ? "Pronto para retirada"
+                  : pedidoBackend.formaRecebimento === "retirada"
+                    ? "25 min"
+                    : tempoEntrega,
 
           entrega:
             pedidoBackend.formaRecebimento === "retirada"
@@ -208,16 +251,16 @@ export default function AcompanharPedido() {
         setPedido(pedidoAtualizado);
 
         localStorage.setItem(
-          "pizzly_pedido_atual",
-          JSON.stringify(pedidoAtualizado)
-        );
+  chavePedido,
+  JSON.stringify(pedidoAtualizado)
+);
       } catch (error) {
         console.error("Erro ao atualizar o pedido:", error);
       }
     }
 
-      // Atualiza os dados imediatamente ao abrir a página
-      carregarPedidoAtualizado();
+    // Atualiza os dados imediatamente ao abrir a página
+    carregarPedidoAtualizado();
 
     function atualizarAoVoltarParaPagina() {
       carregarPedidoAtualizado();
@@ -234,22 +277,51 @@ export default function AcompanharPedido() {
       clearInterval(intervalo);
       window.removeEventListener("focus", atualizarAoVoltarParaPagina);
     };
-    }, [location.state, tempoEntrega]);
+  }, [location.state, tempoEntrega]);
 
   //CÁLCULO DA LINHA DO TEMPO
-  
+
   // calcula qual etapa da linha do tempo deve aparecer como concluída
   const etapaAtual = useMemo(() => {
-    const index = statusOrdem.indexOf(pedido.status);
+  const index = statusOrdem.indexOf(
+    pedido?.status
+  );
 
-    return index === -1 ? 0 : index;
-  }, [pedido.status, statusOrdem]);
+  return index === -1 ? 0 : index;
+}, [pedido?.status, statusOrdem]);
 
   // marca cada etapa como concluída ou pendente com base no status atual do pedido
   const etapas = etapasBase.map((etapa, index) => ({
     ...etapa,
     concluido: index <= etapaAtual,
   }));
+
+  if (!pedido) {
+  return (
+    <div className="ap-root">
+      <Navbar />
+
+      <main className="ap-main">
+        <section className="ap-card ap-empty">
+          <h1>Nenhum pedido em andamento</h1>
+
+          <p>
+            Você ainda não possui nenhum pedido
+            para acompanhar.
+          </p>
+
+          <button
+            type="button"
+            className="ap-help-btn"
+            onClick={() => navigate("/pedido")}
+          >
+            Fazer um pedido
+          </button>
+        </section>
+      </main>
+    </div>
+  );
+}
 
   //renderização
   return (
@@ -323,8 +395,8 @@ export default function AcompanharPedido() {
               </div>
             )}
           </div>
-            
-          {/* painel lateral com resumo, entrega e pagamento */}  
+
+          {/* painel lateral com resumo, entrega e pagamento */}
           <aside className="ap-side">
             <div className="ap-card">
               <h2>Resumo do pedido</h2>
